@@ -59,6 +59,9 @@ export default function Navbar() {
               </Link>
             </>
           )}
+          <Link to="/cgu" className="text-xs text-slate-400 hover:text-slate-600 no-underline transition-colors">
+            CGU
+          </Link>
           <button
             onClick={handleLangSwitch}
             className="h-[34px] px-3 rounded-lg border border-slate-200 text-xs font-medium text-slate-500 hover:bg-gray-50 transition-colors cursor-pointer bg-white"
