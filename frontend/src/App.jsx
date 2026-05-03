@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { I18nextProvider } from 'react-i18next';
 import i18n from './i18n';
@@ -17,6 +17,7 @@ import AdminDABList      from './pages/admin/AdminDABList';
 import AdminDABForm      from './pages/admin/AdminDABForm';
 import AdminSignalements  from './pages/admin/AdminSignalements';
 import AdminPropositions  from './pages/admin/AdminPropositions';
+import CGUPage            from './pages/CGUPage';
 
 function PrivateRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -31,6 +32,10 @@ function AdminRoute({ children }) {
 }
 
 function AppRoutes() {
+  const location = useLocation();
+  const noFooterPaths = ['/', '/dab'];
+  const showFooter = !noFooterPaths.some((p) => location.pathname === p || location.pathname.startsWith('/dab/'));
+
   return (
     <>
       <Navbar />
@@ -47,8 +52,23 @@ function AppRoutes() {
         <Route path="/admin/signalements"  element={<AdminRoute><AdminSignalements /></AdminRoute>} />
         <Route path="/admin/propositions"  element={<AdminRoute><AdminPropositions /></AdminRoute>} />
 
+        <Route path="/cgu" element={<CGUPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+
+      {/* Footer discret — masqué sur la carte */}
+      {showFooter && (
+        <footer style={{
+          textAlign: 'center', padding: '0.6rem',
+          borderTop: '1px solid #e5e7eb',
+          fontSize: '0.75rem', color: '#9ca3af',
+        }}>
+          <Link to="/cgu" style={{ color: '#9ca3af', textDecoration: 'underline' }}>
+            Conditions Générales d'Utilisation
+          </Link>
+          {' · '}© {new Date().getFullYear()} localiseMyDab
+        </footer>
+      )}
     </>
   );
 }

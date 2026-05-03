@@ -106,7 +106,7 @@ export default function Navbar() {
             <>
               <span className="text-slate-500 px-5 py-4 text-sm border-b border-slate-100">{t('nav.user', { name: user?.nom })}</span>
               <button onClick={handleLogout}
-                className="bg-transparent border-none text-gray-700 px-5 py-4 text-left cursor-pointer text-base hover:bg-slate-50">
+                className="bg-transparent border-none text-gray-700 px-5 py-4 text-left cursor-pointer text-base hover:bg-slate-50 border-b border-slate-100 w-full">
                 {t('nav.logout')}
               </button>
             </>
@@ -117,11 +117,15 @@ export default function Navbar() {
                 {t('nav.login')}
               </Link>
               <Link to="/register" onClick={() => setMenuOpen(false)}
-                className="text-white no-underline px-5 py-4 text-base bg-blue-600 hover:bg-blue-700">
+                className="text-white no-underline px-5 py-4 text-base bg-blue-600 hover:bg-blue-700 border-b border-slate-100">
                 {t('nav.register')}
               </Link>
             </>
           )}
+          <Link to="/cgu" onClick={() => setMenuOpen(false)}
+            className="text-slate-400 no-underline px-5 py-3 text-sm hover:bg-slate-50">
+            Conditions d'utilisation
+          </Link>
         </div>
       )}
     </nav>
