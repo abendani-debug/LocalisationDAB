@@ -214,6 +214,12 @@ const syncGooglePlaces = async () => {
     }
   }
 
+  console.log(`[import] Import terminé — inserted:${inserted} updated:${updated} skipped:${skipped} errors:${errors}`);
+  console.log('[import] Nettoyage automatique en cours…');
+
+  const { deleted, linked } = await cleanupAfterImport();
+  console.log(`[import] Nettoyage terminé — supprimés:${deleted} liés:${linked}`);
+
   return {
     total: places.length,
     inserted,
@@ -221,7 +227,241 @@ const syncGooglePlaces = async () => {
     skipped,
     errors,
     cities: ALGERIAN_CITIES.length - cityErrors,
+    cleanup: { deleted, linked },
   };
 };
 
-module.exports = { syncGooglePlaces };
+/**
+ * Supprime les faux ATMs et lie les DABs à leur banque après un import Google Places.
+ * Reprend toutes les règles du fichier docs/nettoyage_bdd.md.
+ * @returns {{ deleted, linked }}
+ */
+const cleanupAfterImport = async () => {
+  let deleted = 0;
+  let linked  = 0;
+
+  // ── ÉTAPE 1 : Supprimer les faux ATMs ───────────────────────────────────────
+
+  // Assurances, télécoms, voyages, administrations
+  const del1 = await db.query(`
+    DELETE FROM dabs WHERE banque_id IS NULL AND (
+      nom ILIKE '%djezzy%' OR nom ILIKE '%mobilis%' OR nom ILIKE '%ooredoo%'
+      OR nom ILIKE '%assurance%' OR nom ILIKE '%CAAT%' OR nom ILIKE '%CIAR%'
+      OR nom ILIKE '%télécom%' OR nom ILIKE '%telecom%'
+      OR nom ILIKE '%voyage%' OR nom ILIKE '%tourisme%'
+      OR nom ILIKE '%impôt%' OR nom ILIKE '%impot%'
+      OR nom ILIKE '%CNAS%' OR nom ILIKE '%CASNOS%' OR nom ILIKE '%CNAC%'
+      OR nom ILIKE '%trésor%' OR nom ILIKE '%tresor%'
+      OR nom ILIKE '%leasing%' OR nom ILIKE '%sofinance%'
+      OR nom ILIKE '%café%' OR nom ILIKE '%cnl agence%'
+      OR nom ILIKE '%ترامواي%' OR nom ILIKE '%tramway%'
+      OR nom ILIKE '%quinquaillerie%' OR nom ILIKE '%residence vacance%'
+      OR nom ILIKE '%torchi tours%' OR nom ILIKE '%youmid tour%'
+      OR nom ILIKE '%money exchange%' OR nom ILIKE '%moneygram%'
+      OR nom ILIKE '%mutualite%' OR nom ILIKE '%fgar%'
+      OR nom ILIKE '%fonds de garantie%' OR nom ILIKE '%gateaux%'
+      OR nom ILIKE '%imprimerie%' OR nom ILIKE '%kiosque%'
+      OR nom ILIKE '%sae exact%' OR nom ILIKE '%fsie%'
+      OR nom ILIKE '%dar el affroun%' OR nom ILIKE '%mla blida%'
+      OR nom ILIKE '%اتصالات الجزائر%' OR nom ILIKE '%اصلاح الهواتف%'
+      OR nom ILIKE '%قطع غيار%' OR nom ILIKE '%خزينة%'
+      OR nom ILIKE '%الصندوق الوطني للتقاعد%' OR nom ILIKE '%سونلغاز%'
+      OR nom ILIKE '%محجرة%' OR nom ILIKE '%تغليف السيارات%'
+      OR nom ILIKE '%مستودع%' OR nom ILIKE '%مكتبة%'
+      OR nom ILIKE '%جرافيولا%' OR nom ILIKE '%دار الصحافة%'
+      OR nom ILIKE '%تطبيقات%' OR nom ILIKE '%gare routière%'
+      OR nom ILIKE '%التعاون الفلاحي%' OR nom ILIKE '%الصندوق الجهوي للتعاون%'
+      OR nom ILIKE '%المحيط الفلاحي%' OR nom ILIKE '%المنطقة الصناعية%'
+      OR nom ILIKE '%صندوق الضمان الفلاحي%' OR nom ILIKE '%مركز دعم تشغيل%'
+      OR nom ILIKE '%المصرف الجهوي للمطاط%' OR nom ILIKE '%محطة الفيراج%'
+      OR nom ILIKE '%كشك متعدّد%' OR nom ILIKE '%حاسي السوق%'
+      OR nom ILIKE '%البيرو بحيا%' OR nom ILIKE '%fni /%'
+    )
+  `);
+  deleted += del1.rowCount;
+
+  // Banque d'Algérie (banque centrale — pas de DABs publics)
+  const del2 = await db.query(`
+    DELETE FROM dabs WHERE banque_id IS NULL AND (
+      nom ILIKE '%bank of algeria%' OR nom ILIKE '%banque d''algerie%'
+      OR nom ILIKE '%banque d''algérie%' OR nom ILIKE '%banque centrale%'
+      OR nom ILIKE '%crma%' OR nom ILIKE '%banco sabadell%'
+      OR nom ILIKE '%بنك الجزائر%' OR nom ILIKE '%البنك المركزي%'
+    )
+  `);
+  deleted += del2.rowCount;
+
+  // ── ÉTAPE 2 : Lier Algérie Poste (banque_id = 8) ────────────────────────────
+  const upPoste = await db.query(`
+    UPDATE dabs SET banque_id = 8 WHERE banque_id IS NULL AND (
+      nom ILIKE '%algerie poste%' OR nom ILIKE '%algérie poste%'
+      OR nom ILIKE '%alger poste%' OR nom ILIKE '%la poste%'
+      OR nom ILIKE '%gab poste%' OR nom ILIKE '%dab poste%'
+      OR nom ILIKE '%dab - poste%' OR nom ILIKE '%dab ap %'
+      OR nom ILIKE '%distributeur%poste%' OR nom ILIKE '%distributaire%poste%'
+      OR nom ILIKE '%bureau de poste%' OR nom ILIKE '%centre de poste%'
+      OR nom ILIKE '%poste atm%' OR nom ILIKE '%ptt%'
+      OR nom ILIKE '%ccp%' OR nom ILIKE '%eddahabia%' OR nom ILIKE '%dahabia%'
+      OR nom ILIKE '%post office%' OR nom ILIKE '%postal %'
+      OR nom ILIKE 'Poste %' OR nom ILIKE '%agence clic%'
+      OR nom ILIKE '%بريد الجزائر%' OR nom ILIKE '%مركز البريد%'
+      OR nom ILIKE '%مكتب بريد%' OR nom ILIKE '%صراف آلي بريد%'
+      OR nom ILIKE '%قابض البريد%' OR nom ILIKE '%مركز بريد%'
+      OR nom ILIKE '%صرافة تابعة للمركز بريد%'
+      OR nom ILIKE '%ماكنتة صراف ألي بريد%' OR nom ILIKE '%صراف الي ، بريد%'
+      OR nom ILIKE '%صندوق التوفير الإحتياط%'
+      OR nom ILIKE '%البريد الرئيسي%' OR nom ILIKE '%البريد المركزي%'
+      OR nom ILIKE '%صراف الألي بريد%'
+      OR nom IN ('Poste', 'LA POSTE', 'la poste')
+    )
+  `);
+  linked += upPoste.rowCount;
+
+  // ── ÉTAPE 3 : Lier toutes les banques ───────────────────────────────────────
+
+  // CPA (ID 1) — AVANT BNA pour éviter que "Algerian Popular" soit mappé sur BNA
+  const upCPA = await db.query(`
+    UPDATE dabs SET banque_id = 1 WHERE banque_id IS NULL AND (
+      nom ILIKE '%cpa%' OR nom ILIKE '%crédit populaire%' OR nom ILIKE '%credit populaire%'
+      OR nom ILIKE '%c p a%' OR nom ILIKE '%c.p.a%'
+      OR nom ILIKE '%popular credit of algeria%' OR nom ILIKE '%algerian communal credit%'
+      OR nom ILIKE '%algerian popular%' OR nom ILIKE '%popular loan%'
+      OR nom ILIKE '%القرض الشعبي الجزائري%' OR nom ILIKE '%بنك القرض الشعبي%'
+    )
+  `);
+  linked += upCPA.rowCount;
+  // Correction : si "Algerian Popular" a été lié à BNA par un import précédent
+  await db.query(`UPDATE dabs SET banque_id = 1 WHERE banque_id = 2 AND nom ILIKE '%algerian popular%'`);
+
+  // BNA (ID 2)
+  const upBNA = await db.query(`
+    UPDATE dabs SET banque_id = 2 WHERE banque_id IS NULL AND (
+      nom ILIKE '%bna%' OR nom ILIKE '%banque nationale%' OR nom ILIKE '%banque national%'
+      OR nom ILIKE '%b.n.a%' OR nom ILIKE '%البنك الوطني الجزائري%'
+      OR nom ILIKE '%المصرف الوطني الجزائري%'
+    )
+  `);
+  linked += upBNA.rowCount;
+
+  // BEA (ID 3)
+  const upBEA = await db.query(`
+    UPDATE dabs SET banque_id = 3 WHERE banque_id IS NULL AND (
+      nom ILIKE '%bea%' OR nom ILIKE '%banque extérieure%' OR nom ILIKE '%banque exterieure%'
+      OR nom ILIKE '%b.e.a%' OR nom ILIKE '%banque exterieur%' OR nom ILIKE '%banque extérieur%'
+      OR nom ILIKE '%banque exrérieure%'
+      OR nom ILIKE '%بنك الجزائر الخارجي%' OR nom ILIKE '%البنك الخارجي%'
+    )
+  `);
+  linked += upBEA.rowCount;
+
+  // CNEP (ID 4)
+  const upCNEP = await db.query(`
+    UPDATE dabs SET banque_id = 4 WHERE banque_id IS NULL AND (
+      nom ILIKE '%cnep%' OR nom ILIKE '%c.n.e.p%'
+      OR nom ILIKE '%الصندوق الوطني للتوفير%'
+    )
+  `);
+  linked += upCNEP.rowCount;
+
+  // BADR (ID 5)
+  const upBADR = await db.query(`
+    UPDATE dabs SET banque_id = 5 WHERE banque_id IS NULL AND (
+      nom ILIKE '%badr%' OR nom ILIKE '%agricult%' OR nom ILIKE '%b.a.d.r%'
+      OR nom ILIKE '%bdr banque%' OR nom ILIKE '%rural development bank%'
+      OR nom ILIKE '%بنك الفلاحة%' OR nom ILIKE '%بنك التنمية الريفية%'
+      OR nom ILIKE '%البنك الفلاحي%' OR nom ILIKE '%بنك الفلاحه%'
+      OR nom ILIKE '%البنك المركزي الفلاحي%' OR nom ILIKE '%التنمية الفلاحية%'
+    )
+  `);
+  linked += upBADR.rowCount;
+
+  // BDL (ID 6) — NE PAS inclure BADR ici
+  const upBDL = await db.query(`
+    UPDATE dabs SET banque_id = 6 WHERE banque_id IS NULL AND (
+      nom ILIKE '%bdl%' OR nom ILIKE '%b.d.l%'
+      OR nom ILIKE '%développement local%' OR nom ILIKE '%developpement local%'
+      OR nom ILIKE '%banque de development%' OR nom ILIKE '%local development bank%'
+      OR nom ILIKE '%بنك التنمية المحلية%' OR nom ILIKE '%مصرف التنمية المحلية%'
+    )
+  `);
+  linked += upBDL.rowCount;
+
+  // AGB (ID 7)
+  const upAGB = await db.query(`
+    UPDATE dabs SET banque_id = 7 WHERE banque_id IS NULL AND (
+      nom ILIKE '%agb%' OR nom ILIKE '%gulf bank%' OR nom ILIKE '%a.g.b%'
+      OR nom ILIKE '%banka general%'
+      OR nom ILIKE '%بنك الخليج الجزائر%' OR nom ILIKE '%بنك الخليج%'
+    )
+  `);
+  linked += upAGB.rowCount;
+
+  // SGA (ID 9)
+  const upSGA = await db.query(`
+    UPDATE dabs SET banque_id = 9 WHERE banque_id IS NULL AND (
+      nom ILIKE '%société générale%' OR nom ILIKE '%societe generale%' OR nom ILIKE '%sga%'
+      OR nom = 'SG' OR nom ILIKE '%societe general%' OR nom ILIKE '%société general%'
+      OR nom ILIKE '%societé generale%'
+      OR nom ILIKE '%سوسيتي جنرال%' OR nom ILIKE '%سوسيتيه جنرال%'
+      OR nom ILIKE '%سوسيتي جينيرال%'
+    )
+  `);
+  linked += upSGA.rowCount;
+
+  // BNP Paribas (ID 10)
+  const upBNP = await db.query(`
+    UPDATE dabs SET banque_id = 10 WHERE banque_id IS NULL AND (
+      nom ILIKE '%bnp%' OR nom ILIKE '%paribas%' OR nom ILIKE '%البنك الفرنسي%'
+    )
+  `);
+  linked += upBNP.rowCount;
+
+  // Banque Salam (ID 11)
+  const upSalam = await db.query(`
+    UPDATE dabs SET banque_id = 11 WHERE banque_id IS NULL AND (
+      nom ILIKE '%salam%' OR nom ILIKE '%بنك السلام%' OR nom ILIKE '%مصرف السلام%'
+    )
+  `);
+  linked += upSalam.rowCount;
+
+  // Al Baraka (ID 13)
+  const upBaraka = await db.query(`
+    UPDATE dabs SET banque_id = 13 WHERE banque_id IS NULL AND (
+      nom ILIKE '%baraka%' OR nom ILIKE '%al baraka%' OR nom ILIKE '%بنك البركة%'
+    )
+  `);
+  linked += upBaraka.rowCount;
+
+  // ABC Banque (ID 15)
+  const upABC = await db.query(`UPDATE dabs SET banque_id = 15 WHERE banque_id IS NULL AND nom ILIKE '%abc%'`);
+  linked += upABC.rowCount;
+
+  // Fransabank (ID 16)
+  const upFransa = await db.query(`UPDATE dabs SET banque_id = 16 WHERE banque_id IS NULL AND nom ILIKE '%fransa%'`);
+  linked += upFransa.rowCount;
+
+  // Housing Bank (ID 17)
+  const upHousing = await db.query(`UPDATE dabs SET banque_id = 17 WHERE banque_id IS NULL AND nom ILIKE '%housing%'`);
+  linked += upHousing.rowCount;
+
+  // Trust Bank Algeria (ID 18)
+  const upTrust = await db.query(`
+    UPDATE dabs SET banque_id = 18 WHERE banque_id IS NULL AND (
+      nom ILIKE '%trust bank%' OR nom ILIKE '%trust-banque%' OR nom ILIKE '%trust banque%'
+      OR nom ILIKE '%ترست بنك%' OR nom ILIKE '%بنك ترست%'
+    )
+  `);
+  linked += upTrust.rowCount;
+
+  // Arab Bank Algeria (ID 19)
+  const upArab = await db.query(`UPDATE dabs SET banque_id = 19 WHERE banque_id IS NULL AND nom ILIKE '%arab bank%'`);
+  linked += upArab.rowCount;
+
+  // Natixis Algérie (ID 20)
+  const upNatixis = await db.query(`UPDATE dabs SET banque_id = 20 WHERE banque_id IS NULL AND nom ILIKE '%natixis%'`);
+  linked += upNatixis.rowCount;
+
+  return { deleted, linked };
+};
+
+module.exports = { syncGooglePlaces, cleanupAfterImport };
