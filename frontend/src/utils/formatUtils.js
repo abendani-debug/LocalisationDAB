@@ -24,11 +24,17 @@ export const etatLabel = (etat) => ({
 }[etat] || '—');
 
 export const etatColor = (dab) => {
+  // État confirmé (2+ votes) — priorité maximale
   if (dab.etat_communautaire === 'en_panne')  return 'red';
   if (dab.etat_communautaire === 'vide')       return 'orange';
   if (dab.etat_communautaire === 'disponible') return 'green';
+  // Statut admin
   if (dab.statut === 'hors_service')           return 'red';
   if (dab.statut === 'maintenance')            return 'orange';
+  // Vote dominant (1 vote — non confirmé mais visible)
+  if (dab.vote_dominant === 'en_panne')        return 'red';
+  if (dab.vote_dominant === 'vide')            return 'orange';
+  if (dab.vote_dominant === 'disponible')      return 'green';
   return 'neutral';
 };
 
