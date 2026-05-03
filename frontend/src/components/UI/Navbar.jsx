@@ -127,7 +127,7 @@ export default function Navbar() {
           )}
           <Link to="/cgu" onClick={() => setMenuOpen(false)}
             className="text-slate-400 no-underline px-5 py-3 text-sm hover:bg-slate-50">
-            Conditions d'utilisation
+            {t('nav.cgu')}
           </Link>
         </div>
       )}

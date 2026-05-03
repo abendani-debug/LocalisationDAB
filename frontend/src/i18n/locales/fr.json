@@ -6,7 +6,8 @@
     "register": "Inscription",
     "administration": "⚙️ Administration",
     "menu": "Menu",
-    "user": "👤 {{name}}"
+    "user": "👤 {{name}}",
+    "cgu": "Conditions d'utilisation"
   },
   "location": {
     "blocked": "Localisation bloquée",
