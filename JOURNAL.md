@@ -264,3 +264,77 @@ ssh -i /tmp/claude_vps_key root@164.132.116.135 "source ~/.nvm/nvm.sh && pm2 res
 ---
 
 *Rédigé le 2026-05-02 — Session Claude Code*
+
+---
+
+## Session du 2026-05-03
+
+### Contexte
+Amélioration de l'app en production (localizemaydab.com). Mise en place du workflow branches + nouvelles fonctionnalités.
+
+---
+
+### Réalisations
+
+#### 1. Workflow branches Git établi
+- Création de la branche `develop` depuis `main`
+- **Règle** : tout développement se fait sur `develop`, jamais sur `main` directement
+- Render (backend) redéployé depuis `develop`
+- Vercel génère des preview URLs automatiques pour `develop`
+- `main` = production VPS uniquement, mergé sur demande explicite
+
+#### 2. Correction CPA/BNA — confusion sur la carte
+- 2 DABs "Algerian Popular Loan" avaient `banque_id = 2` (BNA) au lieu de `1` (CPA)
+- Correction directe sur la BDD VPS : `UPDATE dabs SET banque_id = 1 WHERE banque_id = 2 AND nom ILIKE '%algerian popular%'`
+- Script `nettoyage_bdd.md` mis à jour avec le pattern manquant + query corrective
+
+#### 3. Bouton de localisation — icône ours
+- Remplacement du 📍 par l'image `bear-marker.png` dans le bouton "Ma position" (bas droite de la carte)
+- Fichier modifié : `frontend/src/components/Map/MapControls.jsx`
+
+#### 4. Modération admin rapide sur la carte
+- Nouveau composant `AdminQuickEditModal.jsx`
+- Quand connecté en admin, un bouton **"✏️ Modération admin"** apparaît dans le popup de chaque marqueur
+- Permet de : changer la banque associée (dropdown) ou supprimer le DAB (avec confirmation)
+- La carte se rafraîchit automatiquement après chaque action
+- Fichiers modifiés : `DABMarker.jsx`, `MapView.jsx`, `HomePage.jsx`
+
+#### 5. Logos Fransabank et Trust Bank
+- **Fransabank** : logo trouvé sur le site officiel `fransabank.dz` → URL directe fonctionnelle
+- **Trust Bank** : URL directe depuis `trustbank.dz` (CORS bloquant côté serveur, à résoudre en local ultérieurement)
+- Fichier modifié : `frontend/src/utils/bankConfig.js`
+
+#### 6. Page CGU (Conditions Générales d'Utilisation)
+- Nouvelle page `/cgu` bilingue (FR/EN) — langue détectée via i18n
+- Contenu adapté à l'app : anonymat des signalements, absence d'usage commercial des données, IP jamais stockée brute, référence loi algérienne n°18-07
+- **Mobile** : lien dans le menu burger (traduit FR/EN)
+- **Desktop** : lien "CGU" dans la navbar + footer discret sur les pages hors carte
+- Le footer est masqué sur `/` pour ne pas gêner la navigation sur la carte
+- Fichiers créés/modifiés : `CGUPage.jsx`, `App.jsx`, `Navbar.jsx`, `fr.json`, `en.json`
+
+---
+
+### Commits du jour
+| Hash | Description |
+|------|-------------|
+| `23d7133` | fix(banks): correct CNEP logo URL and fix CPA/BNA mapping in cleanup script |
+| `5c74dbf` | feat(map): replace 📍 locate button with bear icon |
+| `09ca804` | feat(admin): add quick moderation panel on map markers |
+| `abbbdc4` | feat(banks): add logos for Fransabank and Trust Bank Algeria |
+| `b679fbd` | feat(legal): add CGU page with mobile burger menu link and desktop footer |
+| `463bc3a` | feat(nav): add CGU link in desktop navbar |
+| `39ce40a` | feat(cgu): add English version of Terms of Use |
+| `36a0a95` | fix(nav): translate CGU link in burger menu (fr/en) |
+
+---
+
+### Points en suspens
+- [ ] Logo Trust Bank : CORS bloquant → télécharger en local dans `frontend/public/logos/trust_bank_logo.png`
+- [ ] Taille de l'ours sur la carte à valider visuellement sur mobile
+- [ ] Tests unitaires backend (Phase 3)
+- [ ] Import Google Places initial (vérifier clé API)
+- [ ] README.md final
+
+---
+
+*Rédigé le 2026-05-03 — Session Claude Code*
