@@ -240,7 +240,18 @@ const cleanupAfterImport = async () => {
   let deleted = 0;
   let linked  = 0;
 
-  // ── ÉTAPE 1 : Supprimer les faux ATMs ───────────────────────────────────────
+  // ── ÉTAPE 1 : Supprimer les noms génériques sans banque ─────────────────────
+  // Un marqueur "ATM" sans banque associée n'apporte aucune info à l'utilisateur
+  const delGeneric = await db.query(`
+    DELETE FROM dabs WHERE banque_id IS NULL AND (
+      nom ~* '^(atm|dab|gab|cab|distributeur|distributeur automatique|distributeur automatique de billets|guichet automatique|guichet automatique de billets|banque|bank|agence bancaire|agence bank)$'
+      OR nom ~* '^(صراف|صراف آلي|ماكينة صراف|ماكينة|صرافة|بنك|بنك آلي)$'
+      OR nom ~* '^(atm [0-9]+|dab [0-9]+|gab [0-9]+)$'
+    )
+  `);
+  deleted += delGeneric.rowCount;
+
+  // ── ÉTAPE 2 : Supprimer les faux ATMs ───────────────────────────────────────
 
   // Assurances, télécoms, voyages, administrations
   const del1 = await db.query(`
