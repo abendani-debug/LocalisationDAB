@@ -29,7 +29,7 @@ export const etatColor = (dab) => {
   if (dab.etat_communautaire === 'disponible') return 'green';
   if (dab.statut === 'hors_service')           return 'red';
   if (dab.statut === 'maintenance')            return 'orange';
-  return 'green';
+  return 'neutral';
 };
 
 export const starRating = (note) => '★'.repeat(note) + '☆'.repeat(5 - note);

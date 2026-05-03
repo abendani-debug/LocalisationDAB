@@ -4,9 +4,15 @@ import L from 'leaflet';
 import { etatColor, statutLabel, etatLabel, formatDistance } from '../../utils/formatUtils';
 import { getBankConfig } from '../../utils/bankConfig';
 
-const STATUS_BORDER = { green: '#16a34a', orange: '#ea580c', red: '#dc2626' };
-const STATUS_BG     = { green: '#dcfce7', orange: '#ffedd5', red: '#fee2e2' };
-const STATUS_TEXT   = { green: '#15803d', orange: '#c2410c', red: '#b91c1c' };
+const STATUS_BORDER = { green: '#16a34a', orange: '#ea580c', red: '#dc2626', neutral: '#9ca3af' };
+const STATUS_BG     = { green: '#dcfce7', orange: '#ffedd5', red: '#fee2e2', neutral: '#f3f4f6' };
+const STATUS_TEXT   = { green: '#15803d', orange: '#c2410c', red: '#b91c1c', neutral: '#6b7280' };
+const STATUS_HALO   = {
+  green:   '0 0 0 4px rgba(22,163,74,0.30), 0 2px 8px rgba(0,0,0,0.25)',
+  orange:  '0 0 0 4px rgba(234,88,12,0.30), 0 2px 8px rgba(0,0,0,0.25)',
+  red:     '0 0 0 4px rgba(220,38,38,0.30), 0 2px 8px rgba(0,0,0,0.25)',
+  neutral: '0 2px 8px rgba(0,0,0,0.20)',
+};
 
 const ETAT_SOLID = {
   disponible: { bg: '#16a34a', text: '#fff' },
@@ -17,7 +23,8 @@ const ETAT_SOLID = {
 /* ─── Création de l'icône ─────────────────────────────────────────── */
 
 const createIcon = (dab, statusColor) => {
-  const border   = STATUS_BORDER[statusColor] || STATUS_BORDER.green;
+  const border   = STATUS_BORDER[statusColor] || STATUS_BORDER.neutral;
+  const halo     = STATUS_HALO[statusColor]   || STATUS_HALO.neutral;
   const bankCfg  = getBankConfig(dab.banque_nom) || getBankConfig(dab.nom);
 
   let innerContent;
@@ -59,7 +66,7 @@ const createIcon = (dab, statusColor) => {
       ">${bankCfg.abbr}</span>`;
   } else {
     // ATM générique — icône distributeur
-    circleBg = STATUS_BORDER[statusColor] || '#16a34a';
+    circleBg = STATUS_BORDER[statusColor] || STATUS_BORDER.neutral;
     innerContent = `
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 44 44">
         <rect x="6" y="22" width="32" height="16" rx="2" fill="white"/>
@@ -83,7 +90,7 @@ const createIcon = (dab, statusColor) => {
         border-radius:50%;
         background:${circleBg};
         border:3px solid ${border};
-        box-shadow:0 2px 8px rgba(0,0,0,0.28);
+        box-shadow:${halo};
         display:flex;align-items:center;justify-content:center;
         overflow:hidden;
         flex-shrink:0;
