@@ -106,8 +106,8 @@ app.post('/api/admin/import-google', authMiddleware, requireAdmin, async (req, r
   return successResponse(res, result, 200, 'Import Google Places terminé.');
 });
 
-// ── Cron : import Google Places chaque jour à 3h ────────────
-cron.schedule('0 3 * * *', async () => {
+// ── Cron : import Google Places tous les 3 mois (1er jour de janv/avr/juil/oct à 3h) ──
+cron.schedule('0 3 1 1,4,7,10 *', async () => {
   try {
     await syncGooglePlaces();
   } catch (err) {
