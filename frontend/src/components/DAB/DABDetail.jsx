@@ -5,6 +5,7 @@ import SignalementButton from '../Signalement/SignalementButton';
 import AvisList from '../Avis/AvisList';
 import AvisForm from '../Avis/AvisForm';
 import useAuth from '../../hooks/useAuth';
+import useGeolocation from '../../hooks/useGeolocation';
 
 const DOT_CLASS = {
   green:  'bg-green-500',
@@ -28,12 +29,16 @@ const ETAT_KEY = {
 export default function DABDetail({ dab, onSignalement }) {
   const { t } = useTranslation();
   const { isAuthenticated } = useAuth();
+  const { position, status, isDefault, requestLocation } = useGeolocation();
   const color = etatColor(dab);
 
   const statutTrad = STATUT_KEY[dab.statut] ? t(STATUT_KEY[dab.statut]) : dab.statut;
   const etatTrad   = dab.etat_communautaire
     ? (ETAT_KEY[dab.etat_communautaire] ? t(ETAT_KEY[dab.etat_communautaire]) : dab.etat_communautaire)
     : '—';
+
+  // Position GPS réelle uniquement si le statut est 'granted' et qu'on a une position non-default
+  const userPosition = (status === 'granted' && !isDefault) ? position : null;
 
   return (
     <div className="max-w-[680px] mx-auto p-4">
@@ -66,7 +71,15 @@ export default function DABDetail({ dab, onSignalement }) {
         </h2>
         <SignalementBadge dabId={dab.id} currentEtat={dab.etat_communautaire} />
         <div className="mt-3">
-          <SignalementButton dabId={dab.id} onSuccess={onSignalement} />
+          <SignalementButton
+            dabId={dab.id}
+            onSuccess={onSignalement}
+            geoStatus={status}
+            userPosition={userPosition}
+            dabLat={parseFloat(dab.latitude)}
+            dabLng={parseFloat(dab.longitude)}
+            requestLocation={requestLocation}
+          />
         </div>
       </section>
 

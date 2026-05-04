@@ -6,6 +6,9 @@ const HistoriqueStatut = require('../models/HistoriqueStatut');
 const { getIO } = require('../config/socket');
 const { env } = require('../config/env');
 const { successResponse, errorResponse } = require('../utils/responseUtils');
+const { haversineDistance } = require('../utils/geoUtils');
+
+const GEO_LIMIT_KM = 1;
 
 const hashIP = (ip) =>
   crypto.createHmac('sha256', env.IP_SALT).update(ip).digest('hex');
@@ -33,10 +36,22 @@ const getSignalements = async (req, res) => {
 
 const create = async (req, res) => {
   const { id: dabId } = req.params;
-  const { etat, cookieId } = req.body;
+  const { etat, cookieId, userLat, userLng } = req.body;
 
   const dab = await DAB.findById(dabId);
   if (!dab.rows.length) return errorResponse(res, 'DAB introuvable.', 404);
+
+  // Vérification distance utilisateur ↔ DAB
+  const dabRow = dab.rows[0];
+  const distanceKm = haversineDistance(
+    parseFloat(userLat),
+    parseFloat(userLng),
+    parseFloat(dabRow.latitude),
+    parseFloat(dabRow.longitude),
+  );
+  if (distanceKm > GEO_LIMIT_KM) {
+    return errorResponse(res, `Vous êtes trop loin de ce DAB (${distanceKm.toFixed(2)} km). Rapprochez-vous à moins de ${GEO_LIMIT_KM} km.`, 403);
+  }
 
   const rawIP = req.ip || req.connection.remoteAddress || '0.0.0.0';
   const ipHash = hashIP(rawIP);
@@ -53,7 +68,7 @@ const create = async (req, res) => {
   const total = Object.values(votes).reduce((a, b) => a + b, 0);
 
   const nouvelEtat = determineEtat(votes, env.SIGNALEMENT_SEUIL);
-  const ancienEtat = dab.rows[0].etat_communautaire;
+  const ancienEtat = dabRow.etat_communautaire;
 
   if (nouvelEtat && nouvelEtat !== ancienEtat) {
     await DAB.updateEtatCommunautaire(dabId, nouvelEtat);

@@ -1,9 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { submitSignalement } from '../../api/signalementApi';
+import { haversineKm, formatDistance } from '../../utils/formatUtils';
 import toast from 'react-hot-toast';
 
-export default function SignalementButton({ dabId, onSuccess }) {
+const GEO_LIMIT_KM = 1;
+
+export default function SignalementButton({ dabId, onSuccess, geoStatus, userPosition, dabLat, dabLng, requestLocation }) {
   const { t } = useTranslation();
   const [loading,  setLoading]  = useState(false);
   const [selected, setSelected] = useState(null);
@@ -14,11 +17,55 @@ export default function SignalementButton({ dabId, onSuccess }) {
     { key: 'en_panne',   label: t('signalement.broken'),    emoji: '🔧', border: 'hover:border-red-500',   active: 'border-red-500   bg-red-50'   },
   ];
 
+  // Calcul distance (null si pas de position réelle)
+  const distanceKm = (geoStatus === 'granted' && userPosition)
+    ? haversineKm(userPosition.lat, userPosition.lng, dabLat, dabLng)
+    : null;
+
+  const tooFar = distanceKm !== null && distanceKm > GEO_LIMIT_KM;
+
+  // --- État : géoloc pas encore demandée ---
+  if (geoStatus === 'idle' || geoStatus === 'requesting') {
+    return (
+      <div className="rounded-xl border-2 border-dashed border-slate-200 p-4 text-center">
+        <p className="text-sm text-slate-500 mb-3">{t('signalement.geo_idle')}</p>
+        <button
+          onClick={requestLocation}
+          disabled={geoStatus === 'requesting'}
+          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-xl text-sm font-semibold transition-colors cursor-pointer disabled:cursor-not-allowed font-[inherit]"
+        >
+          {geoStatus === 'requesting' ? '…' : t('signalement.geo_activate')}
+        </button>
+      </div>
+    );
+  }
+
+  // --- État : géoloc refusée ou indisponible ---
+  if (geoStatus === 'denied' || geoStatus === 'unavailable') {
+    return (
+      <div className="rounded-xl border-2 border-dashed border-red-200 p-4 text-center">
+        <p className="text-sm text-red-500">{t('signalement.geo_denied')}</p>
+      </div>
+    );
+  }
+
+  // --- État : trop loin ---
+  if (tooFar) {
+    return (
+      <div className="rounded-xl border-2 border-dashed border-amber-200 p-4 text-center">
+        <p className="text-sm text-amber-600">
+          {t('signalement.geo_too_far', { distance: formatDistance(distanceKm) })}
+        </p>
+      </div>
+    );
+  }
+
+  // --- État normal : à portée ---
   const handleSignal = async (etat) => {
     setSelected(etat);
     setLoading(true);
     try {
-      const res = await submitSignalement(dabId, etat);
+      const res = await submitSignalement(dabId, etat, userPosition.lat, userPosition.lng);
       toast.success(t('signalement.success'));
       onSuccess?.(res.data);
     } catch (err) {

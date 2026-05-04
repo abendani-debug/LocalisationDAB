@@ -13,9 +13,9 @@ const getCookieId = () => {
 export const getSignalements = (dabId) =>
   api.get(`/dabs/${dabId}/signalements`).then((r) => r.data);
 
-export const submitSignalement = (dabId, etat) =>
+export const submitSignalement = (dabId, etat, userLat, userLng) =>
   api
-    .post(`/dabs/${dabId}/signalements`, { etat, cookieId: getCookieId() })
+    .post(`/dabs/${dabId}/signalements`, { etat, cookieId: getCookieId(), userLat, userLng })
     .then((r) => r.data);
 
 export const resoudreSignalements = (dabId) =>
