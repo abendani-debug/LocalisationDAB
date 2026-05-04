@@ -66,7 +66,11 @@
     "anonymous": "Votre signalement est anonyme",
     "money_available": "Argent disponible",
     "dab_empty": "DAB vide",
-    "no_recent": "Aucun signalement récent."
+    "no_recent": "Aucun signalement récent.",
+    "geo_idle": "Activez la géolocalisation pour signaler l'état de ce DAB",
+    "geo_activate": "Activer la géolocalisation",
+    "geo_denied": "Géolocalisation refusée. Autorisez-la dans les paramètres de votre navigateur.",
+    "geo_too_far": "Vous êtes à {{distance}} de ce DAB. Rapprochez-vous à moins de 1 km pour signaler."
   },
   "propose": {
     "button_mobile": "+ Proposer",
