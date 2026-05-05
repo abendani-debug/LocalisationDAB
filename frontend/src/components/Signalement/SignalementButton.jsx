@@ -49,6 +49,15 @@ export default function SignalementButton({ dabId, onSuccess, geoStatus, userPos
     );
   }
 
+  // --- État : granted mais position réelle pas encore disponible ---
+  if (geoStatus === 'granted' && !userPosition) {
+    return (
+      <div className="rounded-xl border-2 border-dashed border-slate-200 p-4 text-center">
+        <p className="text-sm text-slate-500">{t('signalement.geo_locating')}</p>
+      </div>
+    );
+  }
+
   // --- État : trop loin ---
   if (tooFar) {
     return (

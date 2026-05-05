@@ -70,7 +70,8 @@
     "geo_idle": "Enable location to report this ATM's status",
     "geo_activate": "Enable location",
     "geo_denied": "Location denied. Allow it in your browser settings to submit a report.",
-    "geo_too_far": "You are {{distance}} from this ATM. Get within 1 km to report."
+    "geo_too_far": "You are {{distance}} from this ATM. Get within 1 km to report.",
+    "geo_locating": "Locating…"
   },
   "propose": {
     "button_mobile": "+ Propose",
