@@ -1,7 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
-import { I18nextProvider } from 'react-i18next';
+import { I18nextProvider, useTranslation } from 'react-i18next';
 import i18n from './i18n';
 import AuthProvider from './context/AuthContext';
 import useAuth from './hooks/useAuth';
@@ -33,6 +33,11 @@ function AdminRoute({ children }) {
 
 function AppRoutes() {
   const location = useLocation();
+  const { t, i18n: i18nInstance } = useTranslation();
+
+  useEffect(() => {
+    document.title = t('page_title');
+  }, [t, i18nInstance.language]);
   const noFooterPaths = ['/', '/dab'];
   const showFooter = !noFooterPaths.some((p) => location.pathname === p || location.pathname.startsWith('/dab/'));
 
@@ -66,7 +71,7 @@ function AppRoutes() {
           <Link to="/cgu" style={{ color: '#9ca3af', textDecoration: 'underline' }}>
             Conditions Générales d'Utilisation
           </Link>
-          {' · '}© {new Date().getFullYear()} localiseMyDab
+          {' · '}© {new Date().getFullYear()} MapsDab
         </footer>
       )}
     </>
