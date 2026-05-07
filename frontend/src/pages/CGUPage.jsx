@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-const LAST_UPDATE_FR = '3 mai 2026';
-const LAST_UPDATE_EN = 'May 3, 2026';
-const APP_NAME       = 'localiseMyDab';
-const CONTACT        = 'contact@localizemaydab.com';
+const LAST_UPDATE_FR = '7 mai 2026';
+const LAST_UPDATE_EN = 'May 7, 2026';
+const APP_NAME       = 'MapsDab';
+const CONTACT        = 'contact@mapsdab.com';
 
 function Section({ title, children }) {
   return (
