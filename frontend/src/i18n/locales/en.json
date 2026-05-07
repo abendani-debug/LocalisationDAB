@@ -3,6 +3,7 @@
   "nav": {
     "admin": "Admin",
     "logout": "Logout",
+    "logout_success": "You have been logged out.",
     "login": "Login",
     "register": "Register",
     "administration": "⚙️ Administration",
