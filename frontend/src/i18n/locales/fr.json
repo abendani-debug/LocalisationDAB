@@ -3,6 +3,7 @@
   "nav": {
     "admin": "Admin",
     "logout": "Déconnexion",
+    "logout_success": "Vous êtes déconnecté.",
     "login": "Connexion",
     "register": "Inscription",
     "administration": "⚙️ Administration",

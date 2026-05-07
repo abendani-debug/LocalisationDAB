@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import toast from 'react-hot-toast';
 import useAuth from '../../hooks/useAuth';
 import i18n from '../../i18n';
 
@@ -15,6 +16,7 @@ export default function Navbar() {
     logout();
     navigate('/');
     setMenuOpen(false);
+    toast.success(t('nav.logout_success'));
   };
 
   const handleLangSwitch = () => {
