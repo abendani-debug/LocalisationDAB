@@ -18,6 +18,8 @@ import AdminDABForm      from './pages/admin/AdminDABForm';
 import AdminSignalements  from './pages/admin/AdminSignalements';
 import AdminPropositions  from './pages/admin/AdminPropositions';
 import CGUPage            from './pages/CGUPage';
+import PrivacyPage        from './pages/PrivacyPage';
+import AboutPage          from './pages/AboutPage';
 
 function PrivateRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -57,7 +59,9 @@ function AppRoutes() {
         <Route path="/admin/signalements"  element={<AdminRoute><AdminSignalements /></AdminRoute>} />
         <Route path="/admin/propositions"  element={<AdminRoute><AdminPropositions /></AdminRoute>} />
 
-        <Route path="/cgu" element={<CGUPage />} />
+        <Route path="/cgu"            element={<CGUPage />} />
+        <Route path="/confidentialite" element={<PrivacyPage />} />
+        <Route path="/apropos"         element={<AboutPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
@@ -68,8 +72,16 @@ function AppRoutes() {
           borderTop: '1px solid #e5e7eb',
           fontSize: '0.75rem', color: '#9ca3af',
         }}>
+          <Link to="/apropos" style={{ color: '#9ca3af', textDecoration: 'underline' }}>
+            À propos
+          </Link>
+          {' · '}
           <Link to="/cgu" style={{ color: '#9ca3af', textDecoration: 'underline' }}>
-            Conditions Générales d'Utilisation
+            CGU
+          </Link>
+          {' · '}
+          <Link to="/confidentialite" style={{ color: '#9ca3af', textDecoration: 'underline' }}>
+            Confidentialité
           </Link>
           {' · '}© {new Date().getFullYear()} MapsDab
         </footer>
