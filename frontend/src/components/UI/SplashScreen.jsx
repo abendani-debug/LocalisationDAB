@@ -16,7 +16,7 @@ export default function SplashScreen({ onDone }) {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] bg-black transition-opacity duration-500"
+      className="fixed inset-0 z-[9999] bg-black flex items-center justify-center transition-opacity duration-500"
       style={{ opacity: fadeOut ? 0 : 1 }}
     >
       <video
@@ -27,7 +27,7 @@ export default function SplashScreen({ onDone }) {
         playsInline
         onEnded={handleEnd}
         onError={handleError}
-        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        style={{ maxWidth: '100%', maxHeight: '100%', width: 'auto', height: 'auto' }}
       />
     </div>
   );
