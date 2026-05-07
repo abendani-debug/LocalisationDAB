@@ -16,7 +16,7 @@ export default function SplashScreen({ onDone }) {
 
   return (
     <div
-      className="fixed inset-0 z-[9999] bg-black flex items-center justify-center transition-opacity duration-500"
+      className="fixed inset-0 z-[9999] bg-white flex items-center justify-center transition-opacity duration-500"
       style={{ opacity: fadeOut ? 0 : 1 }}
     >
       <video
