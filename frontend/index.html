@@ -3,12 +3,52 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Localisez les DAB près de chez vous et signalez leur état en temps réel." />
-    <title>LocalisationDAB</title>
+
+    <!-- SEO -->
+    <title>MapsDab — Localisez votre DAB en Algérie</title>
+    <meta name="description" content="Trouvez un distributeur automatique de billets (DAB) près de chez vous en Algérie. Consultez l'état des DAB en temps réel grâce aux signalements de la communauté." />
+    <meta name="keywords" content="DAB, distributeur automatique, ATM, Algérie, retrait argent, localisation, banque" />
+    <link rel="canonical" href="https://mapsdab.com/" />
+
+    <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://mapsdab.com/" />
+    <meta property="og:title" content="MapsDab — Localisez votre DAB en Algérie" />
+    <meta property="og:description" content="Trouvez un distributeur automatique de billets (DAB) près de chez vous en Algérie. État des DAB en temps réel grâce à la communauté." />
+    <meta property="og:image" content="https://mapsdab.com/og-image.png" />
+    <meta property="og:locale" content="fr_DZ" />
+    <meta property="og:site_name" content="MapsDab" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="MapsDab — Localisez votre DAB en Algérie" />
+    <meta name="twitter:description" content="Trouvez un DAB près de chez vous et consultez son état en temps réel." />
+    <meta name="twitter:image" content="https://mapsdab.com/og-image.png" />
+
+    <!-- Favicons & PWA -->
     <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <!-- JSON-LD Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "MapsDab",
+      "url": "https://mapsdab.com",
+      "description": "Localisez les distributeurs automatiques de billets (DAB) en Algérie et consultez leur état en temps réel.",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "Web",
+      "inLanguage": ["fr", "en"],
+      "areaServed": {
+        "@type": "Country",
+        "name": "Algérie"
+      }
+    }
+    </script>
   </head>
   <body class="bg-slate-50 font-sans text-gray-900">
     <div id="root"></div>
