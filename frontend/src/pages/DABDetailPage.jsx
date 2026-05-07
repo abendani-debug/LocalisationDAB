@@ -26,6 +26,13 @@ export default function DABDetailPage() {
   useEffect(() => { load(); }, [load]);
 
   useEffect(() => {
+    if (dab) {
+      document.title = `${dab.nom} — MapsDab`;
+    }
+    return () => { document.title = 'MapsDab — Localisez votre DAB en Algérie'; };
+  }, [dab]);
+
+  useEffect(() => {
     joinDABRoom(id);
     return () => leaveDABRoom(id);
   }, [id]);
