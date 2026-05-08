@@ -1,4 +1,5 @@
 import { Header } from '@/components/layout/Header'
+import { Hero } from '@/components/sections/Hero'
 import { Footer } from '@/components/layout/Footer'
 
 export default function Home() {
@@ -6,9 +7,7 @@ export default function Home() {
     <>
       <Header />
       <main>
-        <div className="min-h-screen flex items-center justify-center">
-          <p className="text-dark font-display text-2xl font-bold">MapsDab Vitrine — En construction</p>
-        </div>
+        <Hero />
       </main>
       <Footer />
     </>
