@@ -40,6 +40,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="fr" suppressHydrationWarning>
       <body className={`${inter.variable} ${spaceGrotesk.variable} font-sans`}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'MobileApplication',
+              name: 'MapsDab',
+              description: "L'app communautaire de localisation des DABs en Algérie",
+              url: 'https://mapsdab.com',
+              applicationCategory: 'UtilitiesApplication',
+              operatingSystem: 'iOS, Android, Web',
+              offers: { '@type': 'Offer', price: '0', priceCurrency: 'DZD' },
+              publisher: { '@type': 'Organization', name: 'MapsDab', url: 'https://mapsdab.com' },
+            }),
+          }}
+        />
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           {children}
         </ThemeProvider>

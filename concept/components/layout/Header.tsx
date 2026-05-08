@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { Menu, X, Download } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import fr from '@/messages/fr.json'
+import { DarkModeToggle } from '@/components/ui/DarkModeToggle'
 
 const NAV_LINKS = [
   { label: fr.nav.concept, href: '#comment-ca-marche' },
@@ -52,6 +53,8 @@ export function Header() {
             <Download className="w-4 h-4" />
             {fr.nav.cta}
           </a>
+
+          <DarkModeToggle />
 
           <button
             className="md:hidden ml-auto p-2 rounded-lg hover:bg-black/5 transition-colors"

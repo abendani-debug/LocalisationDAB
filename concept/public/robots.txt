@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://mapsdab.com/sitemap.xml
