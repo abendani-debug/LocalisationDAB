@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { Menu, X, Download } from 'lucide-react'
+import { Menu, X, MapPin } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import fr from '@/messages/fr.json'
 import { DarkModeToggle } from '@/components/ui/DarkModeToggle'
@@ -47,10 +47,12 @@ export function Header() {
           </nav>
 
           <a
-            href="#telecharger"
+            href="https://mapsdab.com"
+            target="_blank"
+            rel="noopener noreferrer"
             className="hidden md:flex items-center gap-2 bg-primary hover:bg-primary-dark text-white text-sm font-semibold px-4 py-2 rounded-full transition-colors shadow-primary"
           >
-            <Download className="w-4 h-4" />
+            <MapPin className="w-4 h-4" />
             {fr.nav.cta}
           </a>
 
@@ -95,11 +97,12 @@ export function Header() {
             </nav>
             <div className="p-6">
               <a
-                href="#telecharger"
-                onClick={() => setMenuOpen(false)}
+                href="https://mapsdab.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center justify-center gap-2 bg-primary text-white text-base font-bold py-4 rounded-2xl shadow-primary"
               >
-                <Download className="w-5 h-5" />
+                <MapPin className="w-5 h-5" />
                 {fr.nav.cta}
               </a>
             </div>

@@ -1,7 +1,8 @@
 'use client'
 
+import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { Download, ArrowDown } from 'lucide-react'
+import { MapPin, ArrowDown } from 'lucide-react'
 import { LiveBadge } from '@/components/ui/LiveBadge'
 import { MapAnimation } from '@/components/ui/MapAnimation'
 import fr from '@/messages/fr.json'
@@ -14,11 +15,21 @@ const LIVE_SIGNALS = [
 
 export function Hero() {
   return (
-    <section className="relative min-h-screen flex items-center pt-16 overflow-hidden bg-surface dark:bg-dark">
-      {/* Fond décoratif */}
+    <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
+      {/* Image de fond — rue d'Alger (placer la photo dans public/images/hero-alger.jpg) */}
+      <Image
+        src="/images/hero-alger.png"
+        alt="Rue d'Alger avec distributeurs bancaires"
+        fill
+        priority
+        className="object-cover object-center"
+      />
+      {/* Overlay blanc semi-transparent pour lisibilité */}
+      <div className="absolute inset-0 bg-white/85 dark:bg-dark/90" />
+      {/* Dégradé décoratif */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-20 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-secondary/5 rounded-full blur-3xl" />
+        <div className="absolute top-20 right-0 w-[600px] h-[600px] bg-primary/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-secondary/10 rounded-full blur-3xl" />
       </div>
 
       <div className="relative max-w-6xl mx-auto px-4 md:px-8 py-16 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center w-full">
@@ -71,11 +82,12 @@ export function Hero() {
           {/* CTAs */}
           <div className="flex flex-wrap gap-3">
             <a
-              href="#telecharger"
-              id="telecharger"
+              href="https://mapsdab.com"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold px-6 py-3 rounded-full shadow-primary transition-all hover:scale-105"
             >
-              <Download className="w-5 h-5" />
+              <MapPin className="w-5 h-5" />
               {fr.hero.cta_primary}
             </a>
             <a

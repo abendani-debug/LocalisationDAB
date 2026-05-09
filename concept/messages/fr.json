@@ -4,13 +4,13 @@
     "features": "Fonctionnalités",
     "banks": "Pour les banques",
     "faq": "FAQ",
-    "cta": "Télécharger l'app"
+    "cta": "Accéder à la carte"
   },
   "hero": {
     "badge": "Signalements en temps réel",
     "h1": "Trouvez un DAB qui marche.\nAvant d'y aller.",
-    "subtitle": "L'app communautaire qui vous dit en temps réel où retirer du cash, sans mauvaise surprise.",
-    "cta_primary": "Télécharger maintenant",
+    "subtitle": "La carte communautaire qui vous dit en temps réel où retirer du cash, sans mauvaise surprise.",
+    "cta_primary": "Ouvrir la carte",
     "cta_secondary": "Voir comment ça marche",
     "trust": "Déjà 2 400 utilisateurs · 180 signalements / jour",
     "before_title": "Avant",
@@ -37,7 +37,7 @@
     "transition": "Et si la communauté pouvait vous prévenir avant ?"
   },
   "how": {
-    "h2": "Le principe Waze, appliqué aux DAB",
+    "h2": "Le GPS des DAB",
     "subtitle": "Simple, rapide, anonyme. La communauté alimente la carte en temps réel.",
     "step1_title": "Géolocalisez-vous",
     "step1_text": "On vous affiche tous les DAB dans votre rayon, triés par distance.",
@@ -50,7 +50,7 @@
   },
   "features": {
     "h2": "Tout ce qu'il vous faut",
-    "subtitle": "Une app pensée pour être utilisée dans la rue, en 10 secondes.",
+    "subtitle": "Un outil pensé pour être utilisé dans la rue, en 10 secondes.",
     "f1_title": "Carte temps réel",
     "f1_text": "Tous les DAB autour de vous, mis à jour en permanence par la communauté.",
     "f2_title": "Statut du cash",
@@ -65,7 +65,7 @@
     "f6_text": "On vous guide vers le DAB fiable le plus proche, pas juste le plus près."
   },
   "showcase": {
-    "h2": "L'app en action",
+    "h2": "MapsDab en action",
     "subtitle": "Pensée pour être intuitive dès la première utilisation.",
     "s1_title": "Carte interactive",
     "s1_text": "Visualisez tous les DABs autour de vous. Vert, orange, rouge — l'état en un coup d'œil.",
@@ -109,25 +109,22 @@
   "faq": {
     "h2": "Questions fréquentes",
     "q1": "Comment ça marche concrètement ?",
-    "a1": "Ouvrez l'app, activez la géolocalisation, et vous voyez instantanément tous les DABs autour de vous avec leur statut. Si vous passez devant un DAB, vous pouvez signaler son état en 1 tap — anonymement. Ces signalements alimentent la carte en temps réel pour tous les utilisateurs.",
+    "a1": "Ouvrez la carte, activez la géolocalisation, et vous voyez instantanément tous les DABs autour de vous avec leur statut. Si vous passez devant un DAB, vous pouvez signaler son état en 1 tap — anonymement. Ces signalements alimentent la carte en temps réel pour tous les utilisateurs.",
     "q2": "Mes données de localisation sont-elles partagées ?",
     "a2": "Non. Votre position sert uniquement à afficher les DABs proches de vous, en local sur votre appareil. Elle n'est jamais transmise à nos serveurs ni à des tiers. Les signalements sont 100% anonymes.",
-    "q3": "L'application est-elle gratuite ?",
-    "a3": "Oui, complètement gratuite pour les citoyens. Sans abonnement, sans publicité intrusive. Le modèle économique repose sur une offre B2B pour les établissements bancaires.",
+    "q3": "MapsDab est-il gratuit ?",
+    "a3": "Oui, complètement gratuit pour les citoyens. Sans abonnement, sans publicité intrusive. Le modèle économique repose sur une offre B2B pour les établissements bancaires.",
     "q4": "Quelles banques sont couvertes ?",
     "a4": "Toutes les grandes banques algériennes : BNA, CPA, BADR, BDL, BEA, SGA, CIB, BNP Paribas El Djazaïr, Arab Bank, et d'autres. La liste s'agrandit grâce aux contributions de la communauté.",
     "q5": "Comment signaler un DAB manquant sur la carte ?",
-    "a5": "Directement depuis l'app : appuyez sur le bouton « + Proposer un DAB », placez le marqueur sur la carte et renseignez les informations. Votre proposition est examinée et validée par notre équipe.",
-    "q6": "Disponible sur iOS et Android ?",
-    "a6": "L'application web est accessible depuis n'importe quel navigateur mobile. Les applications natives iOS et Android sont en cours de développement et seront disponibles prochainement."
+    "a5": "Directement depuis la carte : cliquez sur le bouton « + Proposer un DAB », placez le marqueur à l'emplacement exact et renseignez les informations. Votre proposition est examinée et validée par notre équipe.",
+    "q6": "Accessible sur mobile ?",
+    "a6": "Oui, MapsDab est une application web accessible depuis n'importe quel navigateur mobile ou desktop, sans installation requise."
   },
   "cta_final": {
     "h2": "Prêt à ne plus jamais courir\naprès un DAB en panne ?",
     "subtitle": "Rejoignez la communauté MapsDab. Gratuit, anonyme, utile.",
-    "app_store": "Télécharger sur l'App Store",
-    "google_play": "Disponible sur Google Play",
-    "sms_placeholder": "Votre numéro de téléphone",
-    "sms_cta": "Recevoir le lien par SMS"
+    "cta": "Ouvrir la carte maintenant"
   },
   "footer": {
     "tagline": "La carte communautaire des DABs en Algérie.",
@@ -152,7 +149,7 @@
   },
   "testimonials": {
     "h2": "Ce qu'ils en pensent",
-    "t1_text": "Enfin une app qui me dit si le DAB est vide avant de faire 3 km ! J'ai économisé tellement de temps.",
+    "t1_text": "Enfin un outil qui me dit si le DAB est vide avant de faire 3 km ! J'ai économisé tellement de temps.",
     "t1_name": "Karim B.",
     "t1_role": "Utilisateur, Alger",
     "t2_text": "Je signale systématiquement après chaque retrait. La communauté m'a aidé, je rends la pareille.",
