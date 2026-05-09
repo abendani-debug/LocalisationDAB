@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { MapPin, ArrowDown } from 'lucide-react'
 import { LiveBadge } from '@/components/ui/LiveBadge'
@@ -16,14 +15,17 @@ const LIVE_SIGNALS = [
 export function Hero() {
   return (
     <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
-      {/* Image de fond — rue d'Alger (placer la photo dans public/images/hero-alger.jpg) */}
-      <Image
-        src="/images/hero-alger.jpg"
-        alt="Rue d'Alger avec distributeurs bancaires"
-        fill
-        priority
-        className="object-cover object-center"
-      />
+      {/* Vidéo de fond */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover object-center"
+        aria-hidden="true"
+      >
+        <source src="/images/hero-video.mp4" type="video/mp4" />
+      </video>
       {/* Overlay blanc semi-transparent pour lisibilité */}
       <div className="absolute inset-0 bg-white/65 dark:bg-dark/70" />
       {/* Dégradé décoratif */}
