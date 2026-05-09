@@ -25,7 +25,7 @@ export function Hero() {
         className="object-cover object-center"
       />
       {/* Overlay blanc semi-transparent pour lisibilité */}
-      <div className="absolute inset-0 bg-white/85 dark:bg-dark/90" />
+      <div className="absolute inset-0 bg-white/65 dark:bg-dark/70" />
       {/* Dégradé décoratif */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-20 right-0 w-[600px] h-[600px] bg-primary/10 rounded-full blur-3xl" />
