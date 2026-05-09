@@ -49,7 +49,7 @@ export function LocateButton({ position }) {
           boxShadow: '0 1px 3px rgba(0,0,0,0.2)', padding: '4px',
         }}
       >
-        <img src="/bear-marker.png" alt="Ma position" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+        <img src="/maps_target.png" alt="Ma position" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
       </button>
     </div>
   );

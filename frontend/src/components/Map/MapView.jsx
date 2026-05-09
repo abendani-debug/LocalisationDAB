@@ -17,7 +17,7 @@ const USER_ICON = L.divIcon({
   className: '',
   html: `
     <div style="filter:drop-shadow(0 3px 8px rgba(0,0,0,0.35));display:flex;flex-direction:column;align-items:center;">
-      <img src="/bear-marker.png" width="72" height="72" style="width:72px;height:72px;object-fit:contain;display:block;" />
+      <img src="/maps_target.png" width="72" height="72" style="width:72px;height:72px;object-fit:contain;display:block;" />
       <div style="width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-top:14px solid rgba(0,0,0,0.25);margin-top:-2px;"></div>
     </div>`,
   iconSize:   [72, 88],
