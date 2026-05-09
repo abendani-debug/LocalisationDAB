@@ -18,7 +18,7 @@ export function Hero() {
     <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
       {/* Image de fond — rue d'Alger (placer la photo dans public/images/hero-alger.jpg) */}
       <Image
-        src="/images/hero-alger.png"
+        src="/images/hero-alger.jpg"
         alt="Rue d'Alger avec distributeurs bancaires"
         fill
         priority
