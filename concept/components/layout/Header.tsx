@@ -31,7 +31,7 @@ export function Header() {
       }`}>
         <div className="max-w-6xl mx-auto px-4 md:px-8 h-16 flex items-center gap-6">
           <a href="#" className="flex items-center gap-2 flex-shrink-0">
-            <Image src="/images/logo.png" alt="MapsDab" width={52} height={52} className="rounded-lg" />
+            <Image src="/images/logo.png" alt="MapsDab" width={62} height={62} className="rounded-lg" />
           </a>
 
           <nav className="hidden md:flex items-center gap-1 flex-1">
@@ -78,7 +78,7 @@ export function Header() {
             className="fixed inset-0 z-50 bg-white dark:bg-dark flex flex-col"
           >
             <div className="flex items-center justify-between p-4 border-b border-border">
-              <Image src="/images/logo.png" alt="MapsDab" width={47} height={47} className="rounded-lg" />
+              <Image src="/images/logo.png" alt="MapsDab" width={56} height={56} className="rounded-lg" />
               <button onClick={() => setMenuOpen(false)} aria-label="Fermer le menu">
                 <X className="w-6 h-6 text-dark dark:text-white" />
               </button>
