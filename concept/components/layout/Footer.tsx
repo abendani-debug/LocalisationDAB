@@ -77,7 +77,7 @@ export function Footer() {
       <div className="max-w-6xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
           <div className="col-span-2 md:col-span-1">
-            <Image src="/images/logo.png" alt="MapsDab" width={111} height={111} className="rounded-xl mb-3" />
+            <Image src="/images/logo.png" alt="MapsDab" width={200} height={200} className="rounded-xl mb-3" />
             <p className="text-sm leading-relaxed">{fr.footer.tagline}</p>
             <div className="flex gap-3 mt-4">
               {SOCIAL_ICONS.map(({ Icon, label }) => (
