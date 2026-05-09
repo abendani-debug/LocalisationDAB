@@ -38,10 +38,10 @@ export default function Navbar() {
   }, [menuOpen]);
 
   return (
-    <nav className="bg-white border-b border-slate-200 px-4 h-[150px] flex items-center justify-between sticky top-0 z-[1000] shadow-sm">
+    <nav className="bg-white border-b border-slate-200 px-4 h-[100px] flex items-center justify-between sticky top-0 z-[1000] shadow-sm">
       {/* Logo */}
       <Link to="/" className="flex items-center gap-2 no-underline">
-        <img src="/logo.png" alt="MapsDab logo" className="h-[150px] w-auto object-contain" />
+        <img src="/logo.png" alt="MapsDab logo" className="h-[100px] w-auto object-contain" />
       </Link>
 
       {/* Droite : switcher langue + burger */}
@@ -69,7 +69,7 @@ export default function Navbar() {
 
         {/* Dropdown */}
         {menuOpen && (
-          <div className="absolute top-[150px] right-0 w-64 bg-white border border-slate-200 rounded-bl-xl shadow-lg z-[999] flex flex-col overflow-hidden">
+          <div className="absolute top-[100px] right-0 w-64 bg-white border border-slate-200 rounded-bl-xl shadow-lg z-[999] flex flex-col overflow-hidden">
             {isAdmin && (
               <Link to="/admin" onClick={() => setMenuOpen(false)}
                 className="text-gray-700 no-underline px-5 py-4 text-sm border-b border-slate-100 hover:bg-slate-50">
