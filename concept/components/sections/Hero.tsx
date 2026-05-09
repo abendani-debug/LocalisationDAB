@@ -1,6 +1,8 @@
 'use client'
 
-import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
+import Image from 'next/image'
+import { motion, AnimatePresence } from 'framer-motion'
 import { MapPin, ArrowDown } from 'lucide-react'
 import { LiveBadge } from '@/components/ui/LiveBadge'
 import { MapAnimation } from '@/components/ui/MapAnimation'
@@ -12,22 +14,77 @@ const LIVE_SIGNALS = [
   { color: '#EF4444', borderColor: 'border-red-200', bg: 'bg-red-50 dark:bg-red-950/30', text: 'text-red-700 dark:text-red-300', name: 'DAB SGA — Bir Mourad Raïs', status: 'En panne', time: '15 min' },
 ]
 
+const CAROUSEL_SLIDES = [
+  { src: '/images/slide-1.jpg', alt: 'DABs en Algérie' },
+  { src: '/images/slide-2.png', alt: 'Carte MapsDab — vue des DABs proches' },
+  { src: '/images/slide-3.png', alt: 'MapsDab — détail et signalement' },
+]
+
+function MobileCarousel() {
+  const [current, setCurrent] = useState(0)
+
+  useEffect(() => {
+    const t = setInterval(() => setCurrent(c => (c + 1) % CAROUSEL_SLIDES.length), 3000)
+    return () => clearInterval(t)
+  }, [])
+
+  return (
+    <div className="absolute inset-0 md:hidden">
+      <AnimatePresence mode="sync">
+        <motion.div
+          key={current}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.8 }}
+          className="absolute inset-0"
+        >
+          <Image
+            src={CAROUSEL_SLIDES[current].src}
+            alt={CAROUSEL_SLIDES[current].alt}
+            fill
+            priority={current === 0}
+            className="object-cover object-center"
+          />
+        </motion.div>
+      </AnimatePresence>
+      {/* Dots */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+        {CAROUSEL_SLIDES.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrent(i)}
+            aria-label={`Slide ${i + 1}`}
+            className={`h-1.5 rounded-full transition-all ${i === current ? 'w-6 bg-white' : 'w-1.5 bg-white/50'}`}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function Hero() {
   return (
     <section className="relative min-h-screen flex items-center pt-16 overflow-hidden">
-      {/* Vidéo de fond */}
+
+      {/* MOBILE : carrousel d'images */}
+      <MobileCarousel />
+
+      {/* DESKTOP / TABLETTE : vidéo de fond */}
       <video
         autoPlay
         muted
         loop
         playsInline
-        className="absolute inset-0 w-full h-full object-cover object-center"
+        className="hidden md:block absolute inset-0 w-full h-full object-cover object-center"
         aria-hidden="true"
       >
         <source src="/images/hero-video.mp4" type="video/mp4" />
       </video>
-      {/* Overlay blanc semi-transparent pour lisibilité */}
+
+      {/* Overlay semi-transparent */}
       <div className="absolute inset-0 bg-white/65 dark:bg-dark/70" />
+
       {/* Dégradé décoratif */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-20 right-0 w-[600px] h-[600px] bg-primary/10 rounded-full blur-3xl" />
