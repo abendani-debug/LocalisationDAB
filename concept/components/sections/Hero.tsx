@@ -18,6 +18,7 @@ const CAROUSEL_SLIDES = [
   { src: '/images/slide-1.png', alt: 'DABs en Algérie' },
   { src: '/images/slide-2.png', alt: 'Carte MapsDab — vue des DABs proches' },
   { src: '/images/slide-3.png', alt: 'MapsDab — détail et signalement' },
+  { src: '/images/slide-4.png', alt: 'MapsDab — signalement communautaire' },
 ]
 
 function MobileCarousel() {
