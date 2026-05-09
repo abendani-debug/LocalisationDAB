@@ -84,7 +84,7 @@ export function Hero() {
       </video>
 
       {/* Overlay semi-transparent */}
-      <div className="absolute inset-0 bg-white/65 dark:bg-dark/70" />
+      <div className="absolute inset-0 bg-white/45 dark:bg-dark/50" />
 
       {/* Dégradé décoratif */}
       <div className="absolute inset-0 pointer-events-none">
