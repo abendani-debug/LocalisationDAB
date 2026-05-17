@@ -11,8 +11,6 @@ import { Testimonials } from '@/components/sections/Testimonials'
 import { FAQ } from '@/components/sections/FAQ'
 import { FinalCTA } from '@/components/sections/FinalCTA'
 import { Footer } from '@/components/layout/Footer'
-import { EasterEgg } from '@/components/ui/EasterEgg'
-
 export default function Home() {
   return (
     <>
@@ -30,7 +28,6 @@ export default function Home() {
         <FinalCTA />
       </main>
       <Footer />
-      <EasterEgg />
     </>
   )
 }

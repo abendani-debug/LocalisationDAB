@@ -86,7 +86,7 @@ describe('POST /api/dabs/:id/signalements (anonyme)', () => {
 
     const res = await request(app)
       .post('/api/dabs/1/signalements')
-      .send({ etat: 'disponible', cookieId: '550e8400-e29b-41d4-a716-446655440001' });
+      .send({ etat: 'disponible', cookieId: '550e8400-e29b-41d4-a716-446655440001', userLat: 36.7372, userLng: 3.0865 });
 
     expect(res.status).toBe(201);
     expect(res.body.data.votes.disponible).toBe(1);
@@ -102,7 +102,7 @@ describe('POST /api/dabs/:id/signalements (anonyme)', () => {
 
     const res = await request(app)
       .post('/api/dabs/1/signalements')
-      .send({ etat: 'vide', cookieId: '550e8400-e29b-41d4-a716-446655440001' });
+      .send({ etat: 'vide', cookieId: '550e8400-e29b-41d4-a716-446655440001', userLat: 36.7372, userLng: 3.0865 });
 
     expect(res.status).toBe(429);
     expect(Signalement.create).not.toHaveBeenCalled();
@@ -113,7 +113,7 @@ describe('POST /api/dabs/:id/signalements (anonyme)', () => {
 
     const res = await request(app)
       .post('/api/dabs/999/signalements')
-      .send({ etat: 'disponible', cookieId: '550e8400-e29b-41d4-a716-446655440001' });
+      .send({ etat: 'disponible', cookieId: '550e8400-e29b-41d4-a716-446655440001', userLat: 36.7372, userLng: 3.0865 });
 
     expect(res.status).toBe(404);
   });
@@ -139,7 +139,7 @@ describe('POST /api/dabs/:id/signalements (anonyme)', () => {
 
     const res = await request(app)
       .post('/api/dabs/1/signalements')
-      .send({ etat: 'vide', cookieId: '550e8400-e29b-41d4-a716-446655440002' });
+      .send({ etat: 'vide', cookieId: '550e8400-e29b-41d4-a716-446655440002', userLat: 36.7372, userLng: 3.0865 });
 
     expect(res.status).toBe(201);
     expect(DAB.updateEtatCommunautaire).toHaveBeenCalledWith('1', 'vide');
@@ -160,7 +160,7 @@ describe('POST /api/dabs/:id/signalements (anonyme)', () => {
 
     const res = await request(app)
       .post('/api/dabs/1/signalements')
-      .send({ etat: 'en_panne', cookieId: '550e8400-e29b-41d4-a716-446655440003' });
+      .send({ etat: 'en_panne', cookieId: '550e8400-e29b-41d4-a716-446655440003', userLat: 36.7372, userLng: 3.0865 });
 
     expect(res.status).toBe(201);
     expect(DAB.updateEtatCommunautaire).not.toHaveBeenCalled();
