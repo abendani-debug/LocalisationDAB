@@ -163,6 +163,7 @@ export default function MapView({ dabs = [], userPosition = null, onCenterChange
               position={[userPosition.lat, userPosition.lng]}
               icon={USER_ICON}
               zIndexOffset={1000}
+              interactive={false}
             />
             <FlyToPosition position={userPosition} />
             <LocateButton position={userPosition} />
