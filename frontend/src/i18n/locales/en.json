@@ -73,7 +73,13 @@
     "geo_activate": "Enable location",
     "geo_denied": "Location denied. Allow it in your browser settings to submit a report.",
     "geo_too_far": "You are {{distance}} from this ATM. Get within 1 km to report.",
-    "geo_locating": "Locating…"
+    "geo_locating": "Locating…",
+    "already_voted": "You reported this ATM as: {{etat}}",
+    "modify": "Correct my report",
+    "modified_success": "Report corrected!",
+    "already_modified": "You have already modified your report (1 modification allowed).",
+    "same_state": "You already reported this status.",
+    "modify_hint": "1 correction allowed within 4h"
   },
   "propose": {
     "button_mobile": "+ Propose",

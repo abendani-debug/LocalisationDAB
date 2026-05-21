@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { submitSignalement } from '../../api/signalementApi';
+import { submitSignalement, getLocalVote } from '../../api/signalementApi';
 import { haversineKm, formatDistance } from '../../utils/formatUtils';
 import toast from 'react-hot-toast';
 
@@ -8,8 +8,14 @@ const GEO_LIMIT_KM = 1;
 
 export default function SignalementButton({ dabId, onSuccess, geoStatus, userPosition, dabLat, dabLng, requestLocation }) {
   const { t } = useTranslation();
-  const [loading,  setLoading]  = useState(false);
-  const [selected, setSelected] = useState(null);
+  const [loading,    setLoading]    = useState(false);
+  const [selected,   setSelected]   = useState(null);
+  const [myVote,     setMyVote]     = useState(null);   // { etat, nb_updates }
+  const [modifyMode, setModifyMode] = useState(false);
+
+  useEffect(() => {
+    setMyVote(getLocalVote(dabId));
+  }, [dabId]);
 
   const ETATS = [
     { key: 'disponible', label: t('signalement.available'), emoji: '✅', border: 'hover:border-green-500',  active: 'border-green-500 bg-green-50' },
@@ -75,25 +81,59 @@ export default function SignalementButton({ dabId, onSuccess, geoStatus, userPos
     setLoading(true);
     try {
       const res = await submitSignalement(dabId, etat, userPosition.lat, userPosition.lng);
-      toast.success(t('signalement.success'));
+      const wasModified = res.data?.modified ?? false;
+      toast.success(wasModified ? t('signalement.modified_success') : t('signalement.success'));
+      setMyVote({ etat, nb_updates: wasModified ? 1 : 0 });
+      setModifyMode(false);
       onSuccess?.(res.data);
     } catch (err) {
-      const msg = err.response?.data?.message || t('signalement.error');
-      toast.error(msg);
+      const status = err.response?.status;
+      const msg    = err.response?.data?.message || t('signalement.error');
+      if (status === 409) toast.error(t('signalement.same_state'));
+      else if (status === 429) toast.error(t('signalement.already_modified'));
+      else toast.error(msg);
       setSelected(null);
     } finally {
       setLoading(false);
     }
   };
 
+  // --- Bandeau vote existant ---
+  if (myVote && !modifyMode) {
+    const etatCfg = ETATS.find((e) => e.key === myVote.etat);
+    return (
+      <div className="rounded-xl border-2 border-blue-100 bg-blue-50 p-4">
+        <p className="text-sm text-blue-700 font-semibold mb-1">
+          {t('signalement.already_voted', { etat: `${etatCfg?.emoji} ${etatCfg?.label}` })}
+        </p>
+        <p className="text-xs text-blue-400 mb-3">{t('signalement.modify_hint')}</p>
+        {myVote.nb_updates === 0 ? (
+          <button
+            onClick={() => { setModifyMode(true); setSelected(null); }}
+            className="w-full h-10 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-colors cursor-pointer font-[inherit]"
+          >
+            {t('signalement.modify')}
+          </button>
+        ) : (
+          <p className="text-xs text-slate-400 text-center italic">{t('signalement.already_modified')}</p>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div>
+      {modifyMode && (
+        <p className="text-xs text-amber-600 font-semibold mb-2 text-center">
+          ⚠️ {t('signalement.modify')}
+        </p>
+      )}
       <div className="grid grid-cols-3 gap-2 mb-4">
         {ETATS.map(({ key, label, emoji, border, active }) => (
           <button
             key={key}
             disabled={loading}
-            onClick={() => handleSignal(key)}
+            onClick={() => setSelected(key)}
             className={`p-3 rounded-xl border-2 text-center transition-all cursor-pointer bg-white font-[inherit]
               disabled:opacity-60 disabled:cursor-not-allowed
               ${selected === key ? active : `border-slate-200 ${border}`}`}
@@ -108,7 +148,7 @@ export default function SignalementButton({ dabId, onSuccess, geoStatus, userPos
         onClick={() => selected && handleSignal(selected)}
         className="w-full h-11 bg-blue-600 hover:bg-blue-700 disabled:bg-slate-200 disabled:text-slate-400 text-white rounded-xl text-sm font-semibold transition-colors cursor-pointer disabled:cursor-not-allowed font-[inherit]"
       >
-        {loading ? t('signalement.sending') : t('signalement.send')}
+        {loading ? t('signalement.sending') : modifyMode ? t('signalement.modify') : t('signalement.send')}
       </button>
     </div>
   );

@@ -57,11 +57,25 @@ const create = async (req, res) => {
   const ipHash = hashIP(rawIP);
 
   const existing = await Signalement.findExisting(dabId, ipHash, cookieId);
-  if (existing.rows.length) {
-    return errorResponse(res, 'Vous avez déjà signalé ce DAB récemment.', 429);
-  }
+  let isModification = false;
 
-  await Signalement.create(dabId, etat, ipHash, cookieId);
+  if (existing.rows.length) {
+    const vote = existing.rows[0];
+
+    // Même état → rien à faire
+    if (vote.etat === etat) {
+      return errorResponse(res, 'Vous avez déjà signalé cet état pour ce DAB.', 409);
+    }
+    // Déjà modifié une fois → bloquer
+    if (vote.nb_updates >= 1) {
+      return errorResponse(res, 'Vous avez déjà modifié votre signalement. Une seule modification est autorisée par vote.', 429);
+    }
+    // Modification autorisée
+    await Signalement.updateEtat(vote.id, etat);
+    isModification = true;
+  } else {
+    await Signalement.create(dabId, etat, ipHash, cookieId);
+  }
 
   const votesResult = await Signalement.getActiveVotes(dabId);
   const votes = buildVotesMap(votesResult.rows);
@@ -86,11 +100,15 @@ const create = async (req, res) => {
     timestamp: new Date().toISOString(),
   });
 
+  const statusCode = isModification ? 200 : 201;
+  const message = isModification ? 'Signalement modifié.' : 'Signalement enregistré.';
+
   return successResponse(res, {
     votes,
     etatCommunautaire: nouvelEtat || ancienEtat,
     totalVotes: total,
-  }, 201, 'Signalement enregistré.');
+    modified: isModification,
+  }, statusCode, message);
 };
 
 const resoudre = async (req, res) => {
