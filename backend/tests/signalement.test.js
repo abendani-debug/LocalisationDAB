@@ -94,10 +94,45 @@ describe('POST /api/dabs/:id/signalements (anonyme)', () => {
     expect(mockEmit).toHaveBeenCalledWith('dab_update', expect.objectContaining({ dabId: 1 }));
   });
 
-  it('retourne 429 si déjà signalé (anti-spam)', async () => {
+  it('retourne 409 si même état déjà signalé', async () => {
     DAB.findById.mockResolvedValue({ rows: [fakeDAB] });
     Signalement.findExisting.mockResolvedValue({
-      rows: [{ id: 5, dab_id: 1, etat: 'vide' }],
+      rows: [{ id: 5, dab_id: 1, etat: 'vide', nb_updates: 0 }],
+    });
+
+    const res = await request(app)
+      .post('/api/dabs/1/signalements')
+      .send({ etat: 'vide', cookieId: '550e8400-e29b-41d4-a716-446655440001', userLat: 36.7372, userLng: 3.0865 });
+
+    expect(res.status).toBe(409);
+    expect(Signalement.create).not.toHaveBeenCalled();
+  });
+
+  it('autorise la modification si nb_updates=0 et état différent', async () => {
+    DAB.findById.mockResolvedValue({ rows: [fakeDAB] });
+    Signalement.findExisting.mockResolvedValue({
+      rows: [{ id: 5, dab_id: 1, etat: 'disponible', nb_updates: 0 }],
+    });
+    Signalement.updateEtat.mockResolvedValue({});
+    Signalement.getActiveVotes.mockResolvedValue({
+      rows: [{ etat: 'en_panne', count: 1 }],
+    });
+    DAB.updateNbVotes.mockResolvedValue({});
+
+    const res = await request(app)
+      .post('/api/dabs/1/signalements')
+      .send({ etat: 'en_panne', cookieId: '550e8400-e29b-41d4-a716-446655440001', userLat: 36.7372, userLng: 3.0865 });
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.modified).toBe(true);
+    expect(Signalement.updateEtat).toHaveBeenCalledWith(5, 'en_panne');
+    expect(Signalement.create).not.toHaveBeenCalled();
+  });
+
+  it('retourne 429 si déjà modifié une fois (nb_updates=1)', async () => {
+    DAB.findById.mockResolvedValue({ rows: [fakeDAB] });
+    Signalement.findExisting.mockResolvedValue({
+      rows: [{ id: 5, dab_id: 1, etat: 'en_panne', nb_updates: 1 }],
     });
 
     const res = await request(app)
@@ -106,6 +141,7 @@ describe('POST /api/dabs/:id/signalements (anonyme)', () => {
 
     expect(res.status).toBe(429);
     expect(Signalement.create).not.toHaveBeenCalled();
+    expect(Signalement.updateEtat).not.toHaveBeenCalled();
   });
 
   it('retourne 404 si le DAB n\'existe pas', async () => {

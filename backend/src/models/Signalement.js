@@ -12,11 +12,19 @@ const getActiveVotes = (dabId) =>
 
 const findExisting = (dabId, ipHash, cookieId) =>
   db.query(
-    `SELECT id FROM signalements
+    `SELECT id, etat, nb_updates FROM signalements
      WHERE dab_id = $1
        AND expires_at > NOW()
        AND (ip_hash = $2 OR cookie_id = $3)`,
     [dabId, ipHash, cookieId]
+  );
+
+const updateEtat = (id, nouvelEtat) =>
+  db.query(
+    `UPDATE signalements
+     SET etat = $2, nb_updates = nb_updates + 1
+     WHERE id = $1`,
+    [id, nouvelEtat]
   );
 
 const create = (dabId, etat, ipHash, cookieId) => {
@@ -46,4 +54,4 @@ const countByDab = (dabId) =>
     [dabId]
   );
 
-module.exports = { getActiveVotes, findExisting, create, deleteExpired, countByDab };
+module.exports = { getActiveVotes, findExisting, create, updateEtat, deleteExpired, countByDab };

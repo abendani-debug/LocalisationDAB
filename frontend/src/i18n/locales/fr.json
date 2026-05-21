@@ -73,7 +73,13 @@
     "geo_activate": "Activer la géolocalisation",
     "geo_denied": "Géolocalisation refusée. Autorisez-la dans les paramètres de votre navigateur.",
     "geo_too_far": "Vous êtes à {{distance}} de ce DAB. Rapprochez-vous à moins de 1 km pour signaler.",
-    "geo_locating": "Localisation en cours…"
+    "geo_locating": "Localisation en cours…",
+    "already_voted": "Vous avez signalé ce DAB comme : {{etat}}",
+    "modify": "Corriger mon signalement",
+    "modified_success": "Signalement corrigé !",
+    "already_modified": "Vous avez déjà modifié votre signalement (1 modification autorisée).",
+    "same_state": "Vous avez déjà signalé cet état.",
+    "modify_hint": "1 correction possible dans les 4h"
   },
   "propose": {
     "button_mobile": "+ Proposer",
