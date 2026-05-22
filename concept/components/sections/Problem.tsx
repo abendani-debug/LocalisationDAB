@@ -55,7 +55,7 @@ export function Problem() {
               className={`rounded-2xl border p-6 ${p.colorClass}`}
             >
               <div className="mb-4">
-                <Image src={p.img} alt={p.alt} width={96} height={96} className="object-contain" />
+                <Image src={p.img} alt={p.alt} width={160} height={160} className="object-contain" />
               </div>
               <h3 className="font-display font-bold text-lg text-dark dark:text-white mb-2">{p.title}</h3>
               <p className="text-sm text-dark/60 dark:text-white/60 leading-relaxed">{p.text}</p>
