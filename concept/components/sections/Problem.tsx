@@ -1,5 +1,5 @@
 'use client'
-
+// v2
 import { motion } from 'framer-motion'
 import fr from '@/messages/fr.json'
 
