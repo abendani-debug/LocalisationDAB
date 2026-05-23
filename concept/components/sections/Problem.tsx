@@ -54,7 +54,7 @@ export function Problem() {
               transition={{ delay: i * 0.1 }}
               className={`rounded-2xl border p-6 ${p.colorClass}`}
             >
-              <div className="mb-4">
+              <div className="mb-4 flex justify-center">
                 <Image src={p.img} alt={p.alt} width={160} height={160} className="object-contain" />
               </div>
               <h3 className="font-display font-bold text-lg text-dark dark:text-white mb-2">{p.title}</h3>
