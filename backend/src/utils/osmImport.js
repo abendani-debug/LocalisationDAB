@@ -475,4 +475,19 @@ const cleanupAfterImport = async () => {
   return { deleted, linked };
 };
 
-module.exports = { syncGooglePlaces, cleanupAfterImport };
+const { syncFrancePlaces } = require('./frImport');
+
+/**
+ * Import complet Algérie + France en séquence.
+ * @returns {{ algerie, france }}
+ */
+const syncAll = async () => {
+  console.log('[syncAll] Démarrage import Algérie…');
+  const dz = await syncGooglePlaces();
+  console.log('[syncAll] Import Algérie terminé. Démarrage import France…');
+  const fr = await syncFrancePlaces();
+  console.log('[syncAll] Import France terminé.');
+  return { algerie: dz, france: fr };
+};
+
+module.exports = { syncGooglePlaces, cleanupAfterImport, syncAll };
