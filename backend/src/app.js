@@ -15,7 +15,7 @@ const dabRoutes         = require('./routes/dabRoutes');
 const banqueRoutes      = require('./routes/banqueRoutes');
 const serviceRoutes     = require('./routes/serviceRoutes');
 
-const { syncGooglePlaces } = require('./utils/osmImport');
+const { syncAll } = require('./utils/osmImport');
 
 const app = express();
 
@@ -102,14 +102,14 @@ app.get('/api/admin/signalements/stats', authMiddleware, requireAdmin, async (re
 });
 
 app.post('/api/admin/import-google', authMiddleware, requireAdmin, async (req, res) => {
-  const result = await syncGooglePlaces();
-  return successResponse(res, result, 200, 'Import Google Places terminé.');
+  const result = await syncAll();
+  return successResponse(res, result, 200, 'Import Google Places terminé (Algérie + France).');
 });
 
 // ── Cron : import Google Places tous les 3 mois (1er jour de janv/avr/juil/oct à 3h) ──
 cron.schedule('0 3 1 1,4,7,10 *', async () => {
   try {
-    await syncGooglePlaces();
+    await syncAll();
   } catch (err) {
     console.error('Cron Google Places error:', err.message);
   }
