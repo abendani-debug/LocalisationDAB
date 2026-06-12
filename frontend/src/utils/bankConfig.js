@@ -238,7 +238,7 @@ const BANK_CONFIGS = [
     bg: '#0055A5',
     text: '#fff',
     label: 'Bred',
-    logoUrl: null,
+    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/8/86/Banque_Populaire_2018_logo.svg',
   },
   {
     key: 'banque-populaire',
