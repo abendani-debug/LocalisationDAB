@@ -33,3 +33,18 @@ Thumbs.db
 
 # Loose assets
 logo_arab_bank.jpeg
+
+# Médias et assets locaux (trop lourds pour git)
+Logo_Bank/
+Logos/
+Video/
+images/
+*.mp4
+*.png
+tmpbrainstormmap_b64.txt
+tmp_old_video.mp4
+frontend/public/screenshot-*.png
+
+# Fichiers sensibles
+"acces serveur vps.txt"
+acces\ serveur\ vps.txt
