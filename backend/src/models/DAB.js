@@ -93,7 +93,7 @@ const findPropositions = () =>
     `SELECT d.*, b.nom AS banque_nom
      FROM dabs d
      LEFT JOIN banques b ON d.banque_id = b.id
-     WHERE d.is_verified = FALSE
+     WHERE d.is_verified = FALSE AND d.source = 'communaute'
      ORDER BY d.created_at DESC`
   );
 
