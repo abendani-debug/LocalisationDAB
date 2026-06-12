@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import useIsMobile from '../../hooks/useIsMobile';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
-import api from '../../api/axiosConfig';
 import CountrySelector from '../UI/CountrySelector';
 import L from 'leaflet';
 import DABMarker from './DABMarker';
@@ -127,7 +126,11 @@ function AddModeBanner({ isMobile }) {
 }
 
 /* ── Composant principal ─────────────────────────────────────── */
-export default function MapView({ dabs = [], userPosition = null, onCenterChange, onSelectDAB, highlight = null, flyTo = null, onRefresh }) {
+export default function MapView({
+  dabs = [], userPosition = null, onCenterChange, onSelectDAB,
+  highlight = null, flyTo = null, onRefresh,
+  paysList = [], selectedCountryCode = null, onCountryChange,
+}) {
   const { t } = useTranslation();
   const { isAdmin } = useContext(AuthContext);
   const [addMode, setAddMode]               = useState(false);
@@ -135,30 +138,14 @@ export default function MapView({ dabs = [], userPosition = null, onCenterChange
   const [adminEditDab, setAdminEditDab]     = useState(null);
   const isMobile = useIsMobile();
 
-  // Multi-pays : liste des pays actifs + pays sélectionné
-  const [paysList, setPaysList]                   = useState([]);
-  const [selectedCountryCode, setSelectedCountryCode] = useState(null);
+  // FlyToCountry uniquement sur changement MANUEL (pas sur auto-détection)
+  const [manualFlyPays, setManualFlyPays] = useState(null);
 
-  // Charger la liste des pays actifs au montage
-  useEffect(() => {
-    api.get('/pays')
-      .then(r => setPaysList(r.data.data || []))
-      .catch(() => {});
-  }, []);
-
-  // Détecter le pays depuis la géoloc de l'utilisateur (une seule fois)
-  useEffect(() => {
-    if (!userPosition || !paysList.length || selectedCountryCode) return;
-    const detected = paysList.find(p =>
-      userPosition.lat >= parseFloat(p.bbox_min_lat) &&
-      userPosition.lat <= parseFloat(p.bbox_max_lat) &&
-      userPosition.lng >= parseFloat(p.bbox_min_lng) &&
-      userPosition.lng <= parseFloat(p.bbox_max_lng)
-    );
-    setSelectedCountryCode(detected ? detected.code_iso : paysList[0].code_iso);
-  }, [userPosition, paysList, selectedCountryCode]);
-
-  const selectedPays = paysList.find(p => p.code_iso === selectedCountryCode) || null;
+  const handleCountrySelect = (code) => {
+    onCountryChange?.(code);
+    const pays = paysList.find(p => p.code_iso === code);
+    if (pays) setManualFlyPays(pays);
+  };
 
   const center = userPosition
     ? [userPosition.lat, userPosition.lng]
@@ -195,7 +182,7 @@ export default function MapView({ dabs = [], userPosition = null, onCenterChange
 
         <MapClickHandler addMode={addMode} onMapClick={handleMapClick} onCenterChange={onCenterChange} />
         {flyTo && <FlyToTarget target={flyTo} />}
-        {selectedPays && <FlyToCountry pays={selectedPays} />}
+        {manualFlyPays && <FlyToCountry pays={manualFlyPays} />}
 
         {userPosition && (
           <>
@@ -227,7 +214,7 @@ export default function MapView({ dabs = [], userPosition = null, onCenterChange
       {/* Contrôles hors MapContainer pour éviter les conflits Leaflet */}
       <CountrySelector
         selectedCode={selectedCountryCode}
-        onSelect={setSelectedCountryCode}
+        onSelect={handleCountrySelect}
         paysList={paysList}
       />
       {addMode && <AddModeBanner isMobile={isMobile} />}
