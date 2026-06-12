@@ -202,7 +202,7 @@ const BANK_CONFIGS = [
     bg: '#D20019',
     text: '#fff',
     label: 'LCL',
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a8/LCL_logo_2019.svg',
+    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/e/e1/LCL_banque_logo.svg',
   },
   {
     key: 'banque-postale',
@@ -211,7 +211,7 @@ const BANK_CONFIGS = [
     bg: '#F7A600',
     text: '#fff',
     label: 'La Banque Postale',
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/5/54/La_Banque_Postale.svg',
+    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/d/d4/Logo_La_Banque_postale_2022.svg',
   },
   {
     key: 'cic',
@@ -229,7 +229,7 @@ const BANK_CONFIGS = [
     bg: '#003189',
     text: '#fff',
     label: 'Crédit Mutuel',
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/2/26/Cr%C3%A9dit_Mutuel_logo.svg',
+    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/2/28/Cr%C3%A9dit_Mutuel_2022_logo.svg',
   },
   {
     key: 'bred',
@@ -247,7 +247,7 @@ const BANK_CONFIGS = [
     bg: '#0066CC',
     text: '#fff',
     label: 'Banque Populaire',
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/8/82/Banques-populaires-logo.svg',
+    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/8/86/Banque_Populaire_2018_logo.svg',
   },
   {
     key: 'caisse-epargne',
