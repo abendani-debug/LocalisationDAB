@@ -2,7 +2,9 @@ import { useState, useEffect, useRef, useContext } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import useIsMobile from '../../hooks/useIsMobile';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import api from '../../api/axiosConfig';
+import CountrySelector from '../UI/CountrySelector';
 import L from 'leaflet';
 import DABMarker from './DABMarker';
 import { FlyToPosition, FlyToTarget, LocateButton } from './MapControls';
@@ -26,6 +28,18 @@ const USER_ICON = L.divIcon({
 
 const DEFAULT_LNG  = parseFloat(import.meta.env.VITE_MAP_DEFAULT_LNG  || '3.0865');
 const DEFAULT_ZOOM = parseInt(import.meta.env.VITE_MAP_DEFAULT_ZOOM   || '13', 10);
+
+/* ── Centrage sur un pays (utilise useMap à l'intérieur du MapContainer) ─── */
+function FlyToCountry({ pays }) {
+  const map     = useMap();
+  const codeRef = useRef(null);
+  useEffect(() => {
+    if (!pays || pays.code_iso === codeRef.current) return;
+    codeRef.current = pays.code_iso;
+    map.setView([parseFloat(pays.center_lat), parseFloat(pays.center_lng)], pays.default_zoom);
+  }, [pays, map]);
+  return null;
+}
 
 /* ── Capture du clic carte en mode "ajout" + déplacement ───── */
 function MapClickHandler({ addMode, onMapClick, onCenterChange }) {
@@ -116,10 +130,35 @@ function AddModeBanner({ isMobile }) {
 export default function MapView({ dabs = [], userPosition = null, onCenterChange, onSelectDAB, highlight = null, flyTo = null, onRefresh }) {
   const { t } = useTranslation();
   const { isAdmin } = useContext(AuthContext);
-  const [addMode, setAddMode]           = useState(false);
-  const [modalPosition, setModalPosition] = useState(null);
-  const [adminEditDab, setAdminEditDab] = useState(null);
+  const [addMode, setAddMode]               = useState(false);
+  const [modalPosition, setModalPosition]   = useState(null);
+  const [adminEditDab, setAdminEditDab]     = useState(null);
   const isMobile = useIsMobile();
+
+  // Multi-pays : liste des pays actifs + pays sélectionné
+  const [paysList, setPaysList]                   = useState([]);
+  const [selectedCountryCode, setSelectedCountryCode] = useState(null);
+
+  // Charger la liste des pays actifs au montage
+  useEffect(() => {
+    api.get('/pays')
+      .then(r => setPaysList(r.data.data || []))
+      .catch(() => {});
+  }, []);
+
+  // Détecter le pays depuis la géoloc de l'utilisateur (une seule fois)
+  useEffect(() => {
+    if (!userPosition || !paysList.length || selectedCountryCode) return;
+    const detected = paysList.find(p =>
+      userPosition.lat >= parseFloat(p.bbox_min_lat) &&
+      userPosition.lat <= parseFloat(p.bbox_max_lat) &&
+      userPosition.lng >= parseFloat(p.bbox_min_lng) &&
+      userPosition.lng <= parseFloat(p.bbox_max_lng)
+    );
+    setSelectedCountryCode(detected ? detected.code_iso : paysList[0].code_iso);
+  }, [userPosition, paysList, selectedCountryCode]);
+
+  const selectedPays = paysList.find(p => p.code_iso === selectedCountryCode) || null;
 
   const center = userPosition
     ? [userPosition.lat, userPosition.lng]
@@ -156,6 +195,7 @@ export default function MapView({ dabs = [], userPosition = null, onCenterChange
 
         <MapClickHandler addMode={addMode} onMapClick={handleMapClick} onCenterChange={onCenterChange} />
         {flyTo && <FlyToTarget target={flyTo} />}
+        {selectedPays && <FlyToCountry pays={selectedPays} />}
 
         {userPosition && (
           <>
@@ -185,6 +225,11 @@ export default function MapView({ dabs = [], userPosition = null, onCenterChange
       </MapContainer>
 
       {/* Contrôles hors MapContainer pour éviter les conflits Leaflet */}
+      <CountrySelector
+        selectedCode={selectedCountryCode}
+        onSelect={setSelectedCountryCode}
+        paysList={paysList}
+      />
       {addMode && <AddModeBanner isMobile={isMobile} />}
       <AddButton addMode={addMode} onClick={handleAddClick} isMobile={isMobile} />
 

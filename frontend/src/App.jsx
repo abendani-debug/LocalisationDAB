@@ -17,6 +17,7 @@ import AdminDABList      from './pages/admin/AdminDABList';
 import AdminDABForm      from './pages/admin/AdminDABForm';
 import AdminSignalements  from './pages/admin/AdminSignalements';
 import AdminPropositions  from './pages/admin/AdminPropositions';
+import AdminPays          from './pages/admin/AdminPays';
 import CGUPage            from './pages/CGUPage';
 import PrivacyPage        from './pages/PrivacyPage';
 import AboutPage          from './pages/AboutPage';
@@ -58,6 +59,7 @@ function AppRoutes() {
         <Route path="/admin/dabs/:id/edit" element={<AdminRoute><AdminDABForm /></AdminRoute>} />
         <Route path="/admin/signalements"  element={<AdminRoute><AdminSignalements /></AdminRoute>} />
         <Route path="/admin/propositions"  element={<AdminRoute><AdminPropositions /></AdminRoute>} />
+        <Route path="/admin/pays"          element={<AdminRoute><AdminPays /></AdminRoute>} />
 
         <Route path="/cgu"            element={<CGUPage />} />
         <Route path="/confidentialite" element={<PrivacyPage />} />
