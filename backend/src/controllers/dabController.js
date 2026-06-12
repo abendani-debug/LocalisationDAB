@@ -62,8 +62,8 @@ const remove = async (req, res) => {
 // ── Propositions communautaires ──────────────────────────────
 
 const proposer = async (req, res) => {
-  const { nom, adresse, latitude, longitude, banque_id, type_lieu } = req.body;
-  const result = await DAB.propose({ nom, adresse, latitude, longitude, banque_id, type_lieu });
+  const { nom, adresse, latitude, longitude, banque_id, type_lieu, country_code } = req.body;
+  const result = await DAB.propose({ nom, adresse, latitude, longitude, banque_id, type_lieu, country_code });
   return successResponse(res, result.rows[0], 201,
     'Proposition soumise. Elle sera visible après validation par un administrateur.');
 };

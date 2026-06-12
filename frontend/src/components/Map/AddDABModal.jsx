@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { proposerDAB } from '../../api/dabApi';
 import api from '../../api/axiosConfig';
 
-export default function AddDABModal({ position, onClose, onSuccess }) {
+export default function AddDABModal({ position, onClose, onSuccess, countryCode = null }) {
   const { t } = useTranslation();
   const [banques, setBanques] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -16,8 +16,9 @@ export default function AddDABModal({ position, onClose, onSuccess }) {
   ];
 
   useEffect(() => {
-    api.get('/banques').then((r) => setBanques(r.data.data || [])).catch(() => {});
-  }, []);
+    const params = countryCode ? `?country_code=${countryCode}` : '';
+    api.get(`/banques${params}`).then((r) => setBanques(r.data.data || [])).catch(() => {});
+  }, [countryCode]);
 
   const set = (key, val) => setForm((f) => ({ ...f, [key]: val }));
 
@@ -33,6 +34,7 @@ export default function AddDABModal({ position, onClose, onSuccess }) {
         longitude: position.lng,
         type_lieu: form.type_lieu,
         banque_id: form.banque_id ? parseInt(form.banque_id, 10) : undefined,
+        country_code: countryCode || 'DZ',
       });
       onSuccess();
     } catch (err) {

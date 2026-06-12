@@ -80,12 +80,12 @@ const create = ({ nom, adresse, latitude, longitude, statut = 'actif', banque_id
     [nom, adresse || null, latitude, longitude, statut, banque_id || null, type_lieu, source]
   );
 
-const propose = ({ nom, adresse, latitude, longitude, banque_id, type_lieu = 'atm' }) =>
+const propose = ({ nom, adresse, latitude, longitude, banque_id, type_lieu = 'atm', country_code = 'DZ' }) =>
   db.query(
-    `INSERT INTO dabs (nom, adresse, latitude, longitude, statut, banque_id, type_lieu, source, is_verified)
-     VALUES ($1, $2, $3, $4, 'actif', $5, $6, 'communaute', FALSE)
+    `INSERT INTO dabs (nom, adresse, latitude, longitude, statut, banque_id, type_lieu, source, is_verified, country_code)
+     VALUES ($1, $2, $3, $4, 'actif', $5, $6, 'communaute', FALSE, $7)
      RETURNING *`,
-    [nom, adresse || null, latitude, longitude, banque_id || null, type_lieu]
+    [nom, adresse || null, latitude, longitude, banque_id || null, type_lieu, country_code]
   );
 
 const findPropositions = () =>
