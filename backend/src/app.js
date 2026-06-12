@@ -14,6 +14,8 @@ const authRoutes        = require('./routes/authRoutes');
 const dabRoutes         = require('./routes/dabRoutes');
 const banqueRoutes      = require('./routes/banqueRoutes');
 const serviceRoutes     = require('./routes/serviceRoutes');
+const paysRoutes        = require('./routes/paysRoutes');
+const adminPaysRoutes   = require('./routes/adminPaysRoutes');
 
 const { syncAll } = require('./utils/osmImport');
 
@@ -38,10 +40,12 @@ app.use((req, res, next) => {
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 // ── Routes ───────────────────────────────────────────────────
-app.use('/api/auth',     authRoutes);
-app.use('/api/dabs',     dabRoutes);
-app.use('/api/banques',  banqueRoutes);
-app.use('/api/services', serviceRoutes);
+app.use('/api/auth',        authRoutes);
+app.use('/api/dabs',        dabRoutes);
+app.use('/api/banques',     banqueRoutes);
+app.use('/api/services',    serviceRoutes);
+app.use('/api/pays',        paysRoutes);
+app.use('/api/admin/pays',  adminPaysRoutes);
 
 // ── Admin stats ──────────────────────────────────────────────
 const authMiddleware = require('./middlewares/authMiddleware');
