@@ -7,14 +7,25 @@ const RADIUS_METERS           = 25000;
 const DELAY_BETWEEN_CITIES_MS = 300;
 
 const FRENCH_CITIES = [
-  // Île-de-France
-  { name: 'Paris Centre',     lat: 48.8566,  lng:  2.3522 },
-  { name: 'Paris Nord',       lat: 48.9362,  lng:  2.3569 },
-  { name: 'Versailles',       lat: 48.8014,  lng:  2.1301 },
-  { name: 'Créteil',          lat: 48.7773,  lng:  2.4578 },
-  { name: 'Nanterre',         lat: 48.8924,  lng:  2.2070 },
+  // Île-de-France — couverture étendue
+  { name: 'Paris Centre',        lat: 48.8566,  lng:  2.3522 },
+  { name: 'Paris Est',           lat: 48.8500,  lng:  2.4200 },  // Vincennes, Montreuil
+  { name: 'Paris Sud',           lat: 48.8150,  lng:  2.3600 },  // Montrouge, Cachan
+  { name: 'Paris Nord',          lat: 48.9362,  lng:  2.3569 },  // Saint-Denis
+  { name: 'Versailles',          lat: 48.8014,  lng:  2.1301 },
+  { name: 'Boulogne-Billancourt',lat: 48.8352,  lng:  2.2393 },
+  { name: 'Nanterre',            lat: 48.8924,  lng:  2.2070 },
+  { name: 'Argenteuil',          lat: 48.9472,  lng:  2.2468 },
+  { name: 'Créteil',             lat: 48.7773,  lng:  2.4578 },
+  { name: 'Vitry-sur-Seine',     lat: 48.7892,  lng:  2.4003 },
+  { name: 'Noisy-le-Grand',      lat: 48.8396,  lng:  2.5512 },
+  { name: 'Marne-la-Vallée',     lat: 48.8448,  lng:  2.7230 },  // Val d'Europe
+  { name: 'Bobigny',             lat: 48.9093,  lng:  2.4408 },
+  { name: 'Évry',                lat: 48.6246,  lng:  2.4412 },
+  { name: 'Cergy',               lat: 49.0377,  lng:  2.0739 },
   // Auvergne-Rhône-Alpes
   { name: 'Lyon',             lat: 45.7640,  lng:  4.8357 },
+  { name: 'Villeurbanne',     lat: 45.7714,  lng:  4.8892 },  // 2e ville du Grand Lyon
   { name: 'Grenoble',         lat: 45.1885,  lng:  5.7245 },
   { name: 'Saint-Étienne',    lat: 45.4397,  lng:  4.3872 },
   { name: 'Clermont-Ferrand', lat: 45.7774,  lng:  3.0870 },
@@ -24,6 +35,8 @@ const FRENCH_CITIES = [
   // PACA
   { name: 'Marseille',        lat: 43.2965,  lng:  5.3698 },
   { name: 'Nice',             lat: 43.7102,  lng:  7.2620 },
+  { name: 'Cannes',           lat: 43.5528,  lng:  7.0174 },
+  { name: 'Antibes',          lat: 43.5808,  lng:  7.1218 },
   { name: 'Toulon',           lat: 43.1242,  lng:  5.9280 },
   { name: 'Aix-en-Provence',  lat: 43.5297,  lng:  5.4474 },
   { name: 'Avignon',          lat: 43.9493,  lng:  4.8055 },
@@ -36,6 +49,7 @@ const FRENCH_CITIES = [
   { name: 'Montauban',        lat: 44.0175,  lng:  1.3529 },
   // Nouvelle-Aquitaine
   { name: 'Bordeaux',         lat: 44.8378,  lng: -0.5792 },
+  { name: 'Mérignac',         lat: 44.8380,  lng: -0.6440 },  // 1ère banlieue Bordeaux
   { name: 'Limoges',          lat: 45.8336,  lng:  1.2611 },
   { name: 'Poitiers',         lat: 46.5802,  lng:  0.3404 },
   { name: 'La Rochelle',      lat: 46.1603,  lng: -1.1511 },
