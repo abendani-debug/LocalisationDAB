@@ -220,7 +220,7 @@ const BANK_CONFIGS = [
     bg: '#003B8E',
     text: '#fff',
     label: 'CIC',
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/5/5e/CIC_logo_2021.svg',
+    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/0/08/Cr%C3%A9dit_Industriel_et_Commercial_Logo.svg',
   },
   {
     key: 'credit-mutuel',
@@ -256,7 +256,7 @@ const BANK_CONFIGS = [
     bg: '#8B1A1A',
     text: '#fff',
     label: "Caisse d'Épargne",
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/8/8d/Caisse_d%27%C3%A9pargne_logo.svg',
+    logoUrl: 'https://upload.wikimedia.org/wikipedia/en/e/ec/Caisse_d%27Epargne.svg',
   },
   {
     key: 'hsbc',
