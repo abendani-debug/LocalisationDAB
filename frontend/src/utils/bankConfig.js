@@ -193,7 +193,7 @@ const BANK_CONFIGS = [
     bg: '#008A00',
     text: '#fff',
     label: 'Crédit Agricole',
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/1/1d/Logo_Cr%C3%A9dit_Agricole.svg',
+    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/8/8f/Cr%C3%A9dit_Agricole_2020_logo.svg',
   },
   {
     key: 'lcl',
