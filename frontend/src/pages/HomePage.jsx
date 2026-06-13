@@ -213,14 +213,17 @@ export default function HomePage() {
             ))}
           </div>
           <div className="flex-1 overflow-y-auto">
-            {panel === 'filters'
-              ? <DABFilters onFiltersChange={setFilters} countryCode={selectedCountryCode} />
-              : <DABList
-                  dabs={dabs} loading={loading} error={error}
-                  onRetry={refetch} onSelectDAB={setSelectedDabId}
-                  onHighlightDAB={handleHighlight}
-                />
-            }
+            {/* Toujours monté pour éviter le reset des filtres au changement d'onglet */}
+            <div className={panel === 'filters' ? '' : 'hidden'}>
+              <DABFilters onFiltersChange={setFilters} countryCode={selectedCountryCode} />
+            </div>
+            <div className={panel === 'list' ? '' : 'hidden'}>
+              <DABList
+                dabs={dabs} loading={loading} error={error}
+                onRetry={refetch} onSelectDAB={setSelectedDabId}
+                onHighlightDAB={handleHighlight}
+              />
+            </div>
           </div>
         </aside>
 
