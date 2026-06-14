@@ -137,7 +137,6 @@ export default function HomePage() {
   const [selectedDabId, setSelectedDabId] = useState(null);
   const [highlight, setHighlight]         = useState({ id: null, tick: 0 });
   const [flyTo, setFlyTo]                 = useState(null);
-  const lastFliedBanque                   = useRef(null);
   const isMobile                          = useIsMobile();
 
   // Centrer la carte dès que la position réelle est obtenue
@@ -147,13 +146,6 @@ export default function HomePage() {
     }
   }, [status, position]);
 
-  useEffect(() => {
-    if (!filters.banque_id) { lastFliedBanque.current = null; return; }
-    if (loading || dabs.length === 0) return;
-    if (lastFliedBanque.current === filters.banque_id) return;
-    lastFliedBanque.current = filters.banque_id;
-    setFlyTo({ lat: dabs[0].latitude, lng: dabs[0].longitude });
-  }, [filters.banque_id, dabs, loading]);
 
   const handleHighlight = useCallback((id) => {
     setHighlight((prev) => ({ id, tick: prev.tick + 1 }));
