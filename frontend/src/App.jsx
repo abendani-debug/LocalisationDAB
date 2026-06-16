@@ -7,6 +7,7 @@ import AuthProvider from './context/AuthContext';
 import useAuth from './hooks/useAuth';
 import Navbar from './components/UI/Navbar';
 import SplashScreen from './components/UI/SplashScreen';
+import OnboardingScreen from './components/UI/OnboardingScreen';
 
 import HomePage          from './pages/HomePage';
 import DABDetailPage     from './pages/DABDetailPage';
@@ -96,12 +97,21 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(() => {
     const last = localStorage.getItem('splash_last_shown');
     if (!last) return true;
-    const diff = Date.now() - parseInt(last, 10);
-    return diff > 24 * 60 * 60 * 1000;
+    return Date.now() - parseInt(last, 10) > 24 * 60 * 60 * 1000;
   });
+
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
   const handleSplashDone = useCallback(() => {
     localStorage.setItem('splash_last_shown', Date.now().toString());
     setShowSplash(false);
+    if (!localStorage.getItem('mapsdab_onboarding_done')) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleOnboardingDone = useCallback(() => {
+    setShowOnboarding(false);
   }, []);
 
   return (
@@ -113,6 +123,9 @@ export default function App() {
           <AuthProvider>
             <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
             <AppRoutes />
+            {showOnboarding && (
+              <OnboardingScreen onDone={handleOnboardingDone} />
+            )}
           </AuthProvider>
         </BrowserRouter>
       )}
