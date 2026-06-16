@@ -92,7 +92,7 @@ function SlideWithMap({ mapRef, tag, tagStyle, title, desc, current, index, tota
   const isActive = current === index;
   const whiteGrad = 'linear-gradient(to top,rgba(255,255,255,1) 0%,rgba(255,255,255,.88) 35%,rgba(255,255,255,.3) 58%,transparent 75%)';
   return (
-    <div style={{ minWidth: '100%', height: '100%', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', background: '#fff' }}>
+    <div style={{ flex: '0 0 25%', height: '100%', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', background: '#fff' }}>
       {/* Carte Leaflet */}
       <div ref={mapRef} style={{ position: 'absolute', inset: 0, zIndex: 1 }} />
       {/* Dégradé blanc */}
@@ -249,7 +249,7 @@ function ProposeOverlay({ t }) {
 /* ── Slide 4 finale ───────────────────────────────────────────── */
 function SlideFinal({ onDone, t }) {
   return (
-    <div style={{ minWidth:'100%', height:'100%', background:'#fff', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', position:'relative', overflow:'hidden' }}>
+    <div style={{ flex: '0 0 25%', height:'100%', background:'#fff', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', position:'relative', overflow:'hidden' }}>
       {/* Cercles décoratifs bleu pâle */}
       {[
         { w:180, h:180, bottom:'5%',  left:'-40px',  dur:'8s' },
@@ -431,7 +431,7 @@ export default function OnboardingScreen({ onDone }) {
           {/* Track */}
           <div
             className="flex h-full transition-transform duration-300 ease-out"
-            style={{ transform: `translateX(-${current * 100}%)`, width: `${TOTAL * 100}%` }}
+            style={{ transform: `translateX(-${current * 25}%)`, width: `${TOTAL * 100}%` }}
           >
             {/* Slide 1 */}
             <SlideWithMap
