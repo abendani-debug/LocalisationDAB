@@ -219,5 +219,21 @@
     "active": "active",
     "out_of_service": "out_of_service",
     "maintenance": "maintenance"
+  },
+  "onboarding": {
+    "skip": "Skip",
+    "next": "Next",
+    "start": "Get started !",
+    "slide1_tag": "Location",
+    "slide1_title": "Find ATMs near you",
+    "slide1_desc": "Interactive map with all ATMs around you, in real time.",
+    "slide2_tag": "Community",
+    "slide2_title": "Report ATM status",
+    "slide2_desc": "Let other users know in real time: cash available, empty, or out of service…",
+    "slide3_tag": "Contribute",
+    "slide3_title": "Complete the map",
+    "slide3_desc": "Missing an ATM? Report it in one tap to help the community.",
+    "slide4_tagline": "Locate, report, contribute.",
+    "propose_hint": "Tap here to add an ATM"
   }
 }

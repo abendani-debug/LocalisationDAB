@@ -219,5 +219,21 @@
     "active": "actif",
     "out_of_service": "hors_service",
     "maintenance": "maintenance"
+  },
+  "onboarding": {
+    "skip": "Passer",
+    "next": "Suivant",
+    "start": "C'est parti !",
+    "slide1_tag": "Localisation",
+    "slide1_title": "Trouvez les distributeurs près de vous",
+    "slide1_desc": "Carte interactive avec tous les distributeurs autour de vous, en temps réel.",
+    "slide2_tag": "Communauté",
+    "slide2_title": "Signalez l'état des distributeurs",
+    "slide2_desc": "Informez les autres utilisateurs en temps réel : cash disponible, distributeur vide, en panne…",
+    "slide3_tag": "Contribution",
+    "slide3_title": "Complétez la carte",
+    "slide3_desc": "Un distributeur manquant ? Signalez-le en un tap pour aider la communauté.",
+    "slide4_tagline": "Localisez, signalez, contribuez.",
+    "propose_hint": "Appuyez ici pour ajouter un distributeur"
   }
 }
