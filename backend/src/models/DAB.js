@@ -1,11 +1,14 @@
 const db = require('../config/db');
 const { boundingBox } = require('../utils/geoUtils');
 
-const VOTE_DOMINANT_SQL = `(
-  SELECT etat FROM signalements
-  WHERE dab_id = d.id AND expires_at > NOW()
-  GROUP BY etat ORDER BY COUNT(*) DESC LIMIT 1
-) AS vote_dominant`;
+const VOTE_DOMINANT_JOIN = `
+  LEFT JOIN (
+    SELECT DISTINCT ON (dab_id) dab_id, etat AS vote_dominant
+    FROM signalements
+    WHERE expires_at > NOW()
+    GROUP BY dab_id, etat
+    ORDER BY dab_id, COUNT(*) DESC
+  ) vd ON vd.dab_id = d.id`;
 
 const findAll = ({ lat, lng, radius, banque_id, statut, page = 1, limit = 20 }) => {
   const offset = (page - 1) * limit;
@@ -27,9 +30,10 @@ const findAll = ({ lat, lng, radius, banque_id, statut, page = 1, limit = 20 }) 
   params.push(limit, offset);
 
   return db.query(
-    `SELECT d.*, b.nom AS banque_nom, ${VOTE_DOMINANT_SQL}
+    `SELECT d.*, b.nom AS banque_nom, vd.vote_dominant
      FROM dabs d
      LEFT JOIN banques b ON d.banque_id = b.id
+     ${VOTE_DOMINANT_JOIN}
      ${where}
      ORDER BY d.created_at DESC
      LIMIT $${params.length - 1} OFFSET $${params.length}`,
@@ -44,7 +48,7 @@ const findNearby = (lat, lng, radiusKm = 2, banque_id = null) => {
   return db.query(
     `SELECT * FROM (
        SELECT d.*, b.nom AS banque_nom,
-         ${VOTE_DOMINANT_SQL},
+         vd.vote_dominant,
          (6371 * acos(
            cos(radians($1)) * cos(radians(d.latitude::float)) *
            cos(radians(d.longitude::float) - radians($2)) +
@@ -52,6 +56,7 @@ const findNearby = (lat, lng, radiusKm = 2, banque_id = null) => {
          )) AS distance_km
        FROM dabs d
        LEFT JOIN banques b ON d.banque_id = b.id
+       ${VOTE_DOMINANT_JOIN}
        WHERE d.is_verified = TRUE
          AND d.latitude  BETWEEN $3 AND $4
          AND d.longitude BETWEEN $5 AND $6
@@ -65,9 +70,10 @@ const findNearby = (lat, lng, radiusKm = 2, banque_id = null) => {
 
 const findById = (id) =>
   db.query(
-    `SELECT d.*, b.nom AS banque_nom, ${VOTE_DOMINANT_SQL}
+    `SELECT d.*, b.nom AS banque_nom, vd.vote_dominant
      FROM dabs d
      LEFT JOIN banques b ON d.banque_id = b.id
+     ${VOTE_DOMINANT_JOIN}
      WHERE d.id = $1`,
     [id]
   );
