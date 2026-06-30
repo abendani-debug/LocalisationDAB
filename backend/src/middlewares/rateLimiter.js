@@ -46,4 +46,10 @@ const propositionLimiter = rateLimit({
   handler,
 });
 
-module.exports = { globalLimiter, authLimiter, signalLimiter, propositionLimiter, dabsReadLimiter };
+// Signalement : bypasse le rate limit si l'utilisateur est admin authentifié
+const adminBypassSignalLimiter = (req, res, next) => {
+  if (req.user?.role === 'admin') return next();
+  return signalLimiter(req, res, next);
+};
+
+module.exports = { globalLimiter, authLimiter, signalLimiter, adminBypassSignalLimiter, propositionLimiter, dabsReadLimiter };

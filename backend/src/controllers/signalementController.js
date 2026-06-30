@@ -58,6 +58,7 @@ const create = async (req, res) => {
 
   const existing = await Signalement.findExisting(dabId, ipHash, cookieId);
   let isModification = false;
+  const isAdmin = req.user?.role === 'admin';
 
   if (existing.rows.length) {
     const vote = existing.rows[0];
@@ -66,8 +67,8 @@ const create = async (req, res) => {
     if (vote.etat === etat) {
       return errorResponse(res, 'Vous avez déjà signalé cet état pour ce DAB.', 409);
     }
-    // Déjà modifié une fois → bloquer
-    if (vote.nb_updates >= 1) {
+    // Déjà modifié une fois → bloquer (sauf admin)
+    if (!isAdmin && vote.nb_updates >= 1) {
       return errorResponse(res, 'Vous avez déjà modifié votre signalement. Une seule modification est autorisée par vote.', 429);
     }
     // Modification autorisée

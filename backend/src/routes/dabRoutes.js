@@ -6,8 +6,9 @@ const {
 const { getSignalements, create: createSignalement, resoudre } = require('../controllers/signalementController');
 const { getAll: getAvis, create: createAvis, remove: removeAvis } = require('../controllers/avisController');
 const authMiddleware = require('../middlewares/authMiddleware');
+const { optionalAuthMiddleware } = require('../middlewares/authMiddleware');
 const { requireAdmin } = require('../middlewares/roleMiddleware');
-const { signalLimiter, propositionLimiter, dabsReadLimiter } = require('../middlewares/rateLimiter');
+const { signalLimiter, adminBypassSignalLimiter, propositionLimiter, dabsReadLimiter } = require('../middlewares/rateLimiter');
 const validate = require('../middlewares/validateMiddleware');
 const { dabCreateValidator, dabUpdateValidator, nearbyValidator, proposerValidator } = require('../validators/dabValidator');
 const { signalementValidator } = require('../validators/signalementValidator');
@@ -35,7 +36,7 @@ router.get('/:id',     getOne);
 
 // Signalements (anonymes)
 router.get('/:id/signalements',           getSignalements);
-router.post('/:id/signalements',          signalLimiter, signalementValidator, validate, createSignalement);
+router.post('/:id/signalements',          optionalAuthMiddleware, adminBypassSignalLimiter, signalementValidator, validate, createSignalement);
 router.post('/:id/signalements/resoudre', authMiddleware, requireAdmin, resoudre);
 
 // Avis (authentifiés)
