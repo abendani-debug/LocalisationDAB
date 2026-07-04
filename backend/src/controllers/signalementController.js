@@ -75,7 +75,7 @@ const create = async (req, res) => {
     await Signalement.updateEtat(vote.id, etat);
     isModification = true;
   } else {
-    await Signalement.create(dabId, etat, ipHash, cookieId);
+    await Signalement.create(dabId, etat, ipHash, cookieId, isAdmin);
   }
 
   const votesResult = await Signalement.getActiveVotes(dabId);
