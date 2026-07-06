@@ -158,8 +158,21 @@ const resetExpiredEtats = () =>
     RETURNING id
   `);
 
+const findByBanque = (banqueId) =>
+  db.query(
+    `SELECT
+       d.id, d.nom, d.adresse, d.latitude, d.longitude,
+       d.statut, d.etat_communautaire, d.nb_votes_actifs,
+       b.nom AS banque_nom, b.logo_url AS banque_logo
+     FROM dabs d
+     LEFT JOIN banques b ON b.id = d.banque_id
+     WHERE d.banque_id = $1 AND d.statut = 'actif' AND d.is_verified = TRUE
+     ORDER BY d.nom`,
+    [banqueId]
+  );
+
 module.exports = {
-  findAll, findNearby, findById, create, propose,
+  findAll, findNearby, findById, findByBanque, create, propose,
   findPropositions, approuverProposition, rejeterProposition,
   update, remove, updateEtatCommunautaire, updateNbVotes, resetExpiredEtats,
 };
