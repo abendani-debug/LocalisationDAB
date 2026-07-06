@@ -16,14 +16,28 @@ const banqueRoutes      = require('./routes/banqueRoutes');
 const serviceRoutes     = require('./routes/serviceRoutes');
 const paysRoutes        = require('./routes/paysRoutes');
 const adminPaysRoutes   = require('./routes/adminPaysRoutes');
+const embedRoutes       = require('./routes/embedRoutes');
 
 const { syncAll } = require('./utils/osmImport');
 
 const app = express();
 
 // ── Sécurité ────────────────────────────────────────────────
-app.use(helmet());
-app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
+app.use((req, res, next) => {
+  if (req.path.startsWith('/embed')) {
+    helmet({ frameguard: false })(req, res, next);
+  } else {
+    helmet()(req, res, next);
+  }
+});
+
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/embed')) {
+    cors({ origin: '*' })(req, res, next);
+  } else {
+    cors({ origin: env.CORS_ORIGIN, credentials: true })(req, res, next);
+  }
+});
 app.set('trust proxy', 1);
 
 // ── Body parsing ─────────────────────────────────────────────
@@ -46,6 +60,7 @@ app.use('/api/banques',     banqueRoutes);
 app.use('/api/services',    serviceRoutes);
 app.use('/api/pays',        paysRoutes);
 app.use('/api/admin/pays',  adminPaysRoutes);
+app.use('/api/embed',       embedRoutes);
 
 // ── Admin stats ──────────────────────────────────────────────
 const authMiddleware = require('./middlewares/authMiddleware');
