@@ -19,6 +19,7 @@ import AdminDABForm      from './pages/admin/AdminDABForm';
 import AdminSignalements  from './pages/admin/AdminSignalements';
 import AdminPropositions  from './pages/admin/AdminPropositions';
 import AdminPays          from './pages/admin/AdminPays';
+import EmbedPage          from './pages/EmbedPage';
 import CGUPage            from './pages/CGUPage';
 import PrivacyPage        from './pages/PrivacyPage';
 import AboutPage          from './pages/AboutPage';
@@ -94,6 +95,18 @@ function AppRoutes() {
 }
 
 export default function App() {
+  // Route embed — sans splash, sans navbar, sans onboarding
+  const isEmbed = window.location.pathname.startsWith('/embed/');
+  if (isEmbed) {
+    return (
+      <BrowserRouter>
+        <Routes>
+          <Route path="/embed/:token" element={<EmbedPage />} />
+        </Routes>
+      </BrowserRouter>
+    );
+  }
+
   const [showSplash, setShowSplash] = useState(() => {
     const last = localStorage.getItem('splash_last_shown');
     if (!last) return true;
