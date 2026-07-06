@@ -19,6 +19,7 @@ import AdminDABForm      from './pages/admin/AdminDABForm';
 import AdminSignalements  from './pages/admin/AdminSignalements';
 import AdminPropositions  from './pages/admin/AdminPropositions';
 import AdminPays          from './pages/admin/AdminPays';
+import AdminEmbedTokens   from './pages/admin/AdminEmbedTokens';
 import EmbedPage          from './pages/EmbedPage';
 import CGUPage            from './pages/CGUPage';
 import PrivacyPage        from './pages/PrivacyPage';
@@ -62,6 +63,7 @@ function AppRoutes() {
         <Route path="/admin/signalements"  element={<AdminRoute><AdminSignalements /></AdminRoute>} />
         <Route path="/admin/propositions"  element={<AdminRoute><AdminPropositions /></AdminRoute>} />
         <Route path="/admin/pays"          element={<AdminRoute><AdminPays /></AdminRoute>} />
+        <Route path="/admin/embed"         element={<AdminRoute><AdminEmbedTokens /></AdminRoute>} />
 
         <Route path="/cgu"            element={<CGUPage />} />
         <Route path="/confidentialite" element={<PrivacyPage />} />
