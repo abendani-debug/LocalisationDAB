@@ -35,7 +35,8 @@ app.use((req, res, next) => {
   if (req.path.startsWith('/api/embed')) {
     cors({ origin: '*' })(req, res, next);
   } else {
-    cors({ origin: env.CORS_ORIGIN, credentials: true })(req, res, next);
+    const allowedOrigins = env.CORS_ORIGIN.split(',').map(o => o.trim());
+    cors({ origin: allowedOrigins.length === 1 ? allowedOrigins[0] : allowedOrigins, credentials: true })(req, res, next);
   }
 });
 app.set('trust proxy', 1);

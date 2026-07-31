@@ -223,6 +223,7 @@ export default function HomePage() {
           {showBanner && <DefaultPositionBanner onRetry={handleRetry} />}
           <MapView
             dabs={dabs} userPosition={userPosition}
+            geoStatus={status} requestLocation={requestLocation}
             onCenterChange={setMapCenter} onSelectDAB={setSelectedDabId}
             highlight={highlight} flyTo={flyTo}
             onRefresh={refetch}
@@ -246,6 +247,7 @@ export default function HomePage() {
       <div className="absolute inset-0">
         <MapView
           dabs={dabs} userPosition={userPosition}
+          geoStatus={status} requestLocation={requestLocation}
           onCenterChange={setMapCenter} onSelectDAB={setSelectedDabId}
           highlight={highlight} flyTo={flyTo}
           onRefresh={refetch}

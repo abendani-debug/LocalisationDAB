@@ -127,7 +127,7 @@ function AddModeBanner({ isMobile }) {
 
 /* ── Composant principal ─────────────────────────────────────── */
 export default function MapView({
-  dabs = [], userPosition = null, onCenterChange, onSelectDAB,
+  dabs = [], userPosition = null, geoStatus, requestLocation, onCenterChange, onSelectDAB,
   highlight = null, flyTo = null, onRefresh,
   paysList = [], selectedCountryCode = null, onCountryChange,
 }) {
@@ -202,6 +202,8 @@ export default function MapView({
             key={dab.id}
             dab={dab}
             userPosition={userPosition}
+            geoStatus={geoStatus}
+            requestLocation={requestLocation}
             onSelectDAB={onSelectDAB}
             highlightTick={highlight?.id === dab.id ? highlight.tick : 0}
             isActive={highlight?.id === dab.id}
