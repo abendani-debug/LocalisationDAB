@@ -1,8 +1,11 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
-import { etatColor, statutLabel, etatLabel, formatDistance } from '../../utils/formatUtils';
+import { useTranslation } from 'react-i18next';
+import { etatColor, statutLabel, etatLabel, formatDistance, haversineKm } from '../../utils/formatUtils';
 import { getBankConfig } from '../../utils/bankConfig';
+import { submitSignalement, getLocalVote } from '../../api/signalementApi';
+import toast from 'react-hot-toast';
 
 const STATUS_BORDER = { green: '#16a34a', orange: '#ea580c', red: '#dc2626', neutral: '#9ca3af' };
 const STATUS_BG     = { green: '#dcfce7', orange: '#ffedd5', red: '#fee2e2', neutral: '#f3f4f6' };
@@ -120,12 +123,51 @@ const createIcon = (dab, statusColor) => {
 
 /* ─── Composant ──────────────────────────────────────────────────── */
 
-export default function DABMarker({ dab, userPosition, onSelectDAB, highlightTick, isActive, isAdmin, onAdminEdit }) {
+const GEO_LIMIT_KM = 1;
+
+const ETATS = [
+  { key: 'disponible', emoji: '✅', label: 'Disponible', color: '#16a34a' },
+  { key: 'vide',       emoji: '💸', label: 'Vide',       color: '#ea580c' },
+  { key: 'en_panne',   emoji: '🔧', label: 'En panne',   color: '#dc2626' },
+];
+
+export default function DABMarker({ dab, userPosition, geoStatus, requestLocation, onSelectDAB, highlightTick, isActive, isAdmin, onAdminEdit }) {
+  const { t } = useTranslation();
   const statusColor = etatColor(dab);
   const icon        = createIcon(dab, statusColor);
   const bankCfg     = getBankConfig(dab.banque_nom) || getBankConfig(dab.nom);
   const markerRef   = useRef(null);
   const timerRef    = useRef(null);
+
+  const [myVote,    setMyVote]    = useState(() => getLocalVote(dab.id));
+  const [loading,   setLoading]   = useState(false);
+  const [justVoted, setJustVoted] = useState(null);
+  const [selected,  setSelected]  = useState(null);
+
+  const distanceKm = (geoStatus === 'granted' && userPosition)
+    ? haversineKm(userPosition.lat, userPosition.lng, parseFloat(dab.latitude), parseFloat(dab.longitude))
+    : null;
+  const tooFar = distanceKm !== null && distanceKm > GEO_LIMIT_KM;
+
+  const handleSignal = async (etat) => {
+    setSelected(etat);
+    setLoading(true);
+    try {
+      const res = await submitSignalement(dab.id, etat, userPosition.lat, userPosition.lng);
+      const wasModified = res.data?.modified ?? false;
+      toast.success(wasModified ? t('signalement.modified_success') : t('signalement.success'));
+      setMyVote({ etat, nb_updates: wasModified ? 1 : 0 });
+      setJustVoted(etat);
+    } catch (err) {
+      const status = err.response?.status;
+      if (status === 409) toast.error(t('signalement.same_state'));
+      else if (status === 429) toast.error(t('signalement.already_modified'));
+      else toast.error(t('signalement.error'));
+      setSelected(null);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!highlightTick) return;
@@ -284,6 +326,120 @@ export default function DABMarker({ dab, userPosition, onSelectDAB, highlightTic
                 </span>
               )}
             </div>
+          </div>
+
+          {/* ── Signalement rapide ── */}
+          <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '0.55rem', marginBottom: '0.5rem' }}>
+            <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#374151', marginBottom: '0.4rem' }}>
+              Comment est-il maintenant ?
+            </div>
+
+            {/* Géoloc non demandée */}
+            {(!geoStatus || geoStatus === 'idle' || geoStatus === 'requesting') && (
+              <button
+                onClick={requestLocation}
+                disabled={geoStatus === 'requesting'}
+                style={{
+                  width: '100%', padding: '0.4rem',
+                  background: '#eff6ff', color: '#1d4ed8',
+                  border: '1px dashed #93c5fd', borderRadius: '0.4rem',
+                  cursor: geoStatus === 'requesting' ? 'not-allowed' : 'pointer',
+                  fontSize: '0.75rem', fontWeight: 600,
+                }}
+              >
+                📍 {t('signalement.geo_activate')}
+              </button>
+            )}
+
+            {/* Géoloc refusée */}
+            {(geoStatus === 'denied' || geoStatus === 'unavailable') && (
+              <p style={{ fontSize: '0.72rem', color: '#ef4444', textAlign: 'center', margin: 0 }}>
+                🔒 {t('signalement.geo_denied')}
+              </p>
+            )}
+
+            {/* Granted mais position pas encore disponible */}
+            {geoStatus === 'granted' && !userPosition && (
+              <p style={{ fontSize: '0.72rem', color: '#6b7280', textAlign: 'center', margin: 0 }}>
+                🔄 {t('signalement.geo_locating')}
+              </p>
+            )}
+
+            {/* Trop loin */}
+            {geoStatus === 'granted' && userPosition && tooFar && (
+              <p style={{ fontSize: '0.72rem', color: '#d97706', textAlign: 'center', margin: 0 }}>
+                📏 {t('signalement.geo_too_far', { distance: formatDistance(distanceKm) })}
+              </p>
+            )}
+
+            {/* Vient de voter */}
+            {geoStatus === 'granted' && userPosition && !tooFar && justVoted && (
+              <div style={{
+                padding: '0.4rem', textAlign: 'center',
+                background: '#f0fdf4', borderRadius: '0.4rem',
+                fontSize: '0.75rem', color: '#16a34a', fontWeight: 700,
+              }}>
+                ✅ {t('signalement.success')}
+              </div>
+            )}
+
+            {/* Déjà voté */}
+            {geoStatus === 'granted' && userPosition && !tooFar && !justVoted && myVote && (
+              <div style={{
+                padding: '0.35rem 0.5rem',
+                background: '#eff6ff', borderRadius: '0.4rem',
+                fontSize: '0.72rem', color: '#1d4ed8', fontWeight: 600,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.3rem',
+              }}>
+                <span>
+                  {t('signalement.already_voted', {
+                    etat: `${ETATS.find(e => e.key === myVote.etat)?.emoji} ${ETATS.find(e => e.key === myVote.etat)?.label}`,
+                  })}
+                </span>
+                {myVote.nb_updates === 0 && (
+                  <button
+                    onClick={() => setMyVote(null)}
+                    style={{
+                      padding: '0.15rem 0.4rem', background: '#1d4ed8', color: '#fff',
+                      border: 'none', borderRadius: '0.25rem', cursor: 'pointer',
+                      fontSize: '0.65rem', fontWeight: 700, flexShrink: 0,
+                    }}
+                  >
+                    {t('signalement.modify')}
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* 3 boutons de vote */}
+            {geoStatus === 'granted' && userPosition && !tooFar && !justVoted && !myVote && (
+              <div style={{ display: 'flex', gap: '0.3rem' }}>
+                {ETATS.map(({ key, emoji, label, color }) => {
+                  const isSelected = selected === key;
+                  return (
+                    <button
+                      key={key}
+                      disabled={loading}
+                      onClick={() => handleSignal(key)}
+                      style={{
+                        flex: 1, padding: '0.4rem 0.2rem',
+                        background: isSelected ? color : '#fff',
+                        border: `2px solid ${isSelected ? color : '#e5e7eb'}`,
+                        borderRadius: '0.4rem',
+                        cursor: loading ? 'not-allowed' : 'pointer',
+                        fontSize: '0.7rem', fontWeight: 700,
+                        color: isSelected ? '#fff' : '#374151',
+                        textAlign: 'center', opacity: loading && !isSelected ? 0.4 : 1,
+                        transition: 'all 0.15s',
+                      }}
+                    >
+                      <div style={{ fontSize: '1.1rem', lineHeight: 1 }}>{emoji}</div>
+                      <div style={{ fontSize: '0.62rem', marginTop: '2px' }}>{label}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Boutons */}

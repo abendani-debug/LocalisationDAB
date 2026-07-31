@@ -8,6 +8,7 @@ import useGeolocation from '../hooks/useGeolocation';
 import useDABs from '../hooks/useDABs';
 import useSocket from '../hooks/useSocket';
 import useIsMobile from '../hooks/useIsMobile';
+import api from '../api/axiosConfig';
 
 /* ── Détection iOS ──────────────────────────────────────────── */
 const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -109,13 +110,33 @@ export default function HomePage() {
   const [mapCenter, setMapCenter]         = useState(null);
   const [filters, setFilters]             = useState({ radius: 5 });
   const searchPosition                    = mapCenter || position;
+
+  // ── Multi-pays ────────────────────────────────────────────────
+  const [paysList, setPaysList]                       = useState([]);
+  const [selectedCountryCode, setSelectedCountryCode] = useState(null);
+  const userPosition                                  = isDefault ? null : position;
+
+  useEffect(() => {
+    api.get('/pays').then(r => setPaysList(r.data.data || [])).catch(() => {});
+  }, []);
+
+  // Auto-détecter le pays depuis la géoloc (une seule fois)
+  useEffect(() => {
+    if (!userPosition || !paysList.length || selectedCountryCode) return;
+    const detected = paysList.find(p =>
+      userPosition.lat >= parseFloat(p.bbox_min_lat) &&
+      userPosition.lat <= parseFloat(p.bbox_max_lat) &&
+      userPosition.lng >= parseFloat(p.bbox_min_lng) &&
+      userPosition.lng <= parseFloat(p.bbox_max_lng)
+    );
+    setSelectedCountryCode(detected ? detected.code_iso : paysList[0].code_iso);
+  }, [userPosition, paysList, selectedCountryCode]);
   const { dabs, loading, error, refetch, updateDAB } = useDABs(searchPosition, filters);
   const [panel, setPanel]                 = useState('list');
   const [drawerOpen, setDrawerOpen]       = useState(false);
   const [selectedDabId, setSelectedDabId] = useState(null);
   const [highlight, setHighlight]         = useState({ id: null, tick: 0 });
   const [flyTo, setFlyTo]                 = useState(null);
-  const lastFliedBanque                   = useRef(null);
   const isMobile                          = useIsMobile();
 
   // Centrer la carte dès que la position réelle est obtenue
@@ -125,13 +146,6 @@ export default function HomePage() {
     }
   }, [status, position]);
 
-  useEffect(() => {
-    if (!filters.banque_id) { lastFliedBanque.current = null; return; }
-    if (loading || dabs.length === 0) return;
-    if (lastFliedBanque.current === filters.banque_id) return;
-    lastFliedBanque.current = filters.banque_id;
-    setFlyTo({ lat: dabs[0].latitude, lng: dabs[0].longitude });
-  }, [filters.banque_id, dabs, loading]);
 
   const handleHighlight = useCallback((id) => {
     setHighlight((prev) => ({ id, tick: prev.tick + 1 }));
@@ -191,24 +205,31 @@ export default function HomePage() {
             ))}
           </div>
           <div className="flex-1 overflow-y-auto">
-            {panel === 'filters'
-              ? <DABFilters onFiltersChange={setFilters} />
-              : <DABList
-                  dabs={dabs} loading={loading} error={error}
-                  onRetry={refetch} onSelectDAB={setSelectedDabId}
-                  onHighlightDAB={handleHighlight}
-                />
-            }
+            {/* Toujours monté pour éviter le reset des filtres au changement d'onglet */}
+            <div className={panel === 'filters' ? '' : 'hidden'}>
+              <DABFilters onFiltersChange={setFilters} countryCode={selectedCountryCode} />
+            </div>
+            <div className={panel === 'list' ? '' : 'hidden'}>
+              <DABList
+                dabs={dabs} loading={loading} error={error}
+                onRetry={refetch} onSelectDAB={setSelectedDabId}
+                onHighlightDAB={handleHighlight}
+              />
+            </div>
           </div>
         </aside>
 
         <div className="flex-1 h-full min-h-0 overflow-hidden relative">
           {showBanner && <DefaultPositionBanner onRetry={handleRetry} />}
           <MapView
-            dabs={dabs} userPosition={!isDefault ? position : null}
+            dabs={dabs} userPosition={userPosition}
+            geoStatus={status} requestLocation={requestLocation}
             onCenterChange={setMapCenter} onSelectDAB={setSelectedDabId}
             highlight={highlight} flyTo={flyTo}
             onRefresh={refetch}
+            paysList={paysList}
+            selectedCountryCode={selectedCountryCode}
+            onCountryChange={setSelectedCountryCode}
           />
         </div>
 
@@ -225,10 +246,14 @@ export default function HomePage() {
       {/* Carte plein écran */}
       <div className="absolute inset-0">
         <MapView
-          dabs={dabs} userPosition={!isDefault ? position : null}
+          dabs={dabs} userPosition={userPosition}
+          geoStatus={status} requestLocation={requestLocation}
           onCenterChange={setMapCenter} onSelectDAB={setSelectedDabId}
           highlight={highlight} flyTo={flyTo}
           onRefresh={refetch}
+          paysList={paysList}
+          selectedCountryCode={selectedCountryCode}
+          onCountryChange={setSelectedCountryCode}
         />
       </div>
 
@@ -280,7 +305,7 @@ export default function HomePage() {
 
         {/* Filtres */}
         <div className="flex-shrink-0 border-b border-slate-100">
-          <DABFilters onFiltersChange={setFilters} />
+          <DABFilters onFiltersChange={setFilters} countryCode={selectedCountryCode} />
         </div>
 
         {/* Liste */}

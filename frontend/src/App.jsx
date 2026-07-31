@@ -7,6 +7,7 @@ import AuthProvider from './context/AuthContext';
 import useAuth from './hooks/useAuth';
 import Navbar from './components/UI/Navbar';
 import SplashScreen from './components/UI/SplashScreen';
+import OnboardingScreen from './components/UI/OnboardingScreen';
 
 import HomePage          from './pages/HomePage';
 import DABDetailPage     from './pages/DABDetailPage';
@@ -17,6 +18,9 @@ import AdminDABList      from './pages/admin/AdminDABList';
 import AdminDABForm      from './pages/admin/AdminDABForm';
 import AdminSignalements  from './pages/admin/AdminSignalements';
 import AdminPropositions  from './pages/admin/AdminPropositions';
+import AdminPays          from './pages/admin/AdminPays';
+import AdminEmbedTokens   from './pages/admin/AdminEmbedTokens';
+import EmbedPage          from './pages/EmbedPage';
 import CGUPage            from './pages/CGUPage';
 import PrivacyPage        from './pages/PrivacyPage';
 import AboutPage          from './pages/AboutPage';
@@ -58,6 +62,8 @@ function AppRoutes() {
         <Route path="/admin/dabs/:id/edit" element={<AdminRoute><AdminDABForm /></AdminRoute>} />
         <Route path="/admin/signalements"  element={<AdminRoute><AdminSignalements /></AdminRoute>} />
         <Route path="/admin/propositions"  element={<AdminRoute><AdminPropositions /></AdminRoute>} />
+        <Route path="/admin/pays"          element={<AdminRoute><AdminPays /></AdminRoute>} />
+        <Route path="/admin/embed"         element={<AdminRoute><AdminEmbedTokens /></AdminRoute>} />
 
         <Route path="/cgu"            element={<CGUPage />} />
         <Route path="/confidentialite" element={<PrivacyPage />} />
@@ -91,15 +97,36 @@ function AppRoutes() {
 }
 
 export default function App() {
+  // Route embed — sans splash, sans navbar, sans onboarding
+  const isEmbed = window.location.pathname.startsWith('/embed/');
+  if (isEmbed) {
+    return (
+      <BrowserRouter>
+        <Routes>
+          <Route path="/embed/:token" element={<EmbedPage />} />
+        </Routes>
+      </BrowserRouter>
+    );
+  }
+
   const [showSplash, setShowSplash] = useState(() => {
     const last = localStorage.getItem('splash_last_shown');
     if (!last) return true;
-    const diff = Date.now() - parseInt(last, 10);
-    return diff > 24 * 60 * 60 * 1000;
+    return Date.now() - parseInt(last, 10) > 24 * 60 * 60 * 1000;
   });
+
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
   const handleSplashDone = useCallback(() => {
     localStorage.setItem('splash_last_shown', Date.now().toString());
     setShowSplash(false);
+    if (!localStorage.getItem('mapsdab_onboarding_done')) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const handleOnboardingDone = useCallback(() => {
+    setShowOnboarding(false);
   }, []);
 
   return (
@@ -111,6 +138,9 @@ export default function App() {
           <AuthProvider>
             <Toaster position="top-right" toastOptions={{ duration: 3000 }} />
             <AppRoutes />
+            {showOnboarding && (
+              <OnboardingScreen onDone={handleOnboardingDone} />
+            )}
           </AuthProvider>
         </BrowserRouter>
       )}

@@ -39,7 +39,7 @@ function ChipRow({ label, items, activeValue, onSelect, getKey, getLabel }) {
   );
 }
 
-export default function DABFilters({ onFiltersChange }) {
+export default function DABFilters({ onFiltersChange, countryCode = null }) {
   const { t } = useTranslation();
   const [banques, setBanques] = useState([]);
   const [filters, setFilters] = useState({ banque_id: '', statut: '', radius: 2 });
@@ -52,8 +52,16 @@ export default function DABFilters({ onFiltersChange }) {
   ];
 
   useEffect(() => {
-    api.get('/banques').then((r) => setBanques(r.data.data || [])).catch(() => {});
-  }, []);
+    const params = countryCode ? `?country_code=${countryCode}` : '';
+    api.get(`/banques${params}`).then((r) => setBanques(r.data.data || [])).catch(() => {});
+    // Reset bank filter when country changes (banque_id might not exist in new country)
+    setFilters(prev => {
+      if (!prev.banque_id) return prev;
+      const next = { ...prev, banque_id: '' };
+      onFiltersChange(next);
+      return next;
+    });
+  }, [countryCode]);
 
   const handleChange = (key, value) => {
     const next = { ...filters, [key]: value };

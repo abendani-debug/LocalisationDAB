@@ -1,3 +1,5 @@
 User-agent: *
-Allow: /
-Sitemap: https://mapsdab.com/sitemap.xml
+Allow: /concept/
+Disallow: /api/
+
+Sitemap: https://mapsdab.com/concept/sitemap.xml

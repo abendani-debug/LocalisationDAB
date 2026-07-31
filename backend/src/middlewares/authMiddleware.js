@@ -31,4 +31,22 @@ const authMiddleware = async (req, res, next) => {
   next();
 };
 
+// Variante optionnelle : essaie de lire le JWT mais ne bloque jamais si absent
+const optionalAuthMiddleware = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) return next();
+  const token = authHeader.slice(7);
+  try {
+    const payload = jwt.verify(token, env.JWT_SECRET);
+    const result = await db.query(
+      'SELECT id, nom, email, role, is_active FROM users WHERE id = $1',
+      [payload.userId]
+    );
+    const user = result.rows[0];
+    if (user?.is_active) req.user = user;
+  } catch { /* token invalide ou expiré : on ignore, req.user reste undefined */ }
+  next();
+};
+
 module.exports = authMiddleware;
+module.exports.optionalAuthMiddleware = optionalAuthMiddleware;

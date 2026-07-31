@@ -27,9 +27,10 @@ const updateEtat = (id, nouvelEtat) =>
     [id, nouvelEtat]
   );
 
-const create = (dabId, etat, ipHash, cookieId) => {
+const create = (dabId, etat, ipHash, cookieId, isAdmin = false) => {
+  const dureeHeures = isAdmin ? 24 : env.SIGNALEMENT_DUREE_HEURES;
   const expiresAt = new Date(
-    Date.now() + env.SIGNALEMENT_DUREE_HEURES * 60 * 60 * 1000
+    Date.now() + dureeHeures * 60 * 60 * 1000
   ).toISOString();
   return db.query(
     `INSERT INTO signalements (dab_id, etat, ip_hash, cookie_id, expires_at)

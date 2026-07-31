@@ -2,7 +2,8 @@ import { useState, useEffect, useRef, useContext } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import useIsMobile from '../../hooks/useIsMobile';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import CountrySelector from '../UI/CountrySelector';
 import L from 'leaflet';
 import DABMarker from './DABMarker';
 import { FlyToPosition, FlyToTarget, LocateButton } from './MapControls';
@@ -26,6 +27,18 @@ const USER_ICON = L.divIcon({
 
 const DEFAULT_LNG  = parseFloat(import.meta.env.VITE_MAP_DEFAULT_LNG  || '3.0865');
 const DEFAULT_ZOOM = parseInt(import.meta.env.VITE_MAP_DEFAULT_ZOOM   || '13', 10);
+
+/* ── Centrage sur un pays (utilise useMap à l'intérieur du MapContainer) ─── */
+function FlyToCountry({ pays }) {
+  const map     = useMap();
+  const codeRef = useRef(null);
+  useEffect(() => {
+    if (!pays || pays.code_iso === codeRef.current) return;
+    codeRef.current = pays.code_iso;
+    map.setView([parseFloat(pays.center_lat), parseFloat(pays.center_lng)], pays.default_zoom);
+  }, [pays, map]);
+  return null;
+}
 
 /* ── Capture du clic carte en mode "ajout" + déplacement ───── */
 function MapClickHandler({ addMode, onMapClick, onCenterChange }) {
@@ -113,13 +126,26 @@ function AddModeBanner({ isMobile }) {
 }
 
 /* ── Composant principal ─────────────────────────────────────── */
-export default function MapView({ dabs = [], userPosition = null, onCenterChange, onSelectDAB, highlight = null, flyTo = null, onRefresh }) {
+export default function MapView({
+  dabs = [], userPosition = null, geoStatus, requestLocation, onCenterChange, onSelectDAB,
+  highlight = null, flyTo = null, onRefresh,
+  paysList = [], selectedCountryCode = null, onCountryChange,
+}) {
   const { t } = useTranslation();
   const { isAdmin } = useContext(AuthContext);
-  const [addMode, setAddMode]           = useState(false);
-  const [modalPosition, setModalPosition] = useState(null);
-  const [adminEditDab, setAdminEditDab] = useState(null);
+  const [addMode, setAddMode]               = useState(false);
+  const [modalPosition, setModalPosition]   = useState(null);
+  const [adminEditDab, setAdminEditDab]     = useState(null);
   const isMobile = useIsMobile();
+
+  // FlyToCountry uniquement sur changement MANUEL (pas sur auto-détection)
+  const [manualFlyPays, setManualFlyPays] = useState(null);
+
+  const handleCountrySelect = (code) => {
+    onCountryChange?.(code);
+    const pays = paysList.find(p => p.code_iso === code);
+    if (pays) setManualFlyPays(pays);
+  };
 
   const center = userPosition
     ? [userPosition.lat, userPosition.lng]
@@ -156,6 +182,7 @@ export default function MapView({ dabs = [], userPosition = null, onCenterChange
 
         <MapClickHandler addMode={addMode} onMapClick={handleMapClick} onCenterChange={onCenterChange} />
         {flyTo && <FlyToTarget target={flyTo} />}
+        {manualFlyPays && <FlyToCountry pays={manualFlyPays} />}
 
         {userPosition && (
           <>
@@ -175,6 +202,8 @@ export default function MapView({ dabs = [], userPosition = null, onCenterChange
             key={dab.id}
             dab={dab}
             userPosition={userPosition}
+            geoStatus={geoStatus}
+            requestLocation={requestLocation}
             onSelectDAB={onSelectDAB}
             highlightTick={highlight?.id === dab.id ? highlight.tick : 0}
             isActive={highlight?.id === dab.id}
@@ -185,6 +214,11 @@ export default function MapView({ dabs = [], userPosition = null, onCenterChange
       </MapContainer>
 
       {/* Contrôles hors MapContainer pour éviter les conflits Leaflet */}
+      <CountrySelector
+        selectedCode={selectedCountryCode}
+        onSelect={handleCountrySelect}
+        paysList={paysList}
+      />
       {addMode && <AddModeBanner isMobile={isMobile} />}
       <AddButton addMode={addMode} onClick={handleAddClick} isMobile={isMobile} />
 
@@ -194,6 +228,7 @@ export default function MapView({ dabs = [], userPosition = null, onCenterChange
           position={modalPosition}
           onClose={() => setModalPosition(null)}
           onSuccess={handleSuccess}
+          countryCode={selectedCountryCode}
         />
       )}
 

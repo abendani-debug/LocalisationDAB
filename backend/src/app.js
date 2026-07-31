@@ -14,14 +14,31 @@ const authRoutes        = require('./routes/authRoutes');
 const dabRoutes         = require('./routes/dabRoutes');
 const banqueRoutes      = require('./routes/banqueRoutes');
 const serviceRoutes     = require('./routes/serviceRoutes');
+const paysRoutes        = require('./routes/paysRoutes');
+const adminPaysRoutes   = require('./routes/adminPaysRoutes');
+const embedRoutes       = require('./routes/embedRoutes');
 
-const { syncGooglePlaces } = require('./utils/osmImport');
+const { syncAll } = require('./utils/osmImport');
 
 const app = express();
 
 // ── Sécurité ────────────────────────────────────────────────
-app.use(helmet());
-app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
+app.use((req, res, next) => {
+  if (req.path.startsWith('/embed')) {
+    helmet({ frameguard: false })(req, res, next);
+  } else {
+    helmet()(req, res, next);
+  }
+});
+
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/embed')) {
+    cors({ origin: '*' })(req, res, next);
+  } else {
+    const allowedOrigins = env.CORS_ORIGIN.split(',').map(o => o.trim());
+    cors({ origin: allowedOrigins.length === 1 ? allowedOrigins[0] : allowedOrigins, credentials: true })(req, res, next);
+  }
+});
 app.set('trust proxy', 1);
 
 // ── Body parsing ─────────────────────────────────────────────
@@ -38,10 +55,13 @@ app.use((req, res, next) => {
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 
 // ── Routes ───────────────────────────────────────────────────
-app.use('/api/auth',     authRoutes);
-app.use('/api/dabs',     dabRoutes);
-app.use('/api/banques',  banqueRoutes);
-app.use('/api/services', serviceRoutes);
+app.use('/api/auth',        authRoutes);
+app.use('/api/dabs',        dabRoutes);
+app.use('/api/banques',     banqueRoutes);
+app.use('/api/services',    serviceRoutes);
+app.use('/api/pays',        paysRoutes);
+app.use('/api/admin/pays',  adminPaysRoutes);
+app.use('/api/embed',       embedRoutes);
 
 // ── Admin stats ──────────────────────────────────────────────
 const authMiddleware = require('./middlewares/authMiddleware');
@@ -102,14 +122,14 @@ app.get('/api/admin/signalements/stats', authMiddleware, requireAdmin, async (re
 });
 
 app.post('/api/admin/import-google', authMiddleware, requireAdmin, async (req, res) => {
-  const result = await syncGooglePlaces();
-  return successResponse(res, result, 200, 'Import Google Places terminé.');
+  const result = await syncAll();
+  return successResponse(res, result, 200, 'Import Google Places terminé (Algérie + France).');
 });
 
 // ── Cron : import Google Places tous les 3 mois (1er jour de janv/avr/juil/oct à 3h) ──
 cron.schedule('0 3 1 1,4,7,10 *', async () => {
   try {
-    await syncGooglePlaces();
+    await syncAll();
   } catch (err) {
     console.error('Cron Google Places error:', err.message);
   }
