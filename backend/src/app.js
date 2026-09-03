@@ -67,7 +67,10 @@ app.use('/api/embed',       embedRoutes);
 const authMiddleware = require('./middlewares/authMiddleware');
 const { requireAdmin } = require('./middlewares/roleMiddleware');
 const db = require('./config/db');
-const { successResponse } = require('./utils/responseUtils');
+const { successResponse, errorResponse } = require('./utils/responseUtils');
+const { periodValidator } = require('./validators/statsValidator');
+const validate = require('./middlewares/validateMiddleware');
+const StatsService = require('./models/StatsService');
 
 app.get('/api/admin/stats', authMiddleware, requireAdmin, async (req, res) => {
   const [dabs, users, signalements, propositions] = await Promise.all([
@@ -119,6 +122,25 @@ app.get('/api/admin/signalements/stats', authMiddleware, requireAdmin, async (re
     totalSignalements: total.rows[0].total,
     signalementsActifs: actifs.rows[0].total,
   });
+});
+
+app.get('/api/admin/stats/banques', authMiddleware, requireAdmin, periodValidator, validate, async (req, res) => {
+  const period = req.query.period || '30';
+  const rows = await StatsService.getStatsToutesBanques(period);
+  const banques = rows.map((r) => ({
+    ...r,
+    taux_disponibilite: r.total_signalements > 0
+      ? Math.round((r.total_disponible / r.total_signalements) * 1000) / 10
+      : null,
+  }));
+  return successResponse(res, { period, banques });
+});
+
+app.get('/api/admin/stats/banques/:id', authMiddleware, requireAdmin, periodValidator, validate, async (req, res) => {
+  const period = req.query.period || '30';
+  const stats = await StatsService.getStatsBanque(req.params.id, period);
+  if (!stats) return errorResponse(res, 'Banque introuvable.', 404);
+  return successResponse(res, { period, ...stats });
 });
 
 app.post('/api/admin/import-google', authMiddleware, requireAdmin, async (req, res) => {
