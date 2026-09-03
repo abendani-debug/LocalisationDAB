@@ -5,7 +5,12 @@ const StatsService = require('../models/StatsService');
 const { successResponse, errorResponse } = require('../utils/responseUtils');
 
 const validateToken = async (token, req) => {
-  const result = await EmbedToken.findByToken(token);
+  let result;
+  try {
+    result = await EmbedToken.findByToken(token);
+  } catch {
+    return null;
+  }
   if (!result.rows.length) return null;
   const t = result.rows[0];
   if (!t.is_active) return null;

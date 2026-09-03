@@ -82,4 +82,26 @@ describe('GET /api/embed/:token/stats', () => {
     const res = await request(app).get('/api/embed/aaaa-token/stats?period=abc');
     expect(res.status).toBe(422);
   });
+
+  it('retourne 403 (pas 500) si le token n\'est pas un UUID valide', async () => {
+    EmbedToken.findByToken.mockRejectedValue(
+      Object.assign(new Error('syntaxe en entrée invalide pour le type uuid'), { code: '22P02' })
+    );
+
+    const res = await request(app).get('/api/embed/pas-un-uuid/stats');
+
+    expect(res.status).toBe(403);
+  });
+});
+
+describe('GET /api/embed/:token/dabs', () => {
+  it('retourne 403 (pas 500) si le token n\'est pas un UUID valide', async () => {
+    EmbedToken.findByToken.mockRejectedValue(
+      Object.assign(new Error('syntaxe en entrée invalide pour le type uuid'), { code: '22P02' })
+    );
+
+    const res = await request(app).get('/api/embed/pas-un-uuid/dabs');
+
+    expect(res.status).toBe(403);
+  });
 });
