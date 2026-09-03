@@ -81,34 +81,31 @@ export default function AdminStatsBanques() {
 
       {loading ? (
         <div className="py-16 flex justify-center"><Spinner /></div>
+      ) : banques.length === 0 ? (
+        <div className="bg-white border border-slate-100 rounded-xl mb-8">
+          <p className="px-5 py-8 text-center text-slate-400 text-sm">Aucune banque sur cette période.</p>
+        </div>
       ) : (
-        <div className="bg-white border border-slate-100 rounded-xl overflow-hidden mb-8">
-          {banques.length === 0 && (
-            <p className="px-5 py-8 text-center text-slate-400 text-sm">Aucun signalement sur cette période.</p>
-          )}
-          {banques.map((b, i) => (
-            <button
-              key={b.banque_id}
-              onClick={() => setSelectedId(b.banque_id)}
-              className={`w-full text-left px-5 py-3 flex justify-between items-center cursor-pointer ${
-                i < banques.length - 1 ? 'border-b border-slate-100' : ''
-              } ${selectedId === b.banque_id ? 'bg-blue-50' : 'hover:bg-slate-50'}`}
-            >
-              <span className="font-semibold text-gray-900 text-sm">{b.banque_nom}</span>
-              <span className="flex items-center gap-4 text-sm">
-                <span className="text-slate-500">
-                  {b.total_signalements} signalement{b.total_signalements > 1 ? 's' : ''}
-                </span>
-                <span className={`font-bold ${
-                  b.taux_disponibilite === null ? 'text-slate-400'
-                    : b.taux_disponibilite >= 70 ? 'text-green-600'
-                    : b.taux_disponibilite >= 40 ? 'text-amber-600' : 'text-red-600'
-                }`}>
-                  {b.taux_disponibilite !== null ? `${b.taux_disponibilite}%` : '—'}
-                </span>
-              </span>
-            </button>
-          ))}
+        <div className="mb-8">
+          <label htmlFor="banque-select" className="block text-xs font-bold uppercase tracking-wide text-slate-400 mb-2">
+            Banque
+          </label>
+          <select
+            id="banque-select"
+            value={selectedId ?? ''}
+            onChange={(e) => setSelectedId(e.target.value ? Number(e.target.value) : null)}
+            className="w-full max-w-md border border-slate-200 rounded-lg px-3 py-2.5 text-sm bg-white cursor-pointer"
+          >
+            <option value="">— Choisir une banque —</option>
+            {[...banques]
+              .sort((a, b) => a.banque_nom.localeCompare(b.banque_nom))
+              .map((b) => (
+                <option key={b.banque_id} value={b.banque_id}>
+                  {b.banque_nom} — {b.total_signalements} signalement{b.total_signalements > 1 ? 's' : ''}
+                  {b.taux_disponibilite !== null ? ` (${b.taux_disponibilite}%)` : ''}
+                </option>
+              ))}
+          </select>
         </div>
       )}
 
