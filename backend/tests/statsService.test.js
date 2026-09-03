@@ -64,4 +64,16 @@ describe('StatsService.getStatsToutesBanques', () => {
     expect(result).toHaveLength(2);
     expect(result[0].banque_nom).toBe('CPA');
   });
+
+  it('part de banques (LEFT JOIN) pour inclure les banques sans signalement', async () => {
+    db.query.mockResolvedValueOnce({ rows: [] });
+
+    await StatsService.getStatsToutesBanques('30');
+
+    const sql = db.query.mock.calls[0][0];
+    expect(sql).toMatch(/FROM banques b/);
+    expect(sql).toMatch(/LEFT JOIN dabs/);
+    expect(sql).toMatch(/LEFT JOIN signalements_archive/);
+    expect(sql).not.toMatch(/FROM signalements_archive/);
+  });
 });

@@ -60,12 +60,13 @@ const getStatsToutesBanques = async (period = '30') => {
   const result = await db.query(
     `SELECT
        b.id AS banque_id, b.nom AS banque_nom,
-       COUNT(*)::int AS total_signalements,
-       COUNT(*) FILTER (WHERE sa.etat = 'disponible')::int AS total_disponible
-     FROM signalements_archive sa
-     JOIN dabs d ON d.id = sa.dab_id
-     JOIN banques b ON b.id = d.banque_id
-     WHERE ($1::timestamptz IS NULL OR sa.created_at >= $1)
+       COUNT(sa.id) FILTER (WHERE $1::timestamptz IS NULL OR sa.created_at >= $1)::int AS total_signalements,
+       COUNT(sa.id) FILTER (
+         WHERE sa.etat = 'disponible' AND ($1::timestamptz IS NULL OR sa.created_at >= $1)
+       )::int AS total_disponible
+     FROM banques b
+     LEFT JOIN dabs d ON d.banque_id = b.id
+     LEFT JOIN signalements_archive sa ON sa.dab_id = d.id
      GROUP BY b.id, b.nom
      ORDER BY total_signalements DESC`,
     [since]
