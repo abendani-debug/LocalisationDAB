@@ -1,6 +1,7 @@
 require('express-async-errors');
 const EmbedToken = require('../models/EmbedToken');
 const DAB = require('../models/DAB');
+const StatsService = require('../models/StatsService');
 const { successResponse, errorResponse } = require('../utils/responseUtils');
 
 const validateToken = async (token, req) => {
@@ -28,6 +29,17 @@ const getDabs = async (req, res) => {
     banque: { id: embedToken.banque_id, nom: embedToken.banque_nom },
     dabs: result.rows,
   });
+};
+
+const getStats = async (req, res) => {
+  const { token } = req.params;
+  const embedToken = await validateToken(token, req);
+  if (!embedToken) return errorResponse(res, 'Token invalide ou expiré.', 403);
+
+  const period = req.query.period || '30';
+  const stats = await StatsService.getStatsBanque(embedToken.banque_id, period);
+  if (!stats) return errorResponse(res, 'Banque introuvable.', 404);
+  return successResponse(res, { period, ...stats });
 };
 
 const listTokens = async (req, res) => {
@@ -60,4 +72,4 @@ const extendToken = async (req, res) => {
   return successResponse(res, result.rows[0], 200, `Essai prolongé de ${days} jours.`);
 };
 
-module.exports = { getDabs, listTokens, createToken, toggleToken, extendToken };
+module.exports = { getDabs, getStats, listTokens, createToken, toggleToken, extendToken };

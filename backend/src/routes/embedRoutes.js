@@ -1,12 +1,15 @@
 const router = require('express').Router();
 const {
-  getDabs, listTokens, createToken, toggleToken, extendToken,
+  getDabs, getStats, listTokens, createToken, toggleToken, extendToken,
 } = require('../controllers/embedController');
 const authMiddleware = require('../middlewares/authMiddleware');
 const { requireAdmin } = require('../middlewares/roleMiddleware');
+const { periodValidator } = require('../validators/statsValidator');
+const validate = require('../middlewares/validateMiddleware');
 
-// Route publique — appelée par la page embed frontend
-router.get('/:token/dabs', getDabs);
+// Routes publiques — appelées par les pages embed frontend
+router.get('/:token/dabs',  getDabs);
+router.get('/:token/stats', periodValidator, validate, getStats);
 
 // Routes admin — gestion tokens
 router.get('/admin/tokens',             authMiddleware, requireAdmin, listTokens);
