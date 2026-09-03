@@ -8,7 +8,8 @@ const validateToken = async (token, req) => {
   let result;
   try {
     result = await EmbedToken.findByToken(token);
-  } catch {
+  } catch (err) {
+    if (err.code !== '22P02') throw err;
     return null;
   }
   if (!result.rows.length) return null;
