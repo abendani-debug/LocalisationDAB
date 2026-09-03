@@ -31,6 +31,9 @@ Thumbs.db
 # Superpowers brainstorm (local only)
 .superpowers/
 
+# Git worktrees (local only)
+.worktrees/
+
 # Loose assets
 logo_arab_bank.jpeg
 
