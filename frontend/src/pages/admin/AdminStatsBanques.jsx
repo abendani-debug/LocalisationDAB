@@ -46,10 +46,14 @@ export default function AdminStatsBanques() {
 
   useEffect(() => {
     if (!selectedId) { setDetail(null); return; }
+    let ignore = false;
+    setDetail(null);
     setDetailLoading(true);
     api.get(`/admin/stats/banques/${selectedId}`, { params: { period } })
-      .then((r) => setDetail(r.data.data))
-      .finally(() => setDetailLoading(false));
+      .then((r) => { if (!ignore) setDetail(r.data.data); })
+      .catch(() => { if (!ignore) setDetail(null); })
+      .finally(() => { if (!ignore) setDetailLoading(false); });
+    return () => { ignore = true; };
   }, [selectedId, period]);
 
   const evolutionData = detail ? pivotEvolution(detail.evolution) : [];
