@@ -72,6 +72,9 @@ export default function AdminDashboard() {
         <Link to="/admin/embed" className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-sm font-semibold transition-colors">
           🔗 Widgets Embed
         </Link>
+        <Link to="/admin/stats-banques" className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-semibold transition-colors">
+          📊 Stats banques
+        </Link>
         <button
           onClick={handleImportGoogle}
           disabled={importing}

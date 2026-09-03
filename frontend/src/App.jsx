@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, Link, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { I18nextProvider, useTranslation } from 'react-i18next';
@@ -24,6 +24,9 @@ import EmbedPage          from './pages/EmbedPage';
 import CGUPage            from './pages/CGUPage';
 import PrivacyPage        from './pages/PrivacyPage';
 import AboutPage          from './pages/AboutPage';
+
+const AdminStatsBanques = lazy(() => import('./pages/admin/AdminStatsBanques'));
+const EmbedStatsPage    = lazy(() => import('./pages/EmbedStatsPage'));
 
 function PrivateRoute({ children }) {
   const { isAuthenticated, loading } = useAuth();
@@ -64,6 +67,16 @@ function AppRoutes() {
         <Route path="/admin/propositions"  element={<AdminRoute><AdminPropositions /></AdminRoute>} />
         <Route path="/admin/pays"          element={<AdminRoute><AdminPays /></AdminRoute>} />
         <Route path="/admin/embed"         element={<AdminRoute><AdminEmbedTokens /></AdminRoute>} />
+        <Route
+          path="/admin/stats-banques"
+          element={
+            <AdminRoute>
+              <Suspense fallback={null}>
+                <AdminStatsBanques />
+              </Suspense>
+            </AdminRoute>
+          }
+        />
 
         <Route path="/cgu"            element={<CGUPage />} />
         <Route path="/confidentialite" element={<PrivacyPage />} />
@@ -104,6 +117,14 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/embed/:token" element={<EmbedPage />} />
+          <Route
+            path="/embed/:token/stats"
+            element={
+              <Suspense fallback={null}>
+                <EmbedStatsPage />
+              </Suspense>
+            }
+          />
         </Routes>
       </BrowserRouter>
     );
