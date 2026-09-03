@@ -4,11 +4,12 @@ jest.mock('../src/utils/osmImport', () => ({ syncGooglePlaces: jest.fn() }));
 // Désactiver tous les rate limiters pour ne pas interférer avec les tests
 const noopMiddleware = (req, res, next) => next();
 jest.mock('../src/middlewares/rateLimiter', () => ({
-  globalLimiter:     (req, res, next) => next(),
-  authLimiter:       (req, res, next) => next(),
-  signalLimiter:     (req, res, next) => next(),
-  propositionLimiter:(req, res, next) => next(),
-  dabsReadLimiter:   (req, res, next) => next(),
+  globalLimiter:           (req, res, next) => next(),
+  authLimiter:             (req, res, next) => next(),
+  signalLimiter:           (req, res, next) => next(),
+  adminBypassSignalLimiter:(req, res, next) => next(),
+  propositionLimiter:      (req, res, next) => next(),
+  dabsReadLimiter:         (req, res, next) => next(),
 }));
 
 const mockEmit = jest.fn();
