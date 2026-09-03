@@ -75,5 +75,11 @@ describe('StatsService.getStatsToutesBanques', () => {
     expect(sql).toMatch(/LEFT JOIN dabs/);
     expect(sql).toMatch(/LEFT JOIN signalements_archive/);
     expect(sql).not.toMatch(/FROM signalements_archive/);
+    // Le filtre de période doit vivre dans les FILTER(WHERE ...) des agrégats,
+    // jamais dans une clause WHERE globale : avec le LEFT JOIN, une ligne sans
+    // signalement a sa.created_at = NULL, et un WHERE global sur cette colonne
+    // exclurait silencieusement ces banques (régression exacte de ce fix).
+    expect((sql.match(/WHERE/g) || []).length).toBe(2);
+    expect(sql).not.toMatch(/LEFT JOIN signalements_archive sa ON sa\.dab_id = d\.id\s+WHERE/);
   });
 });
