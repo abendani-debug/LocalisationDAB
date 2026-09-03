@@ -50,22 +50,29 @@ export default function EmbedStatsPage() {
   );
 
   const evolutionData = pivotEvolution(stats.evolution ?? []);
-  const totalNegatif = (stats.parEtat ?? [])
-    .filter((e) => e.etat === 'vide' || e.etat === 'en_panne')
-    .reduce((sum, e) => sum + e.total, 0);
-  const totalDisponible = (stats.parEtat ?? []).find((e) => e.etat === 'disponible')?.total || 0;
-  const total = totalDisponible + totalNegatif;
-  const tauxDispo = total > 0 ? Math.round((totalDisponible / total) * 1000) / 10 : null;
+  const parEtat = stats.parEtat ?? [];
+  const totalParEtat = parEtat.reduce((s, e) => s + e.total, 0);
 
   return (
     <div style={{ width: '100%', minHeight: '100vh', fontFamily: 'sans-serif', padding: 24, boxSizing: 'border-box' }}>
       <h1 style={{ fontSize: 20, fontWeight: 800, color: '#111827', marginBottom: 4 }}>{stats.banque.nom}</h1>
-      <p style={{ fontSize: 13, color: '#6b7280', marginBottom: 24 }}>
-        Taux de disponibilité (30 derniers jours) :{' '}
-        <strong style={{ color: tauxDispo === null ? '#6b7280' : tauxDispo >= 70 ? '#16a34a' : tauxDispo >= 40 ? '#f59e0b' : '#dc2626' }}>
-          {tauxDispo !== null ? `${tauxDispo}%` : '—'}
-        </strong>
-      </p>
+      <p style={{ fontSize: 12, color: '#9ca3af', marginBottom: 16 }}>30 derniers jours</p>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginBottom: 24 }}>
+        {['disponible', 'vide', 'en_panne'].map((etat) => {
+          const count = parEtat.find((e) => e.etat === etat)?.total || 0;
+          const pct = totalParEtat > 0 ? Math.round((count / totalParEtat) * 100) : null;
+          return (
+            <div key={etat} style={{ border: '1px solid #f1f5f9', borderRadius: 10, padding: '10px 8px', textAlign: 'center' }}>
+              <p style={{ margin: 0, fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.3px', color: ETAT_COLORS[etat] }}>
+                {ETAT_LABELS[etat]}
+              </p>
+              <p style={{ margin: '4px 0 0', fontSize: 22, fontWeight: 800, color: '#111827' }}>{count}</p>
+              <p style={{ margin: 0, fontSize: 11, color: '#9ca3af' }}>{pct !== null ? `${pct}%` : '—'}</p>
+            </div>
+          );
+        })}
+      </div>
 
       <div style={{ height: 260, marginBottom: 32 }}>
         <ResponsiveContainer width="100%" height="100%">

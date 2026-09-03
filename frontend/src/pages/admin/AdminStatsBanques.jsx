@@ -117,6 +117,25 @@ export default function AdminStatsBanques() {
             <>
               <h2 className="text-lg font-bold text-gray-900 mb-4">{detail.banque.nom}</h2>
 
+              <div className="grid grid-cols-3 gap-3 mb-6">
+                {(() => {
+                  const totalParEtat = detail.parEtat.reduce((s, e) => s + e.total, 0);
+                  return ['disponible', 'vide', 'en_panne'].map((etat) => {
+                    const count = detail.parEtat.find((e) => e.etat === etat)?.total || 0;
+                    const pct = totalParEtat > 0 ? Math.round((count / totalParEtat) * 100) : null;
+                    return (
+                      <div key={etat} className="border border-slate-100 rounded-lg p-3 text-center">
+                        <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: ETAT_COLORS[etat] }}>
+                          {ETAT_LABELS[etat]}
+                        </p>
+                        <p className="text-2xl font-bold text-gray-900">{count}</p>
+                        <p className="text-xs text-slate-400">{pct !== null ? `${pct}%` : '—'}</p>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+
               <div className="h-64 mb-8">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={evolutionData}>
