@@ -46,7 +46,13 @@ const create = (dabId, etat, ipHash, cookieId, isAdmin = false) => {
 };
 
 const deleteExpired = () =>
-  db.query('DELETE FROM signalements WHERE expires_at <= NOW()');
+  db.query(`
+    WITH expired AS (
+      DELETE FROM signalements WHERE expires_at <= NOW() RETURNING dab_id, etat, created_at
+    )
+    INSERT INTO signalements_archive (dab_id, etat, created_at)
+    SELECT dab_id, etat, created_at FROM expired
+  `);
 
 const countByDab = (dabId) =>
   db.query(
