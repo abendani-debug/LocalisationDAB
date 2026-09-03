@@ -49,11 +49,11 @@ export default function EmbedStatsPage() {
     </div>
   );
 
-  const evolutionData = pivotEvolution(stats.evolution);
-  const totalNegatif = stats.parEtat
+  const evolutionData = pivotEvolution(stats.evolution ?? []);
+  const totalNegatif = (stats.parEtat ?? [])
     .filter((e) => e.etat === 'vide' || e.etat === 'en_panne')
     .reduce((sum, e) => sum + e.total, 0);
-  const totalDisponible = stats.parEtat.find((e) => e.etat === 'disponible')?.total || 0;
+  const totalDisponible = (stats.parEtat ?? []).find((e) => e.etat === 'disponible')?.total || 0;
   const total = totalDisponible + totalNegatif;
   const tauxDispo = total > 0 ? Math.round((totalDisponible / total) * 1000) / 10 : null;
 
@@ -85,10 +85,10 @@ export default function EmbedStatsPage() {
       <h2 style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#94a3b8', marginBottom: 12 }}>
         Distributeurs les plus signalés vide/en panne
       </h2>
-      {stats.topDabProblematiques.length === 0 ? (
+      {(stats.topDabProblematiques ?? []).length === 0 ? (
         <p style={{ fontSize: 13, color: '#94a3b8' }}>Aucun signalement négatif sur cette période.</p>
       ) : (
-        stats.topDabProblematiques.map((d) => (
+        (stats.topDabProblematiques ?? []).map((d) => (
           <div key={d.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', background: '#f8fafc', borderRadius: 10, marginBottom: 8 }}>
             <div>
               <p style={{ margin: 0, fontWeight: 600, fontSize: 13, color: '#111827' }}>{d.nom}</p>
