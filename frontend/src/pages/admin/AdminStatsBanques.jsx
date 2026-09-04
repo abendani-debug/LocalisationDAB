@@ -1,6 +1,5 @@
 // frontend/src/pages/admin/AdminStatsBanques.jsx
 import { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import Spinner from '../../components/UI/Spinner';
 import {
@@ -59,19 +58,14 @@ export default function AdminStatsBanques() {
   const evolutionData = detail ? pivotEvolution(detail.evolution) : [];
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Stats de signalement par banque</h1>
-        <Link to="/admin" className="text-sm text-blue-600 hover:underline">← Retour au dashboard</Link>
-      </div>
-
+    <div className="max-w-5xl mx-auto">
       <div className="flex gap-2 mb-6">
         {PERIODS.map((p) => (
           <button
             key={p.value}
             onClick={() => setPeriod(p.value)}
             className={`px-3 py-1.5 rounded-lg text-sm font-medium cursor-pointer ${
-              period === p.value ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              period === p.value ? 'bg-teal-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
             {p.label}
@@ -82,7 +76,7 @@ export default function AdminStatsBanques() {
       {loading ? (
         <div className="py-16 flex justify-center"><Spinner /></div>
       ) : banques.length === 0 ? (
-        <div className="bg-white border border-slate-100 rounded-xl mb-8">
+        <div className="bg-white border border-[#e5eeec] rounded-xl mb-8">
           <p className="px-5 py-8 text-center text-slate-400 text-sm">Aucune banque sur cette période.</p>
         </div>
       ) : (
@@ -110,12 +104,12 @@ export default function AdminStatsBanques() {
       )}
 
       {selectedId && (
-        <div className="bg-white border border-slate-100 rounded-xl p-5">
+        <div className="bg-white border border-[#e5eeec] rounded-xl p-5">
           {detailLoading || !detail ? (
             <div className="py-8 flex justify-center"><Spinner /></div>
           ) : (
             <>
-              <h2 className="text-lg font-bold text-gray-900 mb-4">{detail.banque.nom}</h2>
+              <h2 className="text-lg font-bold text-[#0b3b36] mb-4">{detail.banque.nom}</h2>
 
               <div className="grid grid-cols-3 gap-3 mb-6">
                 {(() => {
@@ -124,11 +118,11 @@ export default function AdminStatsBanques() {
                     const count = detail.parEtat.find((e) => e.etat === etat)?.total || 0;
                     const pct = totalParEtat > 0 ? Math.round((count / totalParEtat) * 100) : null;
                     return (
-                      <div key={etat} className="border border-slate-100 rounded-lg p-3 text-center">
+                      <div key={etat} className="border border-[#e5eeec] rounded-lg p-3 text-center">
                         <p className="text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: ETAT_COLORS[etat] }}>
                           {ETAT_LABELS[etat]}
                         </p>
-                        <p className="text-2xl font-bold text-gray-900">{count}</p>
+                        <p className="text-2xl font-bold text-[#0b3b36]">{count}</p>
                         <p className="text-xs text-slate-400">{pct !== null ? `${pct}%` : '—'}</p>
                       </div>
                     );
@@ -166,7 +160,7 @@ export default function AdminStatsBanques() {
               ) : (
                 <div className="space-y-2">
                   {detail.topDabProblematiques.map((d) => (
-                    <div key={d.id} className="flex justify-between items-center text-sm px-3 py-2 bg-slate-50 rounded-lg">
+                    <div key={d.id} className="flex justify-between items-center text-sm px-3 py-2 bg-[#f7faf9] rounded-lg">
                       <div>
                         <p className="font-medium text-gray-900">{d.nom}</p>
                         <p className="text-xs text-slate-500">{d.adresse}</p>
