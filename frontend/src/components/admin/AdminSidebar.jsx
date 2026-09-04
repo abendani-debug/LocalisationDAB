@@ -20,14 +20,12 @@ export default function AdminSidebar({ nbPropositions = 0, onNavigate }) {
     to === '/admin' ? location.pathname === '/admin' : location.pathname.startsWith(to);
 
   return (
-    <aside className="w-[210px] min-h-screen bg-[#0b3b36] text-white flex flex-col py-[18px] flex-shrink-0">
-      <Link to="/" className="flex items-center px-[18px] pb-5 no-underline">
-        <div className="bg-white rounded-lg px-3 py-2 w-full flex items-center justify-center">
-          <img src="/logo.png" alt="MapsDab logo" className="h-14 w-auto object-contain" />
-        </div>
+    <aside className="w-[210px] min-h-screen bg-[#0b3b36] text-white flex flex-col flex-shrink-0">
+      <Link to="/" className="h-16 flex-shrink-0 bg-white px-3 flex items-center justify-center no-underline">
+        <img src="/logo.png" alt="MapsDab logo" className="h-16 w-auto object-contain" />
       </Link>
 
-      <nav className="px-3 flex flex-col gap-0.5">
+      <nav className="px-3 pt-4 flex flex-col gap-0.5">
         {NAV_ITEMS.map((item) => {
           const active = isActive(item.to);
           return (
@@ -50,7 +48,7 @@ export default function AdminSidebar({ nbPropositions = 0, onNavigate }) {
         })}
       </nav>
 
-      <div className="mt-auto px-[18px] pt-3 border-t border-white/10 flex items-center gap-2">
+      <div className="mt-auto px-[18px] py-4 border-t border-white/10 flex items-center gap-2">
         <div className="w-6 h-6 rounded-full bg-teal-500 text-[11px] flex items-center justify-center font-bold flex-shrink-0">
           {user?.nom ? user.nom.charAt(0).toUpperCase() : '?'}
         </div>
