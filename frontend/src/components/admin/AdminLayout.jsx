@@ -14,6 +14,20 @@ export default function AdminLayout({ title, children }) {
       .catch(() => {});
   }, []);
 
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setMobileOpen(false);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileOpen]);
+
   return (
     <div className="flex min-h-screen bg-[#f7faf9]">
       {/* Sidebar desktop */}
@@ -23,7 +37,11 @@ export default function AdminLayout({ title, children }) {
 
       {/* Sidebar mobile — tiroir */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 md:hidden">
+        <div
+          className="fixed inset-0 z-50 md:hidden"
+          role="dialog"
+          aria-modal="true"
+        >
           <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
           <div className="absolute left-0 top-0 h-full">
             <AdminSidebar nbPropositions={nbPropositions} onNavigate={() => setMobileOpen(false)} />
