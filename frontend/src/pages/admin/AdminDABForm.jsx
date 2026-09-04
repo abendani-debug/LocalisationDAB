@@ -61,9 +61,6 @@ export default function AdminDABForm() {
 
   return (
     <div className="max-w-lg mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">
-        {isEdit ? t('admin.edit_dab') : t('admin.new_dab_title')}
-      </h1>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {FIELDS.map(([key, label, type]) => (
           <div key={key}>

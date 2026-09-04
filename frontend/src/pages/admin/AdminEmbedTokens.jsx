@@ -74,8 +74,6 @@ export default function AdminEmbedTokens() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Widgets Embed Banques</h1>
-
       {/* Formulaire création */}
       <div className="bg-white border border-slate-100 rounded-xl p-5 mb-8">
         <h2 className="text-sm font-bold uppercase tracking-wide text-slate-400 mb-4">Nouveau token</h2>

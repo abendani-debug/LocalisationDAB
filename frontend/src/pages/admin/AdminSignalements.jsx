@@ -39,8 +39,6 @@ export default function AdminSignalements() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-4">{t('admin.reports_title')}</h1>
-
       {loading ? (
         <div className="py-16 flex justify-center"><Spinner /></div>
       ) : dabs.length === 0 ? (
