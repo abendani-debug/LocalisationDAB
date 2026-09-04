@@ -6,6 +6,7 @@ import i18n from './i18n';
 import AuthProvider from './context/AuthContext';
 import useAuth from './hooks/useAuth';
 import Navbar from './components/UI/Navbar';
+import AdminLayout from './components/admin/AdminLayout';
 import SplashScreen from './components/UI/SplashScreen';
 import OnboardingScreen from './components/UI/OnboardingScreen';
 
@@ -43,37 +44,40 @@ function AdminRoute({ children }) {
 function AppRoutes() {
   const location = useLocation();
   const { t, i18n: i18nInstance } = useTranslation();
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   useEffect(() => {
     document.title = t('page_title');
   }, [t, i18nInstance.language]);
   const noFooterPaths = ['/', '/dab'];
-  const showFooter = !noFooterPaths.some((p) => location.pathname === p || location.pathname.startsWith('/dab/'));
+  const showFooter = !isAdminRoute && !noFooterPaths.some((p) => location.pathname === p || location.pathname.startsWith('/dab/'));
 
   return (
     <>
-      <Navbar />
+      {!isAdminRoute && <Navbar />}
       <Routes>
         <Route path="/"         element={<HomePage />} />
         <Route path="/dab/:id"  element={<DABDetailPage />} />
         <Route path="/login"    element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-        <Route path="/admin/dabs" element={<AdminRoute><AdminDABList /></AdminRoute>} />
-        <Route path="/admin/dabs/new" element={<AdminRoute><AdminDABForm /></AdminRoute>} />
-        <Route path="/admin/dabs/:id/edit" element={<AdminRoute><AdminDABForm /></AdminRoute>} />
-        <Route path="/admin/signalements"  element={<AdminRoute><AdminSignalements /></AdminRoute>} />
-        <Route path="/admin/propositions"  element={<AdminRoute><AdminPropositions /></AdminRoute>} />
-        <Route path="/admin/pays"          element={<AdminRoute><AdminPays /></AdminRoute>} />
-        <Route path="/admin/embed"         element={<AdminRoute><AdminEmbedTokens /></AdminRoute>} />
+        <Route path="/admin" element={<AdminRoute><AdminLayout title="Dashboard"><AdminDashboard /></AdminLayout></AdminRoute>} />
+        <Route path="/admin/dabs" element={<AdminRoute><AdminLayout title="Distributeurs"><AdminDABList /></AdminLayout></AdminRoute>} />
+        <Route path="/admin/dabs/new" element={<AdminRoute><AdminLayout title="Nouveau distributeur"><AdminDABForm /></AdminLayout></AdminRoute>} />
+        <Route path="/admin/dabs/:id/edit" element={<AdminRoute><AdminLayout title="Modifier le distributeur"><AdminDABForm /></AdminLayout></AdminRoute>} />
+        <Route path="/admin/signalements"  element={<AdminRoute><AdminLayout title="Signalements"><AdminSignalements /></AdminLayout></AdminRoute>} />
+        <Route path="/admin/propositions"  element={<AdminRoute><AdminLayout title="Propositions"><AdminPropositions /></AdminLayout></AdminRoute>} />
+        <Route path="/admin/pays"          element={<AdminRoute><AdminLayout title="Pays"><AdminPays /></AdminLayout></AdminRoute>} />
+        <Route path="/admin/embed"         element={<AdminRoute><AdminLayout title="Widgets Embed"><AdminEmbedTokens /></AdminLayout></AdminRoute>} />
         <Route
           path="/admin/stats-banques"
           element={
             <AdminRoute>
-              <Suspense fallback={null}>
-                <AdminStatsBanques />
-              </Suspense>
+              <AdminLayout title="Stats de signalement par banque">
+                <Suspense fallback={null}>
+                  <AdminStatsBanques />
+                </Suspense>
+              </AdminLayout>
             </AdminRoute>
           }
         />
