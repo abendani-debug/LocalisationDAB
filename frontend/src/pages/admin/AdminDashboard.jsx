@@ -36,7 +36,7 @@ export default function AdminDashboard() {
   const nbPropositions = stats?.propositions?.total || 0;
 
   return (
-    <div>
+    <div className="max-w-5xl">
       {/* Cartes KPI */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         <KPICard label={t('admin.total_dabs')}        value={totalDABs} />
