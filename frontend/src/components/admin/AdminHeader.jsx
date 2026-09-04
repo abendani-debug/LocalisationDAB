@@ -31,15 +31,22 @@ export default function AdminHeader({ title, onMenuClick }) {
     const handleClick = (e) => {
       if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false);
     };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
     document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, [menuOpen]);
 
   return (
     <header className="h-16 bg-white border-b border-[#e5eeec] flex items-center justify-between px-6 sticky top-0 z-40">
       <div className="flex items-center gap-3">
         <button
-          onClick={onMenuClick}
+          onClick={() => onMenuClick?.()}
           className="md:hidden p-2 -ml-2 cursor-pointer border-none bg-transparent"
           aria-label="Menu"
         >
@@ -60,6 +67,9 @@ export default function AdminHeader({ title, onMenuClick }) {
 
         <button
           onClick={() => setMenuOpen((v) => !v)}
+          aria-label="Menu utilisateur"
+          aria-expanded={menuOpen}
+          aria-haspopup="menu"
           className="flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-lg hover:bg-slate-50 cursor-pointer border-none bg-transparent"
         >
           <div className="w-7 h-7 rounded-full bg-teal-500 text-white text-xs font-bold flex items-center justify-center">
@@ -69,8 +79,9 @@ export default function AdminHeader({ title, onMenuClick }) {
         </button>
 
         {menuOpen && (
-          <div className="absolute top-12 right-0 w-44 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden">
+          <div role="menu" className="absolute top-12 right-0 w-44 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden">
             <button
+              role="menuitem"
               onClick={handleLogout}
               className="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-slate-50 cursor-pointer border-none bg-transparent"
             >
