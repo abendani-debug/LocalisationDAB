@@ -1,7 +1,5 @@
 // frontend/src/components/admin/AdminSidebar.jsx
-import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import api from '../../api/axiosConfig';
 import useAuth from '../../hooks/useAuth';
 
 const NAV_ITEMS = [
@@ -14,16 +12,9 @@ const NAV_ITEMS = [
   { to: '/admin/stats-banques', label: 'Stats Banques', icon: '📊' },
 ];
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ nbPropositions = 0, onNavigate }) {
   const location = useLocation();
   const { user } = useAuth();
-  const [nbPropositions, setNbPropositions] = useState(0);
-
-  useEffect(() => {
-    api.get('/admin/stats')
-      .then((r) => setNbPropositions(r.data.data?.propositions?.total || 0))
-      .catch(() => {});
-  }, []);
 
   const isActive = (to) =>
     to === '/admin' ? location.pathname === '/admin' : location.pathname.startsWith(to);
@@ -42,6 +33,7 @@ export default function AdminSidebar() {
             <Link
               key={item.to}
               to={item.to}
+              onClick={onNavigate}
               className={`px-3 py-2.5 rounded-lg text-sm flex items-center justify-between no-underline ${
                 active ? 'bg-teal-500 text-white font-semibold' : 'text-[#a9d4ce] hover:bg-white/5'
               }`}
