@@ -21,9 +21,10 @@ export default function AdminSidebar({ nbPropositions = 0, onNavigate }) {
 
   return (
     <aside className="w-[210px] min-h-screen bg-[#0b3b36] text-white flex flex-col py-[18px] flex-shrink-0">
-      <Link to="/" className="flex items-center gap-2 px-[18px] pb-5 no-underline text-white">
-        <div className="w-[26px] h-[26px] rounded-[7px] bg-[#e35d43] flex items-center justify-center text-[13px]">📍</div>
-        <span className="font-bold text-sm tracking-[.2px]">Map's Dab</span>
+      <Link to="/" className="flex items-center px-[18px] pb-5 no-underline">
+        <div className="bg-white rounded-lg px-3 py-2 w-full flex items-center justify-center">
+          <img src="/logo.png" alt="MapsDab logo" className="h-14 w-auto object-contain" />
+        </div>
       </Link>
 
       <nav className="px-3 flex flex-col gap-0.5">
