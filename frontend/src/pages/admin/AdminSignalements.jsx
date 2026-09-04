@@ -38,7 +38,7 @@ export default function AdminSignalements() {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold text-gray-900 mb-4">{t('admin.reports_title')}</h1>
 
       {loading ? (

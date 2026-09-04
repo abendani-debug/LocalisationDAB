@@ -52,7 +52,7 @@ export default function AdminPays() {
   if (loading) return <div className="py-16 flex justify-center"><Spinner /></div>;
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto">
       <div className="flex items-center gap-3 mb-6">
         <Link to="/admin" className="text-blue-600 hover:underline text-sm">← Dashboard</Link>
         <h1 className="text-2xl font-bold text-gray-900 m-0">Gestion des pays</h1>

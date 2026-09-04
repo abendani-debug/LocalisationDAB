@@ -60,7 +60,7 @@ export default function AdminDABForm() {
   const labelClass = 'block mb-1 text-sm font-medium text-gray-700';
 
   return (
-    <div className="p-6 max-w-lg mx-auto">
+    <div className="max-w-lg mx-auto">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">
         {isEdit ? t('admin.edit_dab') : t('admin.new_dab_title')}
       </h1>

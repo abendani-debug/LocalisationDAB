@@ -54,7 +54,7 @@ export default function AdminPropositions() {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-5">
         <h1 className="m-0 text-2xl font-bold text-gray-900">{t('admin.proposals_title')}</h1>
         <span className="text-xs text-slate-500">{propositions.length} {t('admin.pending')}</span>

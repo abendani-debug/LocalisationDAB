@@ -73,7 +73,7 @@ export default function AdminEmbedTokens() {
   if (loading) return <div className="py-16 flex justify-center"><Spinner /></div>;
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Widgets Embed Banques</h1>
 
       {/* Formulaire création */}

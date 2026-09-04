@@ -56,7 +56,7 @@ export default function AdminDABList() {
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className="max-w-5xl mx-auto">
       <div className="flex justify-between items-center mb-4">
         <h1 className="m-0 text-2xl font-bold text-gray-900">{t('admin.manage_dabs')}</h1>
         <Link to="/admin/dabs/new" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-colors">
