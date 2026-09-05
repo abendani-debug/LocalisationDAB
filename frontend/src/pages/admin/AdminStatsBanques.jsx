@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axiosConfig';
 import Spinner from '../../components/UI/Spinner';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
 
 const PERIODS = [
@@ -15,16 +15,6 @@ const PERIODS = [
 
 const ETAT_COLORS = { disponible: '#16a34a', vide: '#dc2626', en_panne: '#f59e0b' };
 const ETAT_LABELS = { disponible: 'Disponible', vide: 'Vide', en_panne: 'En panne' };
-
-function pivotEvolution(rows) {
-  const byJour = {};
-  rows.forEach(({ jour, etat, total }) => {
-    const key = jour.slice(0, 10);
-    if (!byJour[key]) byJour[key] = { jour: key, disponible: 0, vide: 0, en_panne: 0 };
-    byJour[key][etat] = total;
-  });
-  return Object.values(byJour).sort((a, b) => a.jour.localeCompare(b.jour));
-}
 
 export default function AdminStatsBanques() {
   const [period, setPeriod]               = useState('30');
@@ -54,8 +44,6 @@ export default function AdminStatsBanques() {
       .finally(() => { if (!ignore) setDetailLoading(false); });
     return () => { ignore = true; };
   }, [selectedId, period]);
-
-  const evolutionData = detail ? pivotEvolution(detail.evolution) : [];
 
   return (
     <div className="max-w-5xl mx-auto">
@@ -131,25 +119,45 @@ export default function AdminStatsBanques() {
               </div>
 
               <div className="h-64 mb-8">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={evolutionData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="jour" tick={{ fontSize: 11 }} />
-                    <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                    <Tooltip />
-                    <Legend formatter={(key) => ETAT_LABELS[key] || key} />
-                    {Object.keys(ETAT_COLORS).map((etat) => (
-                      <Line
-                        key={etat}
-                        type="monotone"
-                        dataKey={etat}
-                        stroke={ETAT_COLORS[etat]}
-                        strokeWidth={2}
-                        dot={false}
-                      />
-                    ))}
-                  </LineChart>
-                </ResponsiveContainer>
+                {(() => {
+                  const pieData = ['disponible', 'vide', 'en_panne']
+                    .map((etat) => ({
+                      etat,
+                      name: ETAT_LABELS[etat],
+                      value: detail.parEtat.find((e) => e.etat === etat)?.total || 0,
+                    }))
+                    .filter((d) => d.value > 0);
+
+                  if (pieData.length === 0) {
+                    return (
+                      <div className="h-full flex items-center justify-center text-sm text-slate-400">
+                        Aucun signalement sur cette période.
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={pieData}
+                          dataKey="value"
+                          nameKey="name"
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={90}
+                          label={({ name, percent }) => `${name} ${Math.round(percent * 100)}%`}
+                        >
+                          {pieData.map((d) => (
+                            <Cell key={d.etat} fill={ETAT_COLORS[d.etat]} />
+                          ))}
+                        </Pie>
+                        <Tooltip />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  );
+                })()}
               </div>
 
               <h3 className="text-xs font-bold uppercase tracking-wide text-slate-400 mb-3">
