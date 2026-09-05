@@ -21,12 +21,11 @@ export default function AdminSidebar({ nbPropositions = 0, onNavigate }) {
 
   return (
     <aside className="w-[210px] min-h-screen bg-[#0b3b36] text-white flex flex-col flex-shrink-0">
-      <Link to="/" className="h-16 flex-shrink-0 bg-white px-3 flex items-center justify-center no-underline overflow-hidden">
+      <Link to="/" className="flex-shrink-0 bg-white px-3 pb-3 flex items-center justify-center no-underline">
         <img
           src="/logo.png"
           alt="MapsDab logo"
-          className="w-auto max-w-none"
-          style={{ height: '125px', marginTop: '-15px' }}
+          style={{ height: '100px', width: '100px', marginTop: '11px' }}
         />
       </Link>
 
