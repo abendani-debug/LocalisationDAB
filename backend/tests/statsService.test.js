@@ -83,3 +83,25 @@ describe('StatsService.getStatsToutesBanques', () => {
     expect(sql).not.toMatch(/LEFT JOIN signalements_archive sa ON sa\.dab_id = d\.id\s+WHERE/);
   });
 });
+
+describe('StatsService.getStatsGeographie', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('retourne les zones triées par nombre de signalements', async () => {
+    db.query.mockResolvedValueOnce({
+      rows: [
+        { country_code: 'DZ', pays_nom: 'Algérie', ville: 'Oran', total: 3 },
+        { country_code: 'DZ', pays_nom: 'Algérie', ville: 'Ville inconnue', total: 1 },
+      ],
+    });
+
+    const result = await StatsService.getStatsGeographie('30');
+
+    expect(result).toHaveLength(2);
+    expect(result[0].ville).toBe('Oran');
+    const sql = db.query.mock.calls[0][0];
+    expect(sql).toMatch(/FROM signalements_archive sa/);
+    expect(sql).toMatch(/JOIN pays p ON p\.code_iso = d\.country_code/);
+    expect(sql).toMatch(/ORDER BY total DESC/);
+  });
+});

@@ -143,6 +143,12 @@ app.get('/api/admin/stats/banques/:id', authMiddleware, requireAdmin, periodVali
   return successResponse(res, { period, ...stats });
 });
 
+app.get('/api/admin/stats/geographie', authMiddleware, requireAdmin, periodValidator, validate, async (req, res) => {
+  const period = req.query.period || '30';
+  const zones = await StatsService.getStatsGeographie(period);
+  return successResponse(res, { period, zones });
+});
+
 app.post('/api/admin/import-google', authMiddleware, requireAdmin, async (req, res) => {
   const result = await syncAll();
   return successResponse(res, result, 200, 'Import Google Places terminé (Algérie + France).');

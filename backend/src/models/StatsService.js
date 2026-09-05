@@ -55,6 +55,26 @@ const getStatsBanque = async (banqueId, period = '30') => {
   };
 };
 
+const getStatsGeographie = async (period = '30') => {
+  const since = periodToSince(period);
+  const result = await db.query(
+    `SELECT
+       d.country_code,
+       p.nom AS pays_nom,
+       COALESCE(NULLIF(TRIM(split_part(d.adresse, ',', -1)), ''), 'Ville inconnue') AS ville,
+       COUNT(*)::int AS total
+     FROM signalements_archive sa
+     JOIN dabs d ON d.id = sa.dab_id
+     JOIN pays p ON p.code_iso = d.country_code
+     WHERE $1::timestamptz IS NULL OR sa.created_at >= $1
+     GROUP BY d.country_code, p.nom, COALESCE(NULLIF(TRIM(split_part(d.adresse, ',', -1)), ''), 'Ville inconnue')
+     ORDER BY total DESC
+     LIMIT 30`,
+    [since]
+  );
+  return result.rows;
+};
+
 const getStatsToutesBanques = async (period = '30') => {
   const since = periodToSince(period);
   const result = await db.query(
@@ -74,4 +94,4 @@ const getStatsToutesBanques = async (period = '30') => {
   return result.rows;
 };
 
-module.exports = { getStatsBanque, getStatsToutesBanques, periodToSince };
+module.exports = { getStatsBanque, getStatsToutesBanques, getStatsGeographie, periodToSince };

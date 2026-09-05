@@ -91,3 +91,35 @@ describe('GET /api/admin/stats/banques/:id', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('GET /api/admin/stats/geographie', () => {
+  it('retourne les zones géographiques triées par signalements', async () => {
+    db.query.mockResolvedValue({ rows: [adminUser] });
+    StatsService.getStatsGeographie.mockResolvedValue([
+      { country_code: 'DZ', pays_nom: 'Algérie', ville: 'Oran', total: 3 },
+    ]);
+
+    const res = await request(app)
+      .get('/api/admin/stats/geographie')
+      .set('Authorization', `Bearer ${makeAdminToken()}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.zones[0].ville).toBe('Oran');
+    expect(StatsService.getStatsGeographie).toHaveBeenCalledWith('30');
+  });
+
+  it('retourne 401 sans token', async () => {
+    const res = await request(app).get('/api/admin/stats/geographie');
+    expect(res.status).toBe(401);
+  });
+
+  it('retourne 422 si period invalide', async () => {
+    db.query.mockResolvedValue({ rows: [adminUser] });
+
+    const res = await request(app)
+      .get('/api/admin/stats/geographie?period=999')
+      .set('Authorization', `Bearer ${makeAdminToken()}`);
+
+    expect(res.status).toBe(422);
+  });
+});
