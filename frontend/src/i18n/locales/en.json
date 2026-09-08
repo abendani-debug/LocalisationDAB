@@ -153,6 +153,7 @@
     "proposals": "Proposals",
     "import_google": "Import Google Places",
     "importing": "Importing…",
+    "confirm_import_google": "Start a Google Places import? This will create/update DABs in the database.",
     "status_distribution": "Status distribution",
     "import_error": "Error during Google Places import.",
     "import_success": "Google Places import: {{inserted}} added, {{updated}} updated.",

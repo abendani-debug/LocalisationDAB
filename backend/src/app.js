@@ -155,13 +155,14 @@ app.post('/api/admin/import-google', authMiddleware, requireAdmin, async (req, r
 });
 
 // ── Cron : import Google Places tous les 3 mois (1er jour de janv/avr/juil/oct à 3h) ──
-cron.schedule('0 3 1 1,4,7,10 *', async () => {
-  try {
-    await syncAll();
-  } catch (err) {
-    console.error('Cron Google Places error:', err.message);
-  }
-});
+// Mis en stand-by le 2026-09-08 à la demande de l'utilisateur — décommenter pour réactiver.
+// cron.schedule('0 3 1 1,4,7,10 *', async () => {
+//   try {
+//     await syncAll();
+//   } catch (err) {
+//     console.error('Cron Google Places error:', err.message);
+//   }
+// });
 
 // ── 404 ──────────────────────────────────────────────────────
 app.use((req, res) => {

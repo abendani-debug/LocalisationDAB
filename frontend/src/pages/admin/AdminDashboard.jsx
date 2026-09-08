@@ -18,6 +18,7 @@ export default function AdminDashboard() {
   }, []);
 
   const handleImportGoogle = async () => {
+    if (!window.confirm(t('admin.confirm_import_google'))) return;
     setImporting(true);
     try {
       const res = await api.post('/admin/import-google');
