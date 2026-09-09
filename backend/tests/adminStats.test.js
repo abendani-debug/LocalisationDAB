@@ -29,6 +29,39 @@ const makeAdminToken = () =>
 
 beforeEach(() => jest.clearAllMocks());
 
+describe('GET /api/admin/stats/etat', () => {
+  it('retourne la répartition par état sur la plateforme', async () => {
+    db.query.mockResolvedValue({ rows: [adminUser] });
+    StatsService.getStatsEtatGlobal.mockResolvedValue([
+      { etat: 'disponible', total: 8 },
+      { etat: 'en_panne', total: 2 },
+    ]);
+
+    const res = await request(app)
+      .get('/api/admin/stats/etat')
+      .set('Authorization', `Bearer ${makeAdminToken()}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.parEtat[0].etat).toBe('disponible');
+    expect(StatsService.getStatsEtatGlobal).toHaveBeenCalledWith('30');
+  });
+
+  it('retourne 401 sans token', async () => {
+    const res = await request(app).get('/api/admin/stats/etat');
+    expect(res.status).toBe(401);
+  });
+
+  it('retourne 422 si period invalide', async () => {
+    db.query.mockResolvedValue({ rows: [adminUser] });
+
+    const res = await request(app)
+      .get('/api/admin/stats/etat?period=999')
+      .set('Authorization', `Bearer ${makeAdminToken()}`);
+
+    expect(res.status).toBe(422);
+  });
+});
+
 describe('GET /api/admin/stats/banques', () => {
   it('retourne la liste des banques avec taux de disponibilité calculé', async () => {
     db.query.mockResolvedValue({ rows: [adminUser] });

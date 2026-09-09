@@ -117,3 +117,24 @@ describe('StatsService.getStatsGeographie', () => {
     expect(params).toEqual([expect.any(Date), 5]);
   });
 });
+
+describe('StatsService.getStatsEtatGlobal', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('retourne le total par état sur toute la plateforme', async () => {
+    db.query.mockResolvedValueOnce({
+      rows: [
+        { etat: 'disponible', total: 8 },
+        { etat: 'en_panne', total: 2 },
+      ],
+    });
+
+    const result = await StatsService.getStatsEtatGlobal('30');
+
+    expect(result).toHaveLength(2);
+    expect(result[0].etat).toBe('disponible');
+    const sql = db.query.mock.calls[0][0];
+    expect(sql).toMatch(/FROM signalements_archive/);
+    expect(sql).not.toMatch(/JOIN dabs/);
+  });
+});

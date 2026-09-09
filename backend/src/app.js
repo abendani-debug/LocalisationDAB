@@ -124,6 +124,12 @@ app.get('/api/admin/signalements/stats', authMiddleware, requireAdmin, async (re
   });
 });
 
+app.get('/api/admin/stats/etat', authMiddleware, requireAdmin, periodValidator, validate, async (req, res) => {
+  const period = req.query.period || '30';
+  const parEtat = await StatsService.getStatsEtatGlobal(period);
+  return successResponse(res, { period, parEtat });
+});
+
 app.get('/api/admin/stats/banques', authMiddleware, requireAdmin, periodValidator, validate, async (req, res) => {
   const period = req.query.period || '30';
   const rows = await StatsService.getStatsToutesBanques(period);

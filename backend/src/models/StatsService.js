@@ -76,6 +76,18 @@ const getStatsGeographie = async (period = '30', banqueId = null) => {
   return result.rows;
 };
 
+const getStatsEtatGlobal = async (period = '30') => {
+  const since = periodToSince(period);
+  const result = await db.query(
+    `SELECT etat, COUNT(*)::int AS total
+     FROM signalements_archive
+     WHERE $1::timestamptz IS NULL OR created_at >= $1
+     GROUP BY etat`,
+    [since]
+  );
+  return result.rows;
+};
+
 const getStatsToutesBanques = async (period = '30') => {
   const since = periodToSince(period);
   const result = await db.query(
@@ -95,4 +107,4 @@ const getStatsToutesBanques = async (period = '30') => {
   return result.rows;
 };
 
-module.exports = { getStatsBanque, getStatsToutesBanques, getStatsGeographie, periodToSince };
+module.exports = { getStatsBanque, getStatsToutesBanques, getStatsGeographie, getStatsEtatGlobal, periodToSince };

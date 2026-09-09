@@ -4,18 +4,39 @@ import { useTranslation } from 'react-i18next';
 import api from '../../api/axiosConfig';
 import Spinner from '../../components/UI/Spinner';
 import toast from 'react-hot-toast';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+
+const PERIODS = [
+  { value: '7',   label: '7 jours' },
+  { value: '30',  label: '30 jours' },
+  { value: '90',  label: '90 jours' },
+  { value: 'all', label: 'Tout' },
+];
+
+const ETAT_COLORS = { disponible: '#16a34a', vide: '#f59e0b', en_panne: '#dc2626' };
+const ETAT_LABELS = { disponible: 'Disponible', vide: 'Vide', en_panne: 'En panne' };
 
 export default function AdminDashboard() {
   const { t } = useTranslation();
   const [stats, setStats]       = useState(null);
   const [loading, setLoading]   = useState(true);
   const [importing, setImporting] = useState(false);
+  const [period, setPeriod]         = useState('30');
+  const [etatStats, setEtatStats]   = useState([]);
+  const [etatLoading, setEtatLoading] = useState(true);
 
   useEffect(() => {
     api.get('/admin/stats')
       .then((r) => setStats(r.data.data))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    setEtatLoading(true);
+    api.get('/admin/stats/etat', { params: { period } })
+      .then((r) => setEtatStats(r.data.data.parEtat))
+      .finally(() => setEtatLoading(false));
+  }, [period]);
 
   const handleImportGoogle = async () => {
     if (!window.confirm(t('admin.confirm_import_google'))) return;
@@ -70,6 +91,71 @@ export default function AdminDashboard() {
               <strong className="text-[#0b3b36]">{row.total}</strong>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Répartition des signalements par état */}
+      <div className="mt-8">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-xs font-bold uppercase tracking-wide text-slate-400">
+            Signalements par état
+          </h2>
+          <div className="flex gap-2">
+            {PERIODS.map((p) => (
+              <button
+                key={p.value}
+                onClick={() => setPeriod(p.value)}
+                className={`px-3 py-1 rounded-lg text-xs font-medium cursor-pointer ${
+                  period === p.value ? 'bg-teal-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="bg-white border border-[#e5eeec] rounded-xl p-5 h-64">
+          {etatLoading ? (
+            <div className="h-full flex items-center justify-center"><Spinner /></div>
+          ) : (() => {
+            const pieData = ['disponible', 'vide', 'en_panne']
+              .map((etat) => ({
+                etat,
+                name: ETAT_LABELS[etat],
+                value: etatStats.find((e) => e.etat === etat)?.total || 0,
+              }))
+              .filter((d) => d.value > 0);
+
+            if (pieData.length === 0) {
+              return (
+                <div className="h-full flex items-center justify-center text-sm text-slate-400">
+                  Aucun signalement sur cette période.
+                </div>
+              );
+            }
+
+            return (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={pieData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={90}
+                    label={({ name, percent }) => `${name} ${Math.round(percent * 100)}%`}
+                  >
+                    {pieData.map((d) => (
+                      <Cell key={d.etat} fill={ETAT_COLORS[d.etat]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            );
+          })()}
         </div>
       </div>
     </div>

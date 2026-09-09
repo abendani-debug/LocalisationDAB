@@ -14,7 +14,6 @@ import HomePage          from './pages/HomePage';
 import DABDetailPage     from './pages/DABDetailPage';
 import LoginPage         from './pages/LoginPage';
 import RegisterPage      from './pages/RegisterPage';
-import AdminDashboard    from './pages/admin/AdminDashboard';
 import AdminDABList      from './pages/admin/AdminDABList';
 import AdminDABForm      from './pages/admin/AdminDABForm';
 import AdminSignalements  from './pages/admin/AdminSignalements';
@@ -26,6 +25,7 @@ import CGUPage            from './pages/CGUPage';
 import PrivacyPage        from './pages/PrivacyPage';
 import AboutPage          from './pages/AboutPage';
 
+const AdminDashboard    = lazy(() => import('./pages/admin/AdminDashboard'));
 const AdminStatsBanques = lazy(() => import('./pages/admin/AdminStatsBanques'));
 const EmbedStatsPage    = lazy(() => import('./pages/EmbedStatsPage'));
 
@@ -61,7 +61,7 @@ function AppRoutes() {
         <Route path="/login"    element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
 
-        <Route path="/admin" element={<AdminRoute><AdminLayout title="Dashboard"><AdminDashboard /></AdminLayout></AdminRoute>} />
+        <Route path="/admin" element={<AdminRoute><AdminLayout title="Dashboard"><Suspense fallback={null}><AdminDashboard /></Suspense></AdminLayout></AdminRoute>} />
         <Route path="/admin/dabs" element={<AdminRoute><AdminLayout title="Distributeurs"><AdminDABList /></AdminLayout></AdminRoute>} />
         <Route path="/admin/dabs/new" element={<AdminRoute><AdminLayout title="Nouveau distributeur"><AdminDABForm /></AdminLayout></AdminRoute>} />
         <Route path="/admin/dabs/:id/edit" element={<AdminRoute><AdminLayout title="Modifier le distributeur"><AdminDABForm /></AdminLayout></AdminRoute>} />
