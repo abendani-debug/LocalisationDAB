@@ -6,4 +6,11 @@ const periodValidator = [
     .isIn(['7', '30', '90', 'all']).withMessage('period doit être 7, 30, 90 ou all.'),
 ];
 
-module.exports = { periodValidator };
+const geographieValidator = [
+  ...periodValidator,
+  query('banque_id')
+    .optional()
+    .isInt().withMessage('banque_id doit être un entier.'),
+];
+
+module.exports = { periodValidator, geographieValidator };

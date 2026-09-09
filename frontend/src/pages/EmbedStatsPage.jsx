@@ -7,7 +7,7 @@ import {
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 
-const ETAT_COLORS = { disponible: '#16a34a', vide: '#dc2626', en_panne: '#f59e0b' };
+const ETAT_COLORS = { disponible: '#16a34a', vide: '#f59e0b', en_panne: '#dc2626' };
 const ETAT_LABELS = { disponible: 'Disponible', vide: 'Vide', en_panne: 'En panne' };
 
 function pivotEvolution(rows) {

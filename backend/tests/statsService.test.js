@@ -104,4 +104,16 @@ describe('StatsService.getStatsGeographie', () => {
     expect(sql).toMatch(/JOIN pays p ON p\.code_iso = d\.country_code/);
     expect(sql).toMatch(/ORDER BY total DESC/);
   });
+
+  it('filtre par banque quand banqueId est fourni', async () => {
+    db.query.mockResolvedValueOnce({
+      rows: [{ country_code: 'DZ', pays_nom: 'Algérie', ville: 'Oran', total: 2 }],
+    });
+
+    await StatsService.getStatsGeographie('30', 5);
+
+    const [sql, params] = db.query.mock.calls[0];
+    expect(sql).toMatch(/d\.banque_id = \$2/);
+    expect(params).toEqual([expect.any(Date), 5]);
+  });
 });

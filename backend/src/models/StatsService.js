@@ -55,7 +55,7 @@ const getStatsBanque = async (banqueId, period = '30') => {
   };
 };
 
-const getStatsGeographie = async (period = '30') => {
+const getStatsGeographie = async (period = '30', banqueId = null) => {
   const since = periodToSince(period);
   const result = await db.query(
     `SELECT
@@ -66,11 +66,12 @@ const getStatsGeographie = async (period = '30') => {
      FROM signalements_archive sa
      JOIN dabs d ON d.id = sa.dab_id
      JOIN pays p ON p.code_iso = d.country_code
-     WHERE $1::timestamptz IS NULL OR sa.created_at >= $1
+     WHERE ($1::timestamptz IS NULL OR sa.created_at >= $1)
+       AND ($2::int IS NULL OR d.banque_id = $2)
      GROUP BY d.country_code, p.nom, COALESCE(NULLIF(TRIM(split_part(d.adresse, ',', -1)), ''), 'Ville inconnue')
      ORDER BY total DESC
      LIMIT 30`,
-    [since]
+    [since, banqueId]
   );
   return result.rows;
 };

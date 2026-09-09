@@ -68,7 +68,7 @@ const authMiddleware = require('./middlewares/authMiddleware');
 const { requireAdmin } = require('./middlewares/roleMiddleware');
 const db = require('./config/db');
 const { successResponse, errorResponse } = require('./utils/responseUtils');
-const { periodValidator } = require('./validators/statsValidator');
+const { periodValidator, geographieValidator } = require('./validators/statsValidator');
 const validate = require('./middlewares/validateMiddleware');
 const StatsService = require('./models/StatsService');
 
@@ -143,9 +143,10 @@ app.get('/api/admin/stats/banques/:id', authMiddleware, requireAdmin, periodVali
   return successResponse(res, { period, ...stats });
 });
 
-app.get('/api/admin/stats/geographie', authMiddleware, requireAdmin, periodValidator, validate, async (req, res) => {
+app.get('/api/admin/stats/geographie', authMiddleware, requireAdmin, geographieValidator, validate, async (req, res) => {
   const period = req.query.period || '30';
-  const zones = await StatsService.getStatsGeographie(period);
+  const banqueId = req.query.banque_id ? parseInt(req.query.banque_id) : null;
+  const zones = await StatsService.getStatsGeographie(period, banqueId);
   return successResponse(res, { period, zones });
 });
 

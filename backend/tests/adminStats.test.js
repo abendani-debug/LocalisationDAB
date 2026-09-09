@@ -105,7 +105,19 @@ describe('GET /api/admin/stats/geographie', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.data.zones[0].ville).toBe('Oran');
-    expect(StatsService.getStatsGeographie).toHaveBeenCalledWith('30');
+    expect(StatsService.getStatsGeographie).toHaveBeenCalledWith('30', null);
+  });
+
+  it('filtre par banque quand banque_id est fourni', async () => {
+    db.query.mockResolvedValue({ rows: [adminUser] });
+    StatsService.getStatsGeographie.mockResolvedValue([]);
+
+    const res = await request(app)
+      .get('/api/admin/stats/geographie?banque_id=5')
+      .set('Authorization', `Bearer ${makeAdminToken()}`);
+
+    expect(res.status).toBe(200);
+    expect(StatsService.getStatsGeographie).toHaveBeenCalledWith('30', 5);
   });
 
   it('retourne 401 sans token', async () => {
@@ -118,6 +130,16 @@ describe('GET /api/admin/stats/geographie', () => {
 
     const res = await request(app)
       .get('/api/admin/stats/geographie?period=999')
+      .set('Authorization', `Bearer ${makeAdminToken()}`);
+
+    expect(res.status).toBe(422);
+  });
+
+  it('retourne 422 si banque_id n\'est pas un entier', async () => {
+    db.query.mockResolvedValue({ rows: [adminUser] });
+
+    const res = await request(app)
+      .get('/api/admin/stats/geographie?banque_id=abc')
       .set('Authorization', `Bearer ${makeAdminToken()}`);
 
     expect(res.status).toBe(422);

@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axiosConfig';
 import Spinner from '../../components/UI/Spinner';
 import {
-  PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer,
+  PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
 
 const PERIODS = [
@@ -13,8 +13,18 @@ const PERIODS = [
   { value: 'all', label: 'Tout' },
 ];
 
-const ETAT_COLORS = { disponible: '#16a34a', vide: '#dc2626', en_panne: '#f59e0b' };
+const ETAT_COLORS = { disponible: '#16a34a', vide: '#f59e0b', en_panne: '#dc2626' };
 const ETAT_LABELS = { disponible: 'Disponible', vide: 'Vide', en_panne: 'En panne' };
+
+function pivotEvolution(rows) {
+  const byJour = {};
+  rows.forEach(({ jour, etat, total }) => {
+    const key = jour.slice(0, 10);
+    if (!byJour[key]) byJour[key] = { jour: key, disponible: 0, vide: 0, en_panne: 0 };
+    byJour[key][etat] = total;
+  });
+  return Object.values(byJour).sort((a, b) => a.jour.localeCompare(b.jour));
+}
 
 export default function AdminStatsBanques() {
   const [period, setPeriod]               = useState('30');
@@ -37,10 +47,11 @@ export default function AdminStatsBanques() {
 
   useEffect(() => {
     setZonesLoading(true);
-    api.get('/admin/stats/geographie', { params: { period } })
+    const params = selectedId ? { period, banque_id: selectedId } : { period };
+    api.get('/admin/stats/geographie', { params })
       .then((r) => setZones(r.data.data.zones))
       .finally(() => setZonesLoading(false));
-  }, [period]);
+  }, [period, selectedId]);
 
   useEffect(() => {
     if (!selectedId) { setDetail(null); return; }
@@ -170,6 +181,45 @@ export default function AdminStatsBanques() {
               </div>
 
               <h3 className="text-xs font-bold uppercase tracking-wide text-slate-400 mb-3">
+                Tendance des signalements
+              </h3>
+              <div className="h-64 mb-8">
+                {(() => {
+                  const evolutionData = pivotEvolution(detail.evolution);
+
+                  if (evolutionData.length === 0) {
+                    return (
+                      <div className="h-full flex items-center justify-center text-sm text-slate-400">
+                        Aucun signalement sur cette période.
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={evolutionData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="jour" tick={{ fontSize: 11 }} />
+                        <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                        <Tooltip />
+                        <Legend formatter={(key) => ETAT_LABELS[key] || key} />
+                        {Object.keys(ETAT_COLORS).map((etat) => (
+                          <Line
+                            key={etat}
+                            type="monotone"
+                            dataKey={etat}
+                            stroke={ETAT_COLORS[etat]}
+                            strokeWidth={2}
+                            dot={false}
+                          />
+                        ))}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  );
+                })()}
+              </div>
+
+              <h3 className="text-xs font-bold uppercase tracking-wide text-slate-400 mb-3">
                 DAB les plus signalés vide/en panne
               </h3>
               {detail.topDabProblematiques.length === 0 ? (
@@ -194,7 +244,7 @@ export default function AdminStatsBanques() {
 
       <div className="mt-8">
         <h2 className="text-xs font-bold uppercase tracking-wide text-slate-400 mb-3">
-          Signalements par zone géographique
+          Signalements par zone géographique{selectedId && detail ? ` — ${detail.banque.nom}` : ''}
         </h2>
         {zonesLoading ? (
           <div className="py-8 flex justify-center"><Spinner /></div>
