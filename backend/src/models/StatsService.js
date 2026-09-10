@@ -12,7 +12,7 @@ const periodToSince = (period) => {
 const getStatsBanque = async (banqueId, period = '30') => {
   const since = periodToSince(period);
 
-  const banque = await db.query('SELECT id, nom, logo_url FROM banques WHERE id = $1', [banqueId]);
+  const banque = await db.query('SELECT id, nom FROM banques WHERE id = $1', [banqueId]);
   if (!banque.rows.length) return null;
 
   const [parEtat, evolution, topDabProblematiques] = await Promise.all([

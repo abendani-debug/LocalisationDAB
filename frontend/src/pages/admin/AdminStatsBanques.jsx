@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axiosConfig';
 import Spinner from '../../components/UI/Spinner';
+import { getBankConfig } from '../../utils/bankConfig';
 import {
   PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
@@ -282,15 +283,29 @@ export default function AdminStatsBanques() {
 
 function BanqueHeading({ banque }) {
   const [imgError, setImgError] = useState(false);
+  const cfg = getBankConfig(banque.nom);
 
-  if (banque.logo_url && !imgError) {
+  if (cfg?.logoUrl && !imgError) {
     return (
       <img
-        src={banque.logo_url}
-        alt={banque.nom}
+        src={cfg.logoUrl}
+        alt={cfg.label}
         className="h-10 mb-4 object-contain"
         onError={() => setImgError(true)}
       />
+    );
+  }
+  if (cfg) {
+    return (
+      <div className="flex items-center gap-3 mb-4">
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm flex-shrink-0"
+          style={{ background: cfg.bg, color: cfg.text }}
+        >
+          {cfg.abbr}
+        </div>
+        <h2 className="text-lg font-bold text-[#0b3b36]">{banque.nom}</h2>
+      </div>
     );
   }
   return <h2 className="text-lg font-bold text-[#0b3b36] mb-4">{banque.nom}</h2>;
