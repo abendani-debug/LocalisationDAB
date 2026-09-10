@@ -102,6 +102,7 @@ describe('StatsService.getStatsGeographie', () => {
     const sql = db.query.mock.calls[0][0];
     expect(sql).toMatch(/FROM signalements_archive sa/);
     expect(sql).toMatch(/JOIN pays p ON p\.code_iso = d\.country_code/);
+    expect(sql).toMatch(/COALESCE\(d\.commune/);
     expect(sql).toMatch(/ORDER BY total DESC/);
   });
 

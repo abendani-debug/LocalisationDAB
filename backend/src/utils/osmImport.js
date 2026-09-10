@@ -1,6 +1,7 @@
 const axios = require('axios');
 const db = require('../config/db');
 const { env } = require('../config/env');
+const { findCommune } = require('./communeLookup');
 
 const GOOGLE_PLACES_URL = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json';
 const RADIUS_METERS     = 25000; // 25 km autour de chaque ville
@@ -185,9 +186,11 @@ const syncGooglePlaces = async () => {
         }
       }
 
+      const commune = findCommune(place.geometry.location.lng, place.geometry.location.lat);
+
       const result = await db.query(
-        `INSERT INTO dabs (osm_id, nom, adresse, latitude, longitude, statut, type_lieu, source, is_verified, country_code)
-         VALUES ($1, $2, $3, $4, $5, 'actif', $6, 'google_places', $7, 'DZ')
+        `INSERT INTO dabs (osm_id, nom, adresse, latitude, longitude, statut, type_lieu, source, is_verified, country_code, commune)
+         VALUES ($1, $2, $3, $4, $5, 'actif', $6, 'google_places', $7, 'DZ', $8)
          ON CONFLICT (osm_id) DO UPDATE SET
            nom          = EXCLUDED.nom,
            adresse      = EXCLUDED.adresse,
@@ -195,6 +198,7 @@ const syncGooglePlaces = async () => {
            longitude    = EXCLUDED.longitude,
            type_lieu    = EXCLUDED.type_lieu,
            country_code = EXCLUDED.country_code,
+           commune      = EXCLUDED.commune,
            updated_at   = NOW()
          RETURNING (xmax = 0) AS is_insert`,
         [
@@ -205,6 +209,7 @@ const syncGooglePlaces = async () => {
           place.geometry.location.lng,
           typeLieu,
           isVerified,
+          commune,
         ]
       );
       if (result.rows[0]?.is_insert) inserted++;
