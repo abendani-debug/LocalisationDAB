@@ -190,7 +190,8 @@ banque_id (FK), osm_id (import OSM), created_at, updated_at
 - **Anonyme** : aucun compte requis
 - **Anti-spam** : IP hashée (SHA-256 salé) + cookie UUID → 1 signal / DAB / 4h
 - **Seuil** : 2+ votes du même état → mise à jour `etat_communautaire`
-- **Expiration** : votes valides 4h seulement (`expires_at`)
+- **Expiration** : votes valides 4h seulement (`expires_at`) — 24h si signalement admin
+- **Verrou week-end admin** (`Signalement.computeExpiresAt`) : un signalement **admin** avec état `vide` ou `en_panne`, créé le **jeudi à partir de 16h (heure Algérie, UTC+1)**, reste valide jusqu'au **dimanche 7h** au lieu des 24h habituelles — un DAB vide/en panne le jeudi soir a de fortes chances de le rester tout le week-end (pas de réapprovisionnement/réparation avant dimanche). Un signalement admin `disponible` garde toujours 24h (un DAB plein le jeudi peut se vider avec l'usage réel pendant le week-end, notamment en zone commerciale à fort trafic). Le reste de la semaine (et les signalements non-admin) ne sont pas concernés. Si un nouveau signalement arrive pendant cette fenêtre (admin ou utilisateur), il recalcule `etat_communautaire` normalement — le verrou n'empêche pas les mises à jour, il ne fait qu'étendre la durée par défaut en absence de nouveau signalement.
 - **IP jamais stockée brute** → conformité RGPD obligatoire
 
 ---
