@@ -24,6 +24,8 @@ export default function AdminDashboard() {
   const [period, setPeriod]         = useState('30');
   const [etatStats, setEtatStats]   = useState([]);
   const [etatLoading, setEtatLoading] = useState(true);
+  const [zones, setZones]           = useState([]);
+  const [zonesLoading, setZonesLoading] = useState(true);
 
   useEffect(() => {
     api.get('/admin/stats')
@@ -36,6 +38,13 @@ export default function AdminDashboard() {
     api.get('/admin/stats/etat', { params: { period } })
       .then((r) => setEtatStats(r.data.data.parEtat))
       .finally(() => setEtatLoading(false));
+  }, [period]);
+
+  useEffect(() => {
+    setZonesLoading(true);
+    api.get('/admin/stats/geographie', { params: { period } })
+      .then((r) => setZones(r.data.data.zones))
+      .finally(() => setZonesLoading(false));
   }, [period]);
 
   const handleImportGoogle = async () => {
@@ -157,6 +166,44 @@ export default function AdminDashboard() {
             );
           })()}
         </div>
+      </div>
+
+      {/* Signalements par zone géographique (global, plateforme entière) */}
+      <div className="mt-8">
+        <h2 className="text-xs font-bold uppercase tracking-wide text-slate-400 mb-3">
+          Signalements par zone géographique
+        </h2>
+        {zonesLoading ? (
+          <div className="py-8 flex justify-center"><Spinner /></div>
+        ) : zones.length === 0 ? (
+          <div className="bg-white border border-[#e5eeec] rounded-xl">
+            <p className="px-5 py-8 text-center text-slate-400 text-sm">Aucun signalement sur cette période.</p>
+          </div>
+        ) : (
+          <div className="bg-white border border-[#e5eeec] rounded-xl overflow-hidden">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="bg-[#f7faf9] border-b border-[#e5eeec]">
+                  <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Ville</th>
+                  <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Pays</th>
+                  <th className="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Signalements</th>
+                </tr>
+              </thead>
+              <tbody>
+                {zones.map((z, i) => (
+                  <tr
+                    key={`${z.country_code}-${z.ville}`}
+                    className={i < zones.length - 1 ? 'border-b border-[#e5eeec]' : ''}
+                  >
+                    <td className="px-4 py-2.5 font-medium text-gray-900">{z.ville}</td>
+                    <td className="px-4 py-2.5 text-slate-500">{z.pays_nom}</td>
+                    <td className="px-4 py-2.5 text-right font-bold text-[#0b3b36]">{z.total}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

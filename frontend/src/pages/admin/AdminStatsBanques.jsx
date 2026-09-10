@@ -46,9 +46,9 @@ export default function AdminStatsBanques() {
   useEffect(() => { fetchBanques(); }, [fetchBanques]);
 
   useEffect(() => {
+    if (!selectedId) { setZones([]); return; }
     setZonesLoading(true);
-    const params = selectedId ? { period, banque_id: selectedId } : { period };
-    api.get('/admin/stats/geographie', { params })
+    api.get('/admin/stats/geographie', { params: { period, banque_id: selectedId } })
       .then((r) => setZones(r.data.data.zones))
       .finally(() => setZonesLoading(false));
   }, [period, selectedId]);
@@ -117,7 +117,7 @@ export default function AdminStatsBanques() {
             <div className="py-8 flex justify-center"><Spinner /></div>
           ) : (
             <>
-              <h2 className="text-lg font-bold text-[#0b3b36] mb-4">{detail.banque.nom}</h2>
+              <BanqueHeading banque={detail.banque} />
 
               <div className="grid grid-cols-3 gap-3 mb-6">
                 {(() => {
@@ -237,47 +237,61 @@ export default function AdminStatsBanques() {
                   ))}
                 </div>
               )}
+
+              <h3 className="text-xs font-bold uppercase tracking-wide text-slate-400 mb-3 mt-8">
+                Signalements par zone géographique
+              </h3>
+              {zonesLoading ? (
+                <div className="py-8 flex justify-center"><Spinner /></div>
+              ) : zones.length === 0 ? (
+                <div className="bg-[#f7faf9] rounded-xl">
+                  <p className="px-5 py-8 text-center text-slate-400 text-sm">Aucun signalement sur cette période.</p>
+                </div>
+              ) : (
+                <div className="border border-[#e5eeec] rounded-xl overflow-hidden">
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr className="bg-[#f7faf9] border-b border-[#e5eeec]">
+                        <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Ville</th>
+                        <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Pays</th>
+                        <th className="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Signalements</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {zones.map((z, i) => (
+                        <tr
+                          key={`${z.country_code}-${z.ville}`}
+                          className={i < zones.length - 1 ? 'border-b border-[#e5eeec]' : ''}
+                        >
+                          <td className="px-4 py-2.5 font-medium text-gray-900">{z.ville}</td>
+                          <td className="px-4 py-2.5 text-slate-500">{z.pays_nom}</td>
+                          <td className="px-4 py-2.5 text-right font-bold text-[#0b3b36]">{z.total}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </>
           )}
         </div>
       )}
-
-      <div className="mt-8">
-        <h2 className="text-xs font-bold uppercase tracking-wide text-slate-400 mb-3">
-          Signalements par zone géographique{selectedId && detail ? ` — ${detail.banque.nom}` : ''}
-        </h2>
-        {zonesLoading ? (
-          <div className="py-8 flex justify-center"><Spinner /></div>
-        ) : zones.length === 0 ? (
-          <div className="bg-white border border-[#e5eeec] rounded-xl">
-            <p className="px-5 py-8 text-center text-slate-400 text-sm">Aucun signalement sur cette période.</p>
-          </div>
-        ) : (
-          <div className="bg-white border border-[#e5eeec] rounded-xl overflow-hidden">
-            <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr className="bg-[#f7faf9] border-b border-[#e5eeec]">
-                  <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Ville</th>
-                  <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Pays</th>
-                  <th className="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Signalements</th>
-                </tr>
-              </thead>
-              <tbody>
-                {zones.map((z, i) => (
-                  <tr
-                    key={`${z.country_code}-${z.ville}`}
-                    className={i < zones.length - 1 ? 'border-b border-[#e5eeec]' : ''}
-                  >
-                    <td className="px-4 py-2.5 font-medium text-gray-900">{z.ville}</td>
-                    <td className="px-4 py-2.5 text-slate-500">{z.pays_nom}</td>
-                    <td className="px-4 py-2.5 text-right font-bold text-[#0b3b36]">{z.total}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
     </div>
   );
+}
+
+function BanqueHeading({ banque }) {
+  const [imgError, setImgError] = useState(false);
+
+  if (banque.logo_url && !imgError) {
+    return (
+      <img
+        src={banque.logo_url}
+        alt={banque.nom}
+        className="h-10 mb-4 object-contain"
+        onError={() => setImgError(true)}
+      />
+    );
+  }
+  return <h2 className="text-lg font-bold text-[#0b3b36] mb-4">{banque.nom}</h2>;
 }
