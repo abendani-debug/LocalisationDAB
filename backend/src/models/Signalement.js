@@ -9,11 +9,12 @@ const WEEKEND_LOCK_END_HOUR = 7;    // dimanche 7h
 const WEEKEND_LOCK_ETATS = ['vide', 'en_panne'];
 
 /**
- * Un DAB signalé vide/en panne par un admin le jeudi à partir de 16h (heure Algérie)
- * a de fortes chances de le rester tout le week-end (pas de réapprovisionnement/réparation
- * avant dimanche) — contrairement à un DAB "disponible", qui peut se vider avec l'usage
- * réel pendant le week-end. On étend donc la validité jusqu'à dimanche 7h uniquement
- * pour vide/en_panne ; "disponible" et le reste de la semaine gardent la durée normale.
+ * Un DAB signalé vide/en panne (admin ou utilisateur) le jeudi à partir de 16h
+ * (heure Algérie) a de fortes chances de le rester tout le week-end (pas de
+ * réapprovisionnement/réparation avant dimanche) — contrairement à un DAB
+ * "disponible", qui peut se vider avec l'usage réel pendant le week-end. On
+ * étend donc la validité jusqu'à dimanche 7h uniquement pour vide/en_panne ;
+ * "disponible" et le reste de la semaine gardent la durée normale.
  */
 const computeWeekendLockExpiry = (etat, now) => {
   if (!WEEKEND_LOCK_ETATS.includes(etat)) return null;
@@ -31,10 +32,8 @@ const computeWeekendLockExpiry = (etat, now) => {
 };
 
 const computeExpiresAt = (isAdmin, etat, now = new Date()) => {
-  if (isAdmin) {
-    const lockExpiry = computeWeekendLockExpiry(etat, now);
-    if (lockExpiry) return lockExpiry;
-  }
+  const lockExpiry = computeWeekendLockExpiry(etat, now);
+  if (lockExpiry) return lockExpiry;
   const dureeHeures = isAdmin ? 24 : env.SIGNALEMENT_DUREE_HEURES;
   return new Date(now.getTime() + dureeHeures * 60 * 60 * 1000);
 };
