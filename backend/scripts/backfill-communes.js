@@ -8,7 +8,7 @@ require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') }
 const db = require('../src/config/db');
 const { findCommune } = require('../src/utils/communeLookup');
 
-const BATCH_SIZE = 200;
+const BATCH_SIZE = 10;
 
 async function main() {
   const { rows } = await db.query(
