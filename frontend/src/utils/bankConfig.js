@@ -165,7 +165,7 @@ const BANK_CONFIGS = [
     bg: '#37474F',
     text: '#fff',
     label: 'Trust Bank',
-    logoUrl: 'https://www.trustbank.dz/templates/trust/img/logo.png',
+    logoUrl: '/logos/trustbank_logo.png',
   },
   {
     key: 'citi',

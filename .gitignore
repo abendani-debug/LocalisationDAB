@@ -46,6 +46,14 @@ images/
 *.png
 tmpbrainstormmap_b64.txt
 tmp_old_video.mp4
+
+# Exceptions : assets d'app réels (logos de banques, images utilisées par le front)
+# nécessaires car Logos/ et *.png ci-dessus matchent aussi frontend/public/ (case-insensitive sous Windows)
+!frontend/public/*.png
+!frontend/public/logos/
+!frontend/public/logos/*
+
+# Screenshots restent ignorés (doit rester après les exceptions ci-dessus)
 frontend/public/screenshot-*.png
 
 # Fichiers sensibles
