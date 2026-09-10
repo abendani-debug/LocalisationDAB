@@ -287,12 +287,15 @@ function BanqueHeading({ banque }) {
 
   if (cfg?.logoUrl && !imgError) {
     return (
-      <img
-        src={cfg.logoUrl}
-        alt={cfg.label}
-        className="h-10 mb-4 object-contain"
-        onError={() => setImgError(true)}
-      />
+      <div className="flex items-center gap-3 mb-4">
+        <img
+          src={cfg.logoUrl}
+          alt={cfg.label}
+          className="h-10 object-contain"
+          onError={() => setImgError(true)}
+        />
+        <h2 className="text-lg font-bold text-[#0b3b36]">{banque.nom}</h2>
+      </div>
     );
   }
   if (cfg) {
