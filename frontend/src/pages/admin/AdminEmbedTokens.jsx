@@ -3,8 +3,6 @@ import api from '../../api/axiosConfig';
 import Spinner from '../../components/UI/Spinner';
 import toast from 'react-hot-toast';
 
-const BASE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || '';
-
 export default function AdminEmbedTokens() {
   const [tokens, setTokens]     = useState([]);
   const [banques, setBanques]   = useState([]);
@@ -65,7 +63,7 @@ export default function AdminEmbedTokens() {
   };
 
   const copySnippet = (token) => {
-    const snippet = `<iframe src="${BASE_URL}/embed/${token}" width="100%" height="500" frameborder="0" style="border:none;border-radius:8px;"></iframe>`;
+    const snippet = `<iframe src="${window.location.origin}/embed/${token}" width="100%" height="500" frameborder="0" style="border:none;border-radius:8px;"></iframe>`;
     navigator.clipboard.writeText(snippet);
     toast.success('Snippet copié !');
   };
