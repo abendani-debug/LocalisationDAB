@@ -3,6 +3,7 @@ import api from '../../api/axiosConfig';
 import { updateDAB, deleteDAB } from '../../api/dabApi';
 
 export default function AdminQuickEditModal({ dab, onClose, onRefresh }) {
+  const [nom, setNom]                   = useState(dab.nom ?? '');
   const [banques, setBanques]           = useState([]);
   const [banqueId, setBanqueId]         = useState(dab.banque_id ?? '');
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -14,10 +15,18 @@ export default function AdminQuickEditModal({ dab, onClose, onRefresh }) {
   }, []);
 
   const handleSave = async () => {
+    const trimmedNom = nom.trim();
+    if (!trimmedNom) {
+      setError('Le nom ne peut pas être vide.');
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
-      await updateDAB(dab.id, { banque_id: banqueId !== '' ? parseInt(banqueId, 10) : null });
+      await updateDAB(dab.id, {
+        nom: trimmedNom,
+        banque_id: banqueId !== '' ? parseInt(banqueId, 10) : null,
+      });
       onRefresh();
       onClose();
     } catch {
@@ -82,14 +91,22 @@ export default function AdminQuickEditModal({ dab, onClose, onRefresh }) {
         </div>
 
         {/* Nom du DAB */}
-        <div style={{
-          padding: '0.5rem 0.75rem', background: '#f9fafb',
-          borderRadius: '8px', marginBottom: '1rem',
-          fontSize: '0.83rem', color: '#374151', fontWeight: 600,
-          border: '1px solid #e5e7eb',
-        }}>
-          {dab.nom}
-        </div>
+        <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#6b7280', marginBottom: '0.3rem' }}>
+          Nom du distributeur
+        </label>
+        <input
+          type="text"
+          value={nom}
+          onChange={(e) => setNom(e.target.value)}
+          maxLength={255}
+          style={{
+            width: '100%', padding: '0.5rem 0.75rem',
+            border: '1px solid #d1d5db', borderRadius: '8px',
+            fontSize: '0.83rem', marginBottom: '1rem',
+            background: '#fff', color: '#111827', fontWeight: 600,
+            boxSizing: 'border-box',
+          }}
+        />
 
         {/* Sélection banque */}
         <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#6b7280', marginBottom: '0.3rem' }}>
