@@ -158,7 +158,7 @@ const resetExpiredEtats = () =>
     RETURNING id
   `);
 
-const findByBanque = (banqueId) =>
+const findByBanque = (banqueId, countryCode = 'DZ') =>
   db.query(
     `SELECT
        d.id, d.nom, d.adresse, d.latitude, d.longitude,
@@ -167,8 +167,9 @@ const findByBanque = (banqueId) =>
      FROM dabs d
      LEFT JOIN banques b ON b.id = d.banque_id
      WHERE d.banque_id = $1 AND d.statut = 'actif' AND d.is_verified = TRUE
+       AND d.country_code = $2
      ORDER BY d.nom`,
-    [banqueId]
+    [banqueId, countryCode]
   );
 
 module.exports = {

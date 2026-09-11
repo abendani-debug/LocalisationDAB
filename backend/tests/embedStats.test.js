@@ -15,11 +15,13 @@ jest.mock('../src/config/socket', () => ({
 }));
 jest.mock('../src/models/EmbedToken');
 jest.mock('../src/models/StatsService');
+jest.mock('../src/models/DAB');
 
 const request = require('supertest');
 const app = require('../src/app');
 const EmbedToken = require('../src/models/EmbedToken');
 const StatsService = require('../src/models/StatsService');
+const DAB = require('../src/models/DAB');
 
 const activeToken = {
   id: 1, token: 'aaaa-token', banque_id: 7, banque_nom: 'CPA',
@@ -103,5 +105,16 @@ describe('GET /api/embed/:token/dabs', () => {
     const res = await request(app).get('/api/embed/pas-un-uuid/dabs');
 
     expect(res.status).toBe(403);
+  });
+
+  it('ne récupère que les DAB algériens de la banque (une banque peut exister en FR et DZ)', async () => {
+    EmbedToken.findByToken.mockResolvedValue({ rows: [activeToken] });
+    DAB.findByBanque.mockResolvedValue({ rows: [{ id: 1, nom: 'DAB DZ', latitude: 36.7, longitude: 3.0 }] });
+
+    const res = await request(app).get('/api/embed/aaaa-token/dabs');
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.dabs).toHaveLength(1);
+    expect(DAB.findByBanque).toHaveBeenCalledWith(7, 'DZ');
   });
 });

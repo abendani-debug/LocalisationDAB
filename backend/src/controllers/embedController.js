@@ -30,7 +30,8 @@ const getDabs = async (req, res) => {
   const embedToken = await validateToken(token, req);
   if (!embedToken) return errorResponse(res, 'Token invalide ou expiré.', 403);
 
-  const result = await DAB.findByBanque(embedToken.banque_id);
+  // Les widgets embed ne concernent que l'Algérie pour l'instant.
+  const result = await DAB.findByBanque(embedToken.banque_id, 'DZ');
   return successResponse(res, {
     banque: { id: embedToken.banque_id, nom: embedToken.banque_nom },
     dabs: result.rows,
