@@ -1,21 +1,26 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
+import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import DABMarker from '../components/Map/DABMarker';
 
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+const API_URL     = import.meta.env.VITE_API_URL || '/api';
+const MAPSDAB_URL = 'https://mapsdab.com';
 
-const ETAT_COLORS = {
-  disponible: '#16a34a',
-  vide:       '#dc2626',
-  en_panne:   '#f59e0b',
-  default:    '#2563eb',
-};
+function FitBounds({ dabs }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!dabs.length) return;
+    const bounds = dabs.map((d) => [parseFloat(d.latitude), parseFloat(d.longitude)]);
+    map.fitBounds(bounds, { padding: [30, 30] });
+  }, [dabs, map]);
+  return null;
+}
 
 export default function EmbedPage() {
   const { token } = useParams();
-  const mapRef   = useRef(null);
-  const mapInst  = useRef(null);
-  const layerRef = useRef(null);
   const [banque, setBanque]   = useState(null);
+  const [dabs, setDabs]       = useState([]);
   const [error, setError]     = useState(null);
   const [loading, setLoading] = useState(true);
   const [lang] = useState(() =>
@@ -27,74 +32,27 @@ export default function EmbedPage() {
     en: { refresh: 'Refresh',    powered: 'Powered by',   error: 'Invalid or expired token.' },
   }[lang];
 
-  const renderMarkers = useCallback((dabs) => {
-    if (!mapInst.current || !window.L) return;
-    if (layerRef.current) layerRef.current.clearLayers();
-    const layer = window.L.layerGroup().addTo(mapInst.current);
-    layerRef.current = layer;
-
-    if (!dabs.length) return;
-    const bounds = [];
-    dabs.forEach((dab) => {
-      const color = ETAT_COLORS[dab.etat_communautaire] || ETAT_COLORS.default;
-      const icon = window.L.divIcon({
-        className: '',
-        html: `<div style="width:14px;height:14px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.3)"></div>`,
-        iconSize: [14, 14],
-        iconAnchor: [7, 7],
-      });
-      const marker = window.L.marker([dab.latitude, dab.longitude], { icon });
-      let popup = `<strong>${dab.nom}</strong>`;
-      if (dab.adresse) popup += `<br/><small>${dab.adresse}</small>`;
-      if (dab.etat_communautaire) {
-        const etatLabels = { disponible: '✅ Disponible', vide: '🔴 Vide', en_panne: '⚠️ En panne' };
-        popup += `<br/>${etatLabels[dab.etat_communautaire]}`;
-      }
-      marker.bindPopup(popup);
-      layer.addLayer(marker);
-      bounds.push([dab.latitude, dab.longitude]);
-    });
-    if (bounds.length) mapInst.current.fitBounds(bounds, { padding: [30, 30] });
-  }, []);
-
   const loadDabs = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/embed/${token}/dabs`);
+      const res  = await fetch(`${API_URL}/embed/${token}/dabs`);
       const json = await res.json();
       if (!json.success) { setError(labels.error); return; }
       setBanque(json.data.banque);
-      renderMarkers(json.data.dabs);
+      setDabs(json.data.dabs);
     } catch {
       setError(labels.error);
     } finally {
       setLoading(false);
     }
-  }, [token, labels.error, renderMarkers]);
+  }, [token, labels.error]);
 
-  useEffect(() => {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
-    document.head.appendChild(link);
+  useEffect(() => { loadDabs(); }, [loadDabs]);
 
-    const script = document.createElement('script');
-    script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
-    script.onload = () => {
-      if (!mapRef.current || mapInst.current) return;
-      mapInst.current = window.L.map(mapRef.current, { zoomControl: true }).setView([36.7372, 3.0865], 12);
-      window.L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '© OpenStreetMap © CARTO',
-        maxZoom: 19,
-      }).addTo(mapInst.current);
-      loadDabs();
-    };
-    document.head.appendChild(script);
-
-    return () => {
-      if (mapInst.current) { mapInst.current.remove(); mapInst.current = null; }
-    };
-  }, [token]);
+  // Ouvre la fiche DAB sur mapsdab.com dans un nouvel onglet
+  const handleSelectDAB = (dabId) => {
+    window.open(`${MAPSDAB_URL}/?dab=${dabId}`, '_blank', 'noopener,noreferrer');
+  };
 
   if (error) return (
     <div style={{ display:'flex', alignItems:'center', justifyContent:'center', height:'100vh', fontFamily:'sans-serif', color:'#dc2626', fontSize:14 }}>
@@ -104,7 +62,33 @@ export default function EmbedPage() {
 
   return (
     <div style={{ position:'relative', width:'100%', height:'100vh', fontFamily:'sans-serif' }}>
-      <div ref={mapRef} style={{ width:'100%', height:'100%' }} />
+      <MapContainer
+        center={[36.7372, 3.0865]}
+        zoom={12}
+        style={{ width:'100%', height:'100%' }}
+        zoomControl={true}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://maps.google.com">Google Maps</a>'
+          url="https://mt{s}.google.com/vt/lyrs=m&hl=fr&x={x}&y={y}&z={z}"
+          subdomains="0123"
+          maxZoom={20}
+        />
+
+        {dabs.map((dab) => (
+          <DABMarker
+            key={dab.id}
+            dab={dab}
+            userPosition={null}
+            onSelectDAB={handleSelectDAB}
+            highlightTick={null}
+            isActive={false}
+            isAdmin={false}
+          />
+        ))}
+
+        <FitBounds dabs={dabs} />
+      </MapContainer>
 
       <button
         onClick={loadDabs}
@@ -128,7 +112,7 @@ export default function EmbedPage() {
         alignItems:'center', fontSize:11, color:'#6b7280',
       }}>
         <span>{banque?.nom || ''}</span>
-        <a href="https://mapsdab.com" target="_blank" rel="noopener noreferrer"
+        <a href={MAPSDAB_URL} target="_blank" rel="noopener noreferrer"
           style={{ color:'#2563eb', textDecoration:'none', fontWeight:600 }}>
           {labels.powered} MapsDab
         </a>
