@@ -226,16 +226,39 @@ export default function AdminStatsBanques() {
               {detail.topDabProblematiques.length === 0 ? (
                 <p className="text-sm text-slate-400">Aucun signalement négatif sur cette période.</p>
               ) : (
-                <div className="space-y-2">
-                  {detail.topDabProblematiques.map((d) => (
-                    <div key={d.id} className="flex justify-between items-center text-sm px-3 py-2 bg-[#f7faf9] rounded-lg">
-                      <div>
-                        <p className="font-medium text-gray-900">{d.nom}</p>
-                        <p className="text-xs text-slate-500">{d.adresse}</p>
-                      </div>
-                      <span className="font-bold text-red-600">{d.total_negatif}</span>
-                    </div>
-                  ))}
+                <div className="border border-[#e5eeec] rounded-xl overflow-hidden">
+                  <table className="w-full text-sm border-collapse">
+                    <thead>
+                      <tr className="bg-[#f7faf9] border-b border-[#e5eeec]">
+                        <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Distributeur</th>
+                        <th className="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Dispo</th>
+                        <th className="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Vide</th>
+                        <th className="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">En panne</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {detail.topDabProblematiques.map((d, i) => (
+                        <tr
+                          key={d.id}
+                          className={i < detail.topDabProblematiques.length - 1 ? 'border-b border-[#e5eeec]' : ''}
+                        >
+                          <td className="px-4 py-2.5">
+                            <p className="font-medium text-gray-900">{d.nom}</p>
+                            <p className="text-xs text-slate-500">{d.adresse}</p>
+                          </td>
+                          <td className="px-4 py-2.5 text-right font-bold" style={{ color: ETAT_COLORS.disponible }}>
+                            {d.total_disponible}
+                          </td>
+                          <td className="px-4 py-2.5 text-right font-bold" style={{ color: ETAT_COLORS.vide }}>
+                            {d.total_vide}
+                          </td>
+                          <td className="px-4 py-2.5 text-right font-bold" style={{ color: ETAT_COLORS.en_panne }}>
+                            {d.total_en_panne}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               )}
 

@@ -35,12 +35,16 @@ const getStatsBanque = async (banqueId, period = '30') => {
       [banqueId, since]
     ),
     db.query(
-      `SELECT d.id, d.nom, d.adresse, COUNT(*)::int AS total_negatif
+      `SELECT d.id, d.nom, d.adresse,
+              COUNT(*) FILTER (WHERE sa.etat = 'disponible')::int AS total_disponible,
+              COUNT(*) FILTER (WHERE sa.etat = 'vide')::int AS total_vide,
+              COUNT(*) FILTER (WHERE sa.etat = 'en_panne')::int AS total_en_panne,
+              COUNT(*) FILTER (WHERE sa.etat IN ('vide', 'en_panne'))::int AS total_negatif
        FROM signalements_archive sa
        JOIN dabs d ON d.id = sa.dab_id
-       WHERE d.banque_id = $1 AND sa.etat IN ('vide', 'en_panne')
-         AND ($2::timestamptz IS NULL OR sa.created_at >= $2)
+       WHERE d.banque_id = $1 AND ($2::timestamptz IS NULL OR sa.created_at >= $2)
        GROUP BY d.id, d.nom, d.adresse
+       HAVING COUNT(*) FILTER (WHERE sa.etat IN ('vide', 'en_panne')) > 0
        ORDER BY total_negatif DESC
        LIMIT 10`,
       [banqueId, since]
