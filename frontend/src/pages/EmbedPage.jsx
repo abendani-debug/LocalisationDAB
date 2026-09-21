@@ -6,6 +6,7 @@ import DABMarker from '../components/Map/DABMarker';
 
 const API_URL     = import.meta.env.VITE_API_URL || '/api';
 const MAPSDAB_URL = 'https://mapsdab.com';
+const LIVE_REFRESH_MS = 30000;
 
 function FitBounds({ dabs }) {
   const map = useMap();
@@ -48,6 +49,13 @@ export default function EmbedPage() {
   }, [token, labels.error]);
 
   useEffect(() => { loadDabs(); }, [loadDabs]);
+
+  // Rafraîchissement automatique — remonte les signalements faits sur MapsDab
+  // sans que la banque ait à cliquer sur "Actualiser".
+  useEffect(() => {
+    const interval = setInterval(loadDabs, LIVE_REFRESH_MS);
+    return () => clearInterval(interval);
+  }, [loadDabs]);
 
   // Ouvre la fiche DAB sur mapsdab.com dans un nouvel onglet
   const handleSelectDAB = (dabId) => {

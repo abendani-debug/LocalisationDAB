@@ -162,10 +162,12 @@ const findByBanque = (banqueId, countryCode = 'DZ') =>
   db.query(
     `SELECT
        d.id, d.nom, d.adresse, d.latitude, d.longitude,
-       d.statut, d.etat_communautaire, d.nb_votes_actifs,
+       d.statut, d.etat_communautaire, d.etat_communautaire_at, d.nb_votes_actifs,
+       vd.vote_dominant,
        b.nom AS banque_nom, b.logo_url AS banque_logo
      FROM dabs d
      LEFT JOIN banques b ON b.id = d.banque_id
+     ${VOTE_DOMINANT_JOIN}
      WHERE d.banque_id = $1 AND d.statut = 'actif' AND d.is_verified = TRUE
        AND d.country_code = $2
      ORDER BY d.nom`,
