@@ -14,18 +14,20 @@ import HomePage          from './pages/HomePage';
 import DABDetailPage     from './pages/DABDetailPage';
 import LoginPage         from './pages/LoginPage';
 import RegisterPage      from './pages/RegisterPage';
-import AdminDABList      from './pages/admin/AdminDABList';
-import AdminDABForm      from './pages/admin/AdminDABForm';
-import AdminSignalements  from './pages/admin/AdminSignalements';
-import AdminPropositions  from './pages/admin/AdminPropositions';
-import AdminPays          from './pages/admin/AdminPays';
-import AdminEmbedTokens   from './pages/admin/AdminEmbedTokens';
 import EmbedPage          from './pages/EmbedPage';
 import CGUPage            from './pages/CGUPage';
 import PrivacyPage        from './pages/PrivacyPage';
 import AboutPage          from './pages/AboutPage';
 
+// Pages admin — chargées à la demande : jamais nécessaires pour un visiteur public,
+// inutile de les inclure dans le bundle initial de la carte.
 const AdminDashboard    = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminDABList      = lazy(() => import('./pages/admin/AdminDABList'));
+const AdminDABForm      = lazy(() => import('./pages/admin/AdminDABForm'));
+const AdminSignalements = lazy(() => import('./pages/admin/AdminSignalements'));
+const AdminPropositions = lazy(() => import('./pages/admin/AdminPropositions'));
+const AdminPays         = lazy(() => import('./pages/admin/AdminPays'));
+const AdminEmbedTokens  = lazy(() => import('./pages/admin/AdminEmbedTokens'));
 const AdminStatsBanques = lazy(() => import('./pages/admin/AdminStatsBanques'));
 const EmbedStatsPage    = lazy(() => import('./pages/EmbedStatsPage'));
 
@@ -62,13 +64,13 @@ function AppRoutes() {
         <Route path="/register" element={<RegisterPage />} />
 
         <Route path="/admin" element={<AdminRoute><AdminLayout title="Dashboard"><Suspense fallback={null}><AdminDashboard /></Suspense></AdminLayout></AdminRoute>} />
-        <Route path="/admin/dabs" element={<AdminRoute><AdminLayout title="Distributeurs"><AdminDABList /></AdminLayout></AdminRoute>} />
-        <Route path="/admin/dabs/new" element={<AdminRoute><AdminLayout title="Nouveau distributeur"><AdminDABForm /></AdminLayout></AdminRoute>} />
-        <Route path="/admin/dabs/:id/edit" element={<AdminRoute><AdminLayout title="Modifier le distributeur"><AdminDABForm /></AdminLayout></AdminRoute>} />
-        <Route path="/admin/signalements"  element={<AdminRoute><AdminLayout title="Signalements"><AdminSignalements /></AdminLayout></AdminRoute>} />
-        <Route path="/admin/propositions"  element={<AdminRoute><AdminLayout title="Propositions"><AdminPropositions /></AdminLayout></AdminRoute>} />
-        <Route path="/admin/pays"          element={<AdminRoute><AdminLayout title="Pays"><AdminPays /></AdminLayout></AdminRoute>} />
-        <Route path="/admin/embed"         element={<AdminRoute><AdminLayout title="Widgets Embed"><AdminEmbedTokens /></AdminLayout></AdminRoute>} />
+        <Route path="/admin/dabs" element={<AdminRoute><AdminLayout title="Distributeurs"><Suspense fallback={null}><AdminDABList /></Suspense></AdminLayout></AdminRoute>} />
+        <Route path="/admin/dabs/new" element={<AdminRoute><AdminLayout title="Nouveau distributeur"><Suspense fallback={null}><AdminDABForm /></Suspense></AdminLayout></AdminRoute>} />
+        <Route path="/admin/dabs/:id/edit" element={<AdminRoute><AdminLayout title="Modifier le distributeur"><Suspense fallback={null}><AdminDABForm /></Suspense></AdminLayout></AdminRoute>} />
+        <Route path="/admin/signalements"  element={<AdminRoute><AdminLayout title="Signalements"><Suspense fallback={null}><AdminSignalements /></Suspense></AdminLayout></AdminRoute>} />
+        <Route path="/admin/propositions"  element={<AdminRoute><AdminLayout title="Propositions"><Suspense fallback={null}><AdminPropositions /></Suspense></AdminLayout></AdminRoute>} />
+        <Route path="/admin/pays"          element={<AdminRoute><AdminLayout title="Pays"><Suspense fallback={null}><AdminPays /></Suspense></AdminLayout></AdminRoute>} />
+        <Route path="/admin/embed"         element={<AdminRoute><AdminLayout title="Widgets Embed"><Suspense fallback={null}><AdminEmbedTokens /></Suspense></AdminLayout></AdminRoute>} />
         <Route
           path="/admin/stats-banques"
           element={
