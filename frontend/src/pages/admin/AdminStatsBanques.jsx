@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import api from '../../api/axiosConfig';
 import Spinner from '../../components/UI/Spinner';
+import TopDabProblematiques from '../../components/Stats/TopDabProblematiques';
 import { getBankConfig } from '../../utils/bankConfig';
 import {
   PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -220,47 +221,10 @@ export default function AdminStatsBanques() {
                 })()}
               </div>
 
-              <h3 className="text-xs font-bold uppercase tracking-wide text-slate-400 mb-3">
-                DAB les plus signalés vide/en panne
-              </h3>
-              {detail.topDabProblematiques.length === 0 ? (
-                <p className="text-sm text-slate-400">Aucun signalement négatif sur cette période.</p>
-              ) : (
-                <div className="border border-[#e5eeec] rounded-xl overflow-hidden">
-                  <table className="w-full text-sm border-collapse">
-                    <thead>
-                      <tr className="bg-[#f7faf9] border-b border-[#e5eeec]">
-                        <th className="px-4 py-2.5 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">Distributeur</th>
-                        <th className="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Dispo</th>
-                        <th className="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">Vide</th>
-                        <th className="px-4 py-2.5 text-right text-xs font-semibold text-slate-500 uppercase tracking-wide">En panne</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {detail.topDabProblematiques.map((d, i) => (
-                        <tr
-                          key={d.id}
-                          className={i < detail.topDabProblematiques.length - 1 ? 'border-b border-[#e5eeec]' : ''}
-                        >
-                          <td className="px-4 py-2.5">
-                            <p className="font-medium text-gray-900">{d.nom}</p>
-                            <p className="text-xs text-slate-500">{d.adresse}</p>
-                          </td>
-                          <td className="px-4 py-2.5 text-right font-bold" style={{ color: ETAT_COLORS.disponible }}>
-                            {d.total_disponible}
-                          </td>
-                          <td className="px-4 py-2.5 text-right font-bold" style={{ color: ETAT_COLORS.vide }}>
-                            {d.total_vide}
-                          </td>
-                          <td className="px-4 py-2.5 text-right font-bold" style={{ color: ETAT_COLORS.en_panne }}>
-                            {d.total_en_panne}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+              <TopDabProblematiques
+                title="DAB les plus signalés vide/en panne"
+                items={detail.topDabProblematiques}
+              />
 
               <h3 className="text-xs font-bold uppercase tracking-wide text-slate-400 mb-3 mt-8">
                 Signalements par zone géographique

@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
+import TopDabProblematiques from '../components/Stats/TopDabProblematiques';
 
 const API_URL = import.meta.env.VITE_API_URL || '/api';
 const LIVE_REFRESH_MS = 45000;
@@ -188,22 +189,10 @@ export default function EmbedStatsPage() {
         </ResponsiveContainer>
       </div>
 
-      <h2 style={{ fontSize: 13, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', color: '#94a3b8', marginBottom: 12 }}>
-        Distributeurs les plus signalés vide/en panne
-      </h2>
-      {(stats.topDabProblematiques ?? []).length === 0 ? (
-        <p style={{ fontSize: 13, color: '#94a3b8' }}>Aucun signalement négatif sur cette période.</p>
-      ) : (
-        (stats.topDabProblematiques ?? []).map((d) => (
-          <div key={d.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 14px', background: '#f8fafc', borderRadius: 10, marginBottom: 8 }}>
-            <div>
-              <p style={{ margin: 0, fontWeight: 600, fontSize: 13, color: '#111827' }}>{d.nom}</p>
-              <p style={{ margin: 0, fontSize: 11, color: '#94a3b8' }}>{d.adresse}</p>
-            </div>
-            <span style={{ fontWeight: 700, color: '#dc2626' }}>{d.total_negatif}</span>
-          </div>
-        ))
-      )}
+      <TopDabProblematiques
+        title="Distributeurs les plus signalés vide/en panne"
+        items={stats.topDabProblematiques ?? []}
+      />
 
       <div style={{ marginTop: 32, textAlign: 'center', fontSize: 11, color: '#9ca3af' }}>
         Propulsé par{' '}
