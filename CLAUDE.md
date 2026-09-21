@@ -400,6 +400,7 @@ sans discussion explicite avec l'utilisateur.
 8. **Ne jamais stocker d'IP brute** → toujours hacher avec IP_SALT
 9. **Chaque controller** doit utiliser `express-async-errors` (pas de try/catch manuel)
 10. **Format de réponse** : toujours via `successResponse` / `errorResponse` de responseUtils.js
+11. **Toute correction manuelle en base de PROD** (`UPDATE`/`DELETE` direct via psql pour corriger une donnée) **doit être suivie d'un fichier de migration** dans `backend/migrations/` qui documente ce changement — même un simple `UPDATE`. Raison : sans ça, `schema_migrations` (voir ci-dessous) ne reflète plus l'état réel de la base, et personne ne peut reconstruire l'historique des changements de schéma/données. Créer le fichier avec le prochain numéro disponible, le rendre idempotent (`WHERE ... AND` sur la condition qui a motivé le fix, pas un simple rejeu aveugle), puis le committer — pas besoin de le rejouer en prod immédiatement puisque le fix a déjà été appliqué à la main, mais il doit exister pour la traçabilité et pour que `node scripts/migrate.js` le marque comme appliqué au prochain déploiement (sinon il tenterait de le rejouer).
 
 ---
 
@@ -442,8 +443,12 @@ npm install
 npm run dev          # nodemon src/server.js
 npm test             # jest
 
-# Migrations
-psql $DATABASE_URL -f migrations/001_init.sql
+# Migrations (depuis backend/) — applique tout fichier de migrations/*.sql
+# non encore joué, tracé dans la table schema_migrations. Idempotent :
+# relancer sans rien de nouveau ne fait rien ("Base à jour").
+node scripts/migrate.js
+
+# Seed (première installation uniquement)
 psql $DATABASE_URL -f seeds/seed.sql
 
 # Frontend
