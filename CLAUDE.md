@@ -360,6 +360,24 @@ Mettre à jour cette section à chaque session Claude Code.
 - [x] Frontend : App.jsx route /admin/propositions
 - [x] Frontend : AdminDashboard.jsx compteur + lien propositions
 
+### Session 2026-09-21 → 2026-09-23 — Stats admin, embed temps réel, dette technique, fusion DZ ✅ DÉPLOYÉ
+- [x] `StatsService.topDabProblematiques` : détail dispo/vide/en_panne par DAB (plus juste un total négatif)
+- [x] `AdminStatsBanques.jsx` : tableau 3 colonnes colorées pour "DAB les plus signalés vide/en panne"
+- [x] Widget embed (`EmbedPage.jsx`) : auto-refresh 30s, plus besoin de cliquer sur "Actualiser"
+- [x] Fix `DAB.findByBanque` : ajout du join `vote_dominant` (un DAB à 1 seul vote non confirmé remonte maintenant aussi sur le widget banque, pas seulement sur mapsdab.com)
+- [x] `EmbedStatsPage.jsx` : section "État actuel de vos distributeurs" (compteurs live + liste triée par sévérité), historique 30 jours conservé en dessous
+- [x] **Migration tracking** : `backend/scripts/migrate.js` réécrit (auto-découverte de `migrations/*.sql` + table `schema_migrations`, idempotent), branché dans `deploy.sh` VPS (étape `[3/5]`) — plus aucune migration ne peut être oubliée en prod
+- [x] Règle CLAUDE.md #11 : tout fix manuel en base de prod doit être suivi d'un fichier de migration
+- [x] Code-splitting frontend : bundle principal 712 kB → 304 kB (lazy-loading des 6 pages admin restantes + `manualChunks` vendor leaflet/socket.io/i18next dans `vite.config.js`)
+- [x] Composant partagé `components/Stats/TopDabProblematiques.jsx` (dédup entre admin et embed)
+- [x] Fix data prod : 135 DAB européens (Post Office UK, Poste Italiane...) détachés de la banque "Algerie Poste" (migration `008_detach_foreign_algerie_poste.sql`)
+- [x] Widget embed : clustering des marqueurs (`react-leaflet-cluster` v3.0.0 — **pas la v4.x, incompatible avec react-leaflet v4 utilisé ici**), icône de cluster = logo de la banque + badge du nombre de DAB regroupés
+- [x] Fix condition de course sur l'icône de cluster (ne se montait qu'après chargement de `banque`, sinon logo absent par intermittence)
+- [x] Logo Algerie Poste auto-hébergé (`frontend/public/logos/algerie_poste_logo.svg`) — même traitement que Trust Bank/AGB/Al Baraka/Es Salam/Housing Bank avant lui
+- [x] **Fusion additive DZ** : import de 1327 DAB Algerie Poste locaux absents de la prod (migration `009_import_algerie_poste_dz_osm.sql`, matching géo à 150m, `banque_id` résolu par nom, idempotent via `ON CONFLICT (osm_id)`) → **Algerie Poste passe de 187 à 1513 DAB en prod**
+- [ ] Généraliser la fusion additive aux ~19 autres banques DZ (BADR, BNA, CNEP, CPA, BDL, AGB, BEA, Société Générale Algérie...) — même méthode, à refaire banque par banque. Laisser tourner Algerie Poste quelques jours avant de généraliser.
+- [ ] Dette technique point 5 (cosmétique, non urgent) : styles inline → Tailwind sur `EmbedPage.jsx`/`EmbedStatsPage.jsx`
+
 ### Phase 3 — Tests & déploiement (à faire)
 - [ ] Tests unitaires backend (auth, dab, avis, signalement)
 - [ ] Import Google Places initial (vérifier clé API)
@@ -462,6 +480,6 @@ node -e "require('./src/utils/osmImport').syncGooglePlaces().then(console.log)"
 
 ---
 
-*Dernière mise à jour : 2026-03-24 — Phase 1 & 2 complétées, corrections appliquées*
+*Dernière mise à jour : 2026-09-23 — Stats admin, embed temps réel, dette technique (migration tracking), fusion additive Algerie Poste DZ (187→1513 DAB)*
 *Chef de projet : Claude (assistant Anthropic)*
 *Version du projet : 1.0.0-alpha*
