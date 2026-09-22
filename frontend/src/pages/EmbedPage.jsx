@@ -133,19 +133,21 @@ export default function EmbedPage() {
           maxZoom={20}
         />
 
-        <MarkerClusterGroup chunkedLoading iconCreateFunction={clusterIconFn}>
-          {dabs.map((dab) => (
-            <DABMarker
-              key={dab.id}
-              dab={dab}
-              userPosition={null}
-              onSelectDAB={handleSelectDAB}
-              highlightTick={null}
-              isActive={false}
-              isAdmin={false}
-            />
-          ))}
-        </MarkerClusterGroup>
+        {banque && (
+          <MarkerClusterGroup key={banque.nom} chunkedLoading iconCreateFunction={clusterIconFn}>
+            {dabs.map((dab) => (
+              <DABMarker
+                key={dab.id}
+                dab={dab}
+                userPosition={null}
+                onSelectDAB={handleSelectDAB}
+                highlightTick={null}
+                isActive={false}
+                isAdmin={false}
+              />
+            ))}
+          </MarkerClusterGroup>
+        )}
 
         <FitBounds dabs={dabs} />
       </MapContainer>
