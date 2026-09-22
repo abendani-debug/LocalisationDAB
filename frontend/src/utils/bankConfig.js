@@ -10,7 +10,7 @@ const BANK_CONFIGS = [
     bg: '#F7A600',
     text: '#fff',
     label: 'Algérie Poste',
-    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/72/AlgeriePoste.svg',
+    logoUrl: '/logos/algerie_poste_logo.svg',
   },
   {
     key: 'bna',
