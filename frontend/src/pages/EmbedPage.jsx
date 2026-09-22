@@ -1,19 +1,66 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
+import MarkerClusterGroup from 'react-leaflet-cluster';
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import DABMarker from '../components/Map/DABMarker';
+import { getBankConfig } from '../utils/bankConfig';
 
 const API_URL     = import.meta.env.VITE_API_URL || '/api';
 const MAPSDAB_URL = 'https://mapsdab.com';
 const LIVE_REFRESH_MS = 30000;
 
+// Icône de cluster : logo de la banque du widget + badge du nombre de DAB
+// regroupés, à la place des bulles colorées génériques de leaflet.markercluster.
+function makeClusterIconFactory(bankCfg) {
+  return (cluster) => {
+    const count = cluster.getChildCount();
+    const badgeColor = count < 10 ? '#16a34a' : count < 100 ? '#f59e0b' : '#dc2626';
+    const size = 46;
+
+    const logoOrAbbr = bankCfg?.logoUrl
+      ? `<img src="${bankCfg.logoUrl}" width="28" height="28"
+           style="width:28px;height:28px;object-fit:contain;"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
+         <span style="display:none;width:28px;height:28px;align-items:center;justify-content:center;
+           font-size:10px;font-weight:900;color:${bankCfg?.text || '#334155'};">${bankCfg?.abbr || ''}</span>`
+      : `<span style="font-size:11px;font-weight:900;color:#334155;">${bankCfg?.abbr || '🏧'}</span>`;
+
+    const html = `
+      <div style="position:relative;width:${size}px;height:${size}px;">
+        <div style="
+          width:${size}px;height:${size}px;border-radius:50%;
+          background:#fff;border:3px solid #2563eb;
+          box-shadow:0 2px 10px rgba(0,0,0,0.3);
+          display:flex;align-items:center;justify-content:center;overflow:hidden;
+        ">${logoOrAbbr}</div>
+        <div style="
+          position:absolute;top:-4px;right:-4px;min-width:22px;height:22px;padding:0 5px;
+          border-radius:11px;background:${badgeColor};color:#fff;
+          font-size:11px;font-weight:800;font-family:sans-serif;
+          display:flex;align-items:center;justify-content:center;
+          border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,0.35);
+        ">${count}</div>
+      </div>`;
+
+    return L.divIcon({ html, className: '', iconSize: L.point(size, size) });
+  };
+}
+
 function FitBounds({ dabs }) {
   const map = useMap();
+  const hasFitted = useRef(false);
   useEffect(() => {
-    if (!dabs.length) return;
+    // Uniquement au premier chargement — sinon chaque rafraîchissement auto
+    // (toutes les LIVE_REFRESH_MS) recentrerait la carte et annulerait le
+    // zoom/pan de la banque en pleine consultation.
+    if (hasFitted.current || !dabs.length) return;
     const bounds = dabs.map((d) => [parseFloat(d.latitude), parseFloat(d.longitude)]);
     map.fitBounds(bounds, { padding: [30, 30] });
+    hasFitted.current = true;
   }, [dabs, map]);
   return null;
 }
@@ -32,6 +79,9 @@ export default function EmbedPage() {
     fr: { refresh: 'Actualiser', powered: 'Propulsé par', error: 'Token invalide ou expiré.' },
     en: { refresh: 'Refresh',    powered: 'Powered by',   error: 'Invalid or expired token.' },
   }[lang];
+
+  const bankCfg = useMemo(() => getBankConfig(banque?.nom), [banque?.nom]);
+  const clusterIconFn = useMemo(() => makeClusterIconFactory(bankCfg), [bankCfg]);
 
   const loadDabs = useCallback(async () => {
     setLoading(true);
@@ -83,17 +133,19 @@ export default function EmbedPage() {
           maxZoom={20}
         />
 
-        {dabs.map((dab) => (
-          <DABMarker
-            key={dab.id}
-            dab={dab}
-            userPosition={null}
-            onSelectDAB={handleSelectDAB}
-            highlightTick={null}
-            isActive={false}
-            isAdmin={false}
-          />
-        ))}
+        <MarkerClusterGroup chunkedLoading iconCreateFunction={clusterIconFn}>
+          {dabs.map((dab) => (
+            <DABMarker
+              key={dab.id}
+              dab={dab}
+              userPosition={null}
+              onSelectDAB={handleSelectDAB}
+              highlightTick={null}
+              isActive={false}
+              isAdmin={false}
+            />
+          ))}
+        </MarkerClusterGroup>
 
         <FitBounds dabs={dabs} />
       </MapContainer>
