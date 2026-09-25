@@ -48,7 +48,7 @@ const forgotPasswordValidator = [
 const resetPasswordValidator = [
   body('token')
     .trim()
-    .notEmpty().withMessage('Token requis.'),
+    .notEmpty().withMessage('Le token est requis.'),
   body('newPassword')
     .notEmpty().withMessage('Le nouveau mot de passe est requis.')
     .isLength({ min: 8 }).withMessage('Minimum 8 caractères.')
