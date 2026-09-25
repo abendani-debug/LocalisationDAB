@@ -419,6 +419,7 @@ sans discussion explicite avec l'utilisateur.
 9. **Chaque controller** doit utiliser `express-async-errors` (pas de try/catch manuel)
 10. **Format de réponse** : toujours via `successResponse` / `errorResponse` de responseUtils.js
 11. **Toute correction manuelle en base de PROD** (`UPDATE`/`DELETE` direct via psql pour corriger une donnée) **doit être suivie d'un fichier de migration** dans `backend/migrations/` qui documente ce changement — même un simple `UPDATE`. Raison : sans ça, `schema_migrations` (voir ci-dessous) ne reflète plus l'état réel de la base, et personne ne peut reconstruire l'historique des changements de schéma/données. Créer le fichier avec le prochain numéro disponible, le rendre idempotent (`WHERE ... AND` sur la condition qui a motivé le fix, pas un simple rejeu aveugle), puis le committer — pas besoin de le rejouer en prod immédiatement puisque le fix a déjà été appliqué à la main, mais il doit exister pour la traçabilité et pour que `node scripts/migrate.js` le marque comme appliqué au prochain déploiement (sinon il tenterait de le rejouer).
+    **Exception impérative : les identifiants (mots de passe, secrets, clés API) ne doivent JAMAIS être écrits dans un fichier de migration ni dans aucun fichier committé, même pour tracer un changement.** Un mot de passe en dur dans un fichier versionné finit tôt ou tard par fuiter — voir l'audit de sécurité du 2026-09-25 : le mot de passe admin par défaut de `seeds/seed.sql` est resté en clair sur GitHub public pendant des mois sans jamais avoir été changé en prod. Pour créer/réinitialiser un compte admin, utiliser `node scripts/create-admin.js <email>` (génère un mot de passe aléatoire, l'affiche une seule fois dans le terminal, ne l'écrit jamais sur disque). Pour toute autre réinitialisation de mot de passe en prod, faire de même : script ponctuel non committé, supprimé du serveur immédiatement après exécution.
 
 ---
 
@@ -466,8 +467,13 @@ npm test             # jest
 # relancer sans rien de nouveau ne fait rien ("Base à jour").
 node scripts/migrate.js
 
-# Seed (première installation uniquement)
+# Seed (première installation uniquement — données de référence seulement,
+# ne crée plus de compte : voir create-admin.js ci-dessous)
 psql $DATABASE_URL -f seeds/seed.sql
+
+# Créer/réinitialiser un compte admin — mot de passe aléatoire affiché une
+# seule fois dans le terminal, jamais écrit sur disque
+node scripts/create-admin.js admin@exemple.com "Nom Admin"
 
 # Frontend
 cd frontend

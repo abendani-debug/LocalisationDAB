@@ -34,29 +34,19 @@ INSERT INTO services (nom, description) VALUES
 ON CONFLICT (nom) DO NOTHING;
 
 -- -------------------------------------------------------------
--- Utilisateur admin de test
--- Password : Admin1234! (bcrypt 12 rounds)
--- CHANGER en production
+-- Comptes de test (admin + utilisateur)
+--
+-- Ce fichier ne crée AUCUN identifiant : un mot de passe en dur ici,
+-- commité dans un dépôt Git, finit tôt ou tard par fuiter (c'est
+-- exactement ce qui est arrivé — cf. audit de sécurité du 2026-09-25 :
+-- le mot de passe admin par défaut est resté en clair sur GitHub public
+-- pendant des mois et n'avait jamais été changé en prod).
+--
+-- Pour créer un compte admin de test après un nouveau setup :
+--   node scripts/create-admin.js <email>
+-- Le script génère un mot de passe aléatoire, l'affiche UNE SEULE FOIS
+-- dans le terminal, et ne l'écrit jamais dans un fichier.
 -- -------------------------------------------------------------
-INSERT INTO users (nom, email, password_hash, role) VALUES
-  (
-    'Admin',
-    'admin@localisation-dab.dz',
-    '$2a$12$ICCnfFrPBQQwkZXdfGaMMelznfYK6EMC7zF2nQC6hsQGXFM49cURq',
-    'admin'
-  )
-ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash;
-
--- Utilisateur standard de test
--- Password : User1234!
-INSERT INTO users (nom, email, password_hash, role) VALUES
-  (
-    'Utilisateur Test',
-    'user@localisation-dab.dz',
-    '$2a$12$X/hPdoeTSmp9TyL4h42FOOaYrBIPpB.DSutsNGFn7aNXIKSYhdn/S',
-    'user'
-  )
-ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash;
 
 -- -------------------------------------------------------------
 -- DAB de test (Alger centre)
