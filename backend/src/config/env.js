@@ -19,6 +19,9 @@ const env = {
   DEFAULT_LNG:             parseFloat(process.env.DEFAULT_LNG || '3.0865'),
   SEARCH_RADIUS_KM:        parseInt(process.env.SEARCH_RADIUS_KM || '20', 10),
   GOOGLE_PLACES_API_KEY:   required('GOOGLE_PLACES_API_KEY'),
+  RESEND_API_KEY:          process.env.RESEND_API_KEY || null,
+  EMAIL_FROM:              process.env.EMAIL_FROM || 'noreply@mapsdab.com',
+  APP_URL:                 process.env.APP_URL || 'http://localhost:5173',
 };
 
 if (env.JWT_SECRET.length < 64) {
