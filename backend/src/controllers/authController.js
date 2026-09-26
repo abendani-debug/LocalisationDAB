@@ -2,6 +2,8 @@ require('express-async-errors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const PasswordResetToken = require('../models/PasswordResetToken');
+const { sendPasswordResetEmail } = require('../utils/emailService');
 const { env } = require('../config/env');
 const { successResponse, errorResponse } = require('../utils/responseUtils');
 
@@ -63,4 +65,37 @@ const updatePassword = async (req, res) => {
   return successResponse(res, null, 200, 'Mot de passe mis à jour.');
 };
 
-module.exports = { register, login, me, updatePassword };
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+  const result = await User.findByEmail(email);
+  const user = result.rows[0];
+
+  if (user && user.is_active) {
+    await PasswordResetToken.invalidateAllForUser(user.id);
+    const token = await PasswordResetToken.create(user.id);
+    sendPasswordResetEmail(user.email, token).catch((err) =>
+      console.error('Erreur envoi email de réinitialisation :', err.message)
+    );
+  }
+
+  return successResponse(res, null, 200, 'Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.');
+};
+
+const resetPassword = async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  const result = await PasswordResetToken.findValidByToken(token);
+  const resetRow = result.rows[0];
+
+  if (!resetRow) {
+    return errorResponse(res, 'Lien invalide ou expiré.', 400);
+  }
+
+  const newHash = await bcrypt.hash(newPassword, env.BCRYPT_ROUNDS);
+  await User.updatePassword(resetRow.user_id, newHash);
+  await PasswordResetToken.markUsed(resetRow.id);
+
+  return successResponse(res, null, 200, 'Mot de passe réinitialisé avec succès.');
+};
+
+module.exports = { register, login, me, updatePassword, forgotPassword, resetPassword };

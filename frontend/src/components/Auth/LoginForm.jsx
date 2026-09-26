@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -42,7 +43,12 @@ export default function LoginForm({ onSuccess }) {
         {errors.email && <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>}
       </div>
       <div>
-        <label className="block mb-1 text-sm font-medium text-gray-700">Mot de passe</label>
+        <div className="flex items-center justify-between mb-1">
+          <label className="text-sm font-medium text-gray-700">Mot de passe</label>
+          <Link to="/mot-de-passe-oublie" className="text-xs text-blue-600 hover:text-blue-700 font-medium">
+            {t('auth.forgot_password_link')}
+          </Link>
+        </div>
         <input
           type="password"
           {...register('password')}

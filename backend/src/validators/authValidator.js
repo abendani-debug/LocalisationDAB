@@ -37,4 +37,23 @@ const passwordValidator = [
     .matches(/[0-9]/).withMessage('Doit contenir au moins un chiffre.'),
 ];
 
-module.exports = { registerValidator, loginValidator, passwordValidator };
+const forgotPasswordValidator = [
+  body('email')
+    .trim()
+    .notEmpty().withMessage('L\'email est requis.')
+    .isEmail().withMessage('Email invalide.')
+    .normalizeEmail(),
+];
+
+const resetPasswordValidator = [
+  body('token')
+    .trim()
+    .notEmpty().withMessage('Le token est requis.'),
+  body('newPassword')
+    .notEmpty().withMessage('Le nouveau mot de passe est requis.')
+    .isLength({ min: 8 }).withMessage('Minimum 8 caractères.')
+    .matches(/[A-Z]/).withMessage('Doit contenir au moins une majuscule.')
+    .matches(/[0-9]/).withMessage('Doit contenir au moins un chiffre.'),
+];
+
+module.exports = { registerValidator, loginValidator, passwordValidator, forgotPasswordValidator, resetPasswordValidator };

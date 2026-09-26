@@ -46,10 +46,19 @@ const propositionLimiter = rateLimit({
   handler,
 });
 
+// Demande de réinitialisation de mot de passe : max 3 par heure par IP
+const passwordResetLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 3,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler,
+});
+
 // Signalement : bypasse le rate limit si l'utilisateur est admin authentifié
 const adminBypassSignalLimiter = (req, res, next) => {
   if (req.user?.role === 'admin') return next();
   return signalLimiter(req, res, next);
 };
 
-module.exports = { globalLimiter, authLimiter, signalLimiter, adminBypassSignalLimiter, propositionLimiter, dabsReadLimiter };
+module.exports = { globalLimiter, authLimiter, signalLimiter, adminBypassSignalLimiter, propositionLimiter, passwordResetLimiter, dabsReadLimiter };

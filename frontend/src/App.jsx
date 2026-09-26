@@ -14,6 +14,8 @@ import HomePage          from './pages/HomePage';
 import DABDetailPage     from './pages/DABDetailPage';
 import LoginPage         from './pages/LoginPage';
 import RegisterPage      from './pages/RegisterPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage  from './pages/ResetPasswordPage';
 import EmbedPage          from './pages/EmbedPage';
 import CGUPage            from './pages/CGUPage';
 import PrivacyPage        from './pages/PrivacyPage';
@@ -62,6 +64,8 @@ function AppRoutes() {
         <Route path="/dab/:id"  element={<DABDetailPage />} />
         <Route path="/login"    element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/mot-de-passe-oublie" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password"      element={<ResetPasswordPage />} />
 
         <Route path="/admin" element={<AdminRoute><AdminLayout title="Dashboard"><Suspense fallback={null}><AdminDashboard /></Suspense></AdminLayout></AdminRoute>} />
         <Route path="/admin/dabs" element={<AdminRoute><AdminLayout title="Distributeurs"><Suspense fallback={null}><AdminDABList /></Suspense></AdminLayout></AdminRoute>} />
