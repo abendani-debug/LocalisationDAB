@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import toast from 'react-hot-toast';
 import { forgotPassword } from '../../api/authApi';
 
 export default function ForgotPasswordForm() {
@@ -20,12 +21,20 @@ export default function ForgotPasswordForm() {
   const onSubmit = async (data) => {
     try {
       await forgotPassword(data.email);
-    } catch {
-      // volontairement ignoré : réponse toujours générique (anti-enumeration)
-    } finally {
       // Réponse toujours générique côté backend : on affiche le même
-      // message de succès que la demande ait abouti ou non.
+      // message de succès que la demande ait abouti ou non (anti-enumeration).
       setSent(true);
+    } catch (err) {
+      if (err.response?.status === 429) {
+        // Le rate-limit ne révèle rien sur l'existence du compte (il se
+        // déclenche avant même que le controller ne s'exécute) : on peut
+        // donc le signaler distinctement plutôt que d'afficher le faux succès.
+        toast.error(err.response?.data?.message || t('auth.forgot_password_rate_limited'));
+      } else {
+        // Toute autre erreur (panne serveur, réseau...) : on garde le
+        // message générique pour ne pas fuiter d'info sur le compte.
+        setSent(true);
+      }
     }
   };
 
