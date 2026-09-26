@@ -20,6 +20,8 @@ export default function ForgotPasswordForm() {
   const onSubmit = async (data) => {
     try {
       await forgotPassword(data.email);
+    } catch {
+      // volontairement ignoré : réponse toujours générique (anti-enumeration)
     } finally {
       // Réponse toujours générique côté backend : on affiche le même
       // message de succès que la demande ait abouti ou non.
@@ -34,9 +36,11 @@ export default function ForgotPasswordForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       <div>
-        <label className="block mb-1 text-sm font-medium text-gray-700">Email</label>
+        <label htmlFor="forgot-password-email" className="block mb-1 text-sm font-medium text-gray-700">Email</label>
         <input
+          id="forgot-password-email"
           type="email"
+          autoComplete="email"
           {...register('email')}
           className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:bg-white transition-colors"
         />
