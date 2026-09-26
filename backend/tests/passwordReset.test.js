@@ -8,6 +8,15 @@ jest.mock('../src/config/socket', () => ({
 jest.mock('../src/models/User');
 jest.mock('../src/models/PasswordResetToken');
 jest.mock('../src/utils/emailService');
+jest.mock('../src/middlewares/rateLimiter', () => ({
+  globalLimiter: (req, res, next) => next(),
+  authLimiter: (req, res, next) => next(),
+  signalLimiter: (req, res, next) => next(),
+  adminBypassSignalLimiter: (req, res, next) => next(),
+  propositionLimiter: (req, res, next) => next(),
+  dabsReadLimiter: (req, res, next) => next(),
+  passwordResetLimiter: (req, res, next) => next(),
+}));
 
 const request = require('supertest');
 const app = require('../src/app');

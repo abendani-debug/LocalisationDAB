@@ -8,6 +8,7 @@ jest.mock('../src/middlewares/rateLimiter', () => ({
   adminBypassSignalLimiter: (req, res, next) => next(),
   propositionLimiter: (req, res, next) => next(),
   dabsReadLimiter:    (req, res, next) => next(),
+  passwordResetLimiter: (req, res, next) => next(),
 }));
 jest.mock('../src/config/socket', () => ({
   initSocket: jest.fn(),
