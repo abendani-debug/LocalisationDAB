@@ -48,6 +48,20 @@ describe('POST /api/auth/forgot-password', () => {
     expect(PasswordResetToken.create).not.toHaveBeenCalled();
   });
 
+  it('renvoie le même message générique si le compte est inactif (anti-énumération)', async () => {
+    User.findByEmail.mockResolvedValue({
+      rows: [{ id: 1, email: 'alice@test.com', is_active: false }],
+    });
+
+    const res = await request(app)
+      .post('/api/auth/forgot-password')
+      .send({ email: 'alice@test.com' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.message).toMatch(/lien de réinitialisation/i);
+    expect(PasswordResetToken.create).not.toHaveBeenCalled();
+  });
+
   it('ne plante pas si l\'envoi d\'email échoue', async () => {
     User.findByEmail.mockResolvedValue({
       rows: [{ id: 1, email: 'alice@test.com', is_active: true }],
