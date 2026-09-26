@@ -73,17 +73,12 @@ const forgotPassword = async (req, res) => {
   if (user && user.is_active) {
     await PasswordResetToken.invalidateAllForUser(user.id);
     const token = await PasswordResetToken.create(user.id);
-    try {
-      await sendPasswordResetEmail(user.email, token);
-    } catch (err) {
-      console.error('Erreur envoi email de réinitialisation :', err.message);
-    }
+    sendPasswordResetEmail(user.email, token).catch((err) =>
+      console.error('Erreur envoi email de réinitialisation :', err.message)
+    );
   }
 
-  return successResponse(
-    res, null, 200,
-    'Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.'
-  );
+  return successResponse(res, null, 200, 'Si un compte existe avec cet email, un lien de réinitialisation a été envoyé.');
 };
 
 const resetPassword = async (req, res) => {
