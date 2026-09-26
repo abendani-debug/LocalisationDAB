@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { register as registerApi } from '../../api/authApi';
 import toast from 'react-hot-toast';
+import PasswordInput from '../UI/PasswordInput';
 
 export default function RegisterForm({ onSuccess }) {
   const { t } = useTranslation();
@@ -50,8 +51,8 @@ export default function RegisterForm({ onSuccess }) {
       </div>
       <div>
         <label className="block mb-1 text-sm font-medium text-gray-700">Mot de passe</label>
-        <input
-          type="password"
+        <PasswordInput
+          autoComplete="new-password"
           {...register('password')}
           className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:bg-white transition-colors"
         />

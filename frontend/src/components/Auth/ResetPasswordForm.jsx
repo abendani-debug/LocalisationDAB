@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { resetPassword } from '../../api/authApi';
 import toast from 'react-hot-toast';
+import PasswordInput from '../UI/PasswordInput';
 
 export default function ResetPasswordForm() {
   const { t } = useTranslation();
@@ -45,9 +46,8 @@ export default function ResetPasswordForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       <div>
         <label htmlFor="reset-password-new" className="block mb-1 text-sm font-medium text-gray-700">{t('auth.new_password')}</label>
-        <input
+        <PasswordInput
           id="reset-password-new"
-          type="password"
           autoComplete="new-password"
           {...register('newPassword')}
           className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:bg-white transition-colors"
@@ -56,9 +56,8 @@ export default function ResetPasswordForm() {
       </div>
       <div>
         <label htmlFor="reset-password-confirm" className="block mb-1 text-sm font-medium text-gray-700">{t('auth.confirm_password')}</label>
-        <input
+        <PasswordInput
           id="reset-password-confirm"
-          type="password"
           autoComplete="new-password"
           {...register('confirmPassword')}
           className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:bg-white transition-colors"

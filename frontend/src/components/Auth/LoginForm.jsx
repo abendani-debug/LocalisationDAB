@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { login as loginApi } from '../../api/authApi';
 import useAuth from '../../hooks/useAuth';
 import toast from 'react-hot-toast';
+import PasswordInput from '../UI/PasswordInput';
 
 export default function LoginForm({ onSuccess }) {
   const { t } = useTranslation();
@@ -49,8 +50,8 @@ export default function LoginForm({ onSuccess }) {
             {t('auth.forgot_password_link')}
           </Link>
         </div>
-        <input
-          type="password"
+        <PasswordInput
+          autoComplete="current-password"
           {...register('password')}
           className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm bg-slate-50 focus:outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-100 focus:bg-white transition-colors"
         />

@@ -137,6 +137,8 @@
     "back_to_login": "Back to login",
     "new_password": "New password",
     "confirm_password": "Confirm password",
+    "show_password": "Show password",
+    "hide_password": "Hide password",
     "passwords_must_match": "Passwords do not match.",
     "reset_password_title": "Reset password",
     "reset_password_submit": "Reset password",
