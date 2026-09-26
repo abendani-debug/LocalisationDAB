@@ -1123,6 +1123,7 @@ git commit --allow-empty -m "test: réinitialisation de mot de passe validée de
 
 ## Notes de déploiement (à ne pas oublier)
 
+- **Le VPS doit être passé sur Node ≥20 avant ce déploiement** — `resend@6.30.0` l'exige (`backend/package.json` `engines` a été corrigé en conséquence pendant la revue de la Task 4), mais le VPS tourne actuellement en Node 18.20.8 (confirmé le 2026-09-26 via `/proc/<pid>/exe`, alias nvm par défaut sur `18`). Node 20.20.2 est déjà installé via nvm sur le VPS — il suffit de changer l'alias par défaut (`nvm alias default 20`) et l'interpréteur utilisé par pm2 pour le process `localisation-dab`, puis de relancer. Sans ce changement, `npm install`/`npm ci` sur `deploy.sh` s'exécute avec un `engines` non satisfait, ce qui peut produire un `node_modules` cassé ou faire échouer le déploiement selon la configuration npm.
 - **`RESEND_API_KEY` et `EMAIL_FROM` doivent être ajoutées au `.env` du VPS** avant que l'envoi d'email fonctionne en prod — sans ça, les routes fonctionnent mais aucun email ne part réellement (comportement dégradé propre, pas un crash, cf. Task 15 Step 1).
 - **Le domaine `mapsdab.com` doit être vérifié côté Resend** (enregistrements DNS SPF/DKIM fournis par Resend, à ajouter par l'utilisateur) avant d'utiliser `EMAIL_FROM=noreply@mapsdab.com` en prod — sinon Resend refusera d'envoyer depuis ce domaine.
 - **`APP_URL` doit valoir `https://mapsdab.com` en prod**, pas la valeur par défaut `http://localhost:5173` — à ajouter explicitement dans le `.env` du VPS.
