@@ -201,9 +201,11 @@ banque_id (FK), osm_id (import OSM), created_at, updated_at
 ### Auth
 ```
 POST   /api/auth/register
-POST   /api/auth/login          ← authLimiter (10 req/15min)
-GET    /api/auth/me             ← JWT requis
-PUT    /api/auth/password       ← JWT requis
+POST   /api/auth/login              ← authLimiter (10 req/15min)
+GET    /api/auth/me                 ← JWT requis
+PUT    /api/auth/password           ← JWT requis
+POST   /api/auth/forgot-password    ← passwordResetLimiter (3 req/heure/IP), anonyme, réponse toujours générique
+POST   /api/auth/reset-password     ← anonyme, body: { token, newPassword }
 ```
 
 ### DAB
@@ -378,6 +380,24 @@ Mettre à jour cette section à chaque session Claude Code.
 - [ ] Généraliser la fusion additive aux ~19 autres banques DZ (BADR, BNA, CNEP, CPA, BDL, AGB, BEA, Société Générale Algérie...) — même méthode, à refaire banque par banque. Laisser tourner Algerie Poste quelques jours avant de généraliser.
 - [ ] Dette technique point 5 (cosmétique, non urgent) : styles inline → Tailwind sur `EmbedPage.jsx`/`EmbedStatsPage.jsx`
 
+### Session 2026-09-25 → 2026-09-26 — Audit sécurité compte admin + réinitialisation de mot de passe ✅ IMPLÉMENTÉ (PAS ENCORE DÉPLOYÉ EN PROD)
+- [x] **Audit de sécurité** : mot de passe admin de seed (`Admin1234!`) resté en clair sur GitHub public et actif en prod depuis mai 2026 — rotation faite en prod, `seeds/seed.sql` nettoyé (ne crée plus aucun compte), nouveau script `scripts/create-admin.js` (mot de passe aléatoire, jamais écrit sur disque)
+- [x] Règle CLAUDE.md #11 complétée : exception explicite, aucun identifiant réel ne doit jamais être committé (même dans une migration)
+- [x] Spec + plan écrits et approuvés : `docs/superpowers/specs/2026-09-25-password-reset-design.md`, `docs/superpowers/plans/2026-09-25-password-reset.md`
+- [x] Migration `010_password_reset_tokens.sql` (table `password_reset_tokens`, token haché SHA-256, usage unique, expiration 1h)
+- [x] `PasswordResetToken.js` (modèle) + `emailService.js` (envoi via Resend, isolé du reste du code)
+- [x] Validators `forgotPasswordValidator`/`resetPasswordValidator` + `passwordResetLimiter` (3/h/IP)
+- [x] Routes `POST /api/auth/forgot-password` et `POST /api/auth/reset-password` (réponses génériques anti-énumération des deux côtés, y compris pour un compte inactif)
+- [x] Suite de tests TDD complète (`tests/passwordReset.test.js`, 8 tests) + 110/110 tests backend au vert
+- [x] Frontend : `ForgotPasswordPage`/`ResetPasswordPage` + formulaires (react-hook-form + zod), lien "Mot de passe oublié ?" sur `LoginForm.jsx`, clés i18n fr/en
+- [x] Fix sécurité trouvé en revue : `forgotPassword` n'attend plus l'envoi d'email avant de répondre (évitait une fuite de timing qui aurait permis de deviner si un compte existe via la latence de réponse)
+- [x] Test manuel de bout en bout validé en local (token réel généré localement, reset + connexion réussie avec le nouveau mot de passe) — envoi réel d'email via Resend PAS testé (clé API pas encore créée par l'utilisateur)
+- [ ] **Créer le compte Resend + `RESEND_API_KEY`** (dépendance externe, bloquant pour tester l'envoi d'email réel)
+- [ ] **Vérifier le domaine `mapsdab.com` côté Resend** (SPF/DKIM) avant d'utiliser `EMAIL_FROM=noreply@mapsdab.com` en prod
+- [ ] **Passer le VPS en Node ≥20 avant de déployer cette feature** — `resend@6.30.0` l'exige, le VPS tourne encore en Node 18.20.8 (Node 20.20.2 déjà installé via nvm, juste besoin de changer l'alias par défaut + l'interpréteur pm2)
+- [ ] Merge vers `develop`/`main` + déploiement VPS (migration 010 sera jouée automatiquement par `deploy.sh`)
+- [ ] Reprendre la réécriture d'historique Git + passage du dépôt GitHub en privé (mis en pause, nécessite une clé de déploiement SSH sur le VPS d'abord)
+
 ### Phase 3 — Tests & déploiement (à faire)
 - [ ] Tests unitaires backend (auth, dab, avis, signalement)
 - [ ] Import Google Places initial (vérifier clé API)
@@ -486,6 +506,6 @@ node -e "require('./src/utils/osmImport').syncGooglePlaces().then(console.log)"
 
 ---
 
-*Dernière mise à jour : 2026-09-23 — Stats admin, embed temps réel, dette technique (migration tracking), fusion additive Algerie Poste DZ (187→1513 DAB)*
+*Dernière mise à jour : 2026-09-26 — Audit sécurité compte admin (rotation + nettoyage seed.sql), réinitialisation de mot de passe implémentée et testée en local (pas encore déployée en prod, cf. dépendances externes dans la section session correspondante)*
 *Chef de projet : Claude (assistant Anthropic)*
 *Version du projet : 1.0.0-alpha*
