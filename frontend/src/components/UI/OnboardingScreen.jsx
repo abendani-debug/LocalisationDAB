@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import L from 'leaflet';
 
 const STORAGE_KEY = 'mapsdab_onboarding_done';
-const TILE_URL    = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+const TILE_URL    = 'https://mt{s}.google.com/vt/lyrs=m&hl=fr&x={x}&y={y}&z={z}';
 
 /* ── Couleurs état marker ──────────────────────────────────────── */
 const GREEN   = { color: '#16a34a', halo: '0 0 0 4px rgba(22,163,74,0.30),0 2px 8px rgba(0,0,0,0.25)' };
@@ -59,7 +59,7 @@ function createMap(el, center, zoom) {
     dragging:false, touchZoom:false, doubleClickZoom:false,
     scrollWheelZoom:false, boxZoom:false, keyboard:false,
   });
-  L.tileLayer(TILE_URL, { maxZoom:19 }).addTo(map);
+  L.tileLayer(TILE_URL, { maxZoom:19, subdomains:'0123' }).addTo(map);
   return map;
 }
 
