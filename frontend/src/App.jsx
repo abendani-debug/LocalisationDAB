@@ -19,6 +19,7 @@ import ResetPasswordPage  from './pages/ResetPasswordPage';
 import EmbedPage          from './pages/EmbedPage';
 import CGUPage            from './pages/CGUPage';
 import PrivacyPage        from './pages/PrivacyPage';
+import PrivacyPolicyMobilePage from './pages/PrivacyPolicyMobilePage';
 import AboutPage          from './pages/AboutPage';
 
 // Pages admin — chargées à la demande : jamais nécessaires pour un visiteur public,
@@ -90,6 +91,7 @@ function AppRoutes() {
 
         <Route path="/cgu"            element={<CGUPage />} />
         <Route path="/confidentialite" element={<PrivacyPage />} />
+        <Route path="/privacy-mobile" element={<PrivacyPolicyMobilePage />} />
         <Route path="/apropos"         element={<AboutPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
