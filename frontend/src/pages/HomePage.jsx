@@ -139,9 +139,15 @@ export default function HomePage() {
   const [flyTo, setFlyTo]                 = useState(null);
   const isMobile                          = useIsMobile();
 
-  // Centrer la carte dès que la position réelle est obtenue
+  // Centrer la carte UNE SEULE FOIS dès que la position réelle est obtenue.
+  // watchPosition (useGeolocation) renvoie un nouvel objet position à chaque
+  // amélioration de précision GPS — sans ce garde-fou, la carte se
+  // recentrait de force à chaque mise à jour et annulait tout pan/zoom
+  // manuel de l'utilisateur (signalé par plusieurs utilisateurs).
+  const hasCenteredRef = useRef(false);
   useEffect(() => {
-    if (status === 'granted' && position) {
+    if (status === 'granted' && position && !hasCenteredRef.current) {
+      hasCenteredRef.current = true;
       setFlyTo({ lat: position.lat, lng: position.lng });
     }
   }, [status, position]);

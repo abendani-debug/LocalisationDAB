@@ -14,15 +14,15 @@ export function FlyToTarget({ target }) {
 
 export function FlyToPosition({ position }) {
   const map = useMap();
-  const mounted = useRef(true);
+  const hasFlownRef = useRef(false);
 
+  // Une seule fois : position vient de watchPosition (useGeolocation), qui
+  // émet un nouvel objet à chaque amélioration de précision GPS. Sans ce
+  // garde-fou, la carte se recentrait de force à chaque mise à jour et
+  // annulait tout pan/zoom manuel de l'utilisateur.
   useEffect(() => {
-    mounted.current = true;
-    return () => { mounted.current = false; };
-  }, []);
-
-  useEffect(() => {
-    if (!map || !position || !mounted.current) return;
+    if (!map || !position || hasFlownRef.current) return;
+    hasFlownRef.current = true;
     try {
       map.flyTo([position.lat, position.lng], 14, { animate: true, duration: 1.5 });
     } catch (_) {
