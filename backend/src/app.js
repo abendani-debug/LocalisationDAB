@@ -1,10 +1,11 @@
 require('express-async-errors');
 require('dotenv').config();
 
-const express = require('express');
-const helmet  = require('helmet');
-const cors    = require('cors');
-const cron    = require('node-cron');
+const express    = require('express');
+const helmet     = require('helmet');
+const cors       = require('cors');
+const compression = require('compression');
+const cron       = require('node-cron');
 
 const { env } = require('./config/env');
 const { globalLimiter } = require('./middlewares/rateLimiter');
@@ -40,6 +41,10 @@ app.use((req, res, next) => {
   }
 });
 app.set('trust proxy', 1);
+
+// Compresse les réponses JSON (gzip) — les grandes listes de DAB (gros
+// rayon) passent de ~750 Ko à ~75 Ko, décisif sur connexion mobile faible.
+app.use(compression());
 
 // ── Body parsing ─────────────────────────────────────────────
 app.use(express.json({ limit: '10kb' }));
