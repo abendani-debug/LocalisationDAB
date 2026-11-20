@@ -36,7 +36,7 @@ export default function DABCard({ dab, onSelect, onHighlight }) {
   return (
     <div
       onClick={() => onHighlight?.(dab.id)}
-      className="bg-white border border-slate-100 rounded-xl p-3.5 cursor-pointer transition-all hover:border-blue-200 hover:shadow-sm flex flex-col gap-2"
+      className="dab-card-in bg-white border border-slate-100 rounded-xl p-3.5 cursor-pointer transition-all hover:border-blue-200 hover:shadow-sm flex flex-col gap-2"
     >
       <div className="flex items-start gap-2.5">
         <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center text-lg flex-shrink-0">

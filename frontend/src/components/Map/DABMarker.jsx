@@ -82,7 +82,7 @@ const createIcon = (dab, statusColor) => {
   }
 
   const html = `
-    <div class="dab-icon-inner" style="
+    <div class="dab-icon-inner marker-pop-in" style="
       position:relative;
       width:44px;height:54px;
       display:flex;flex-direction:column;align-items:center;
@@ -126,9 +126,9 @@ const createIcon = (dab, statusColor) => {
 const GEO_LIMIT_KM = 1;
 
 const ETATS = [
-  { key: 'disponible', emoji: '✅', label: 'Disponible', color: '#16a34a' },
-  { key: 'vide',       emoji: '💸', label: 'Vide',       color: '#ea580c' },
-  { key: 'en_panne',   emoji: '🔧', label: 'En panne',   color: '#dc2626' },
+  { key: 'disponible', emoji: '✅', label: 'Disponible', color: ETAT_SOLID.disponible.bg },
+  { key: 'vide',       emoji: '💸', label: 'Vide',       color: ETAT_SOLID.vide.bg },
+  { key: 'en_panne',   emoji: '🔧', label: 'En panne',   color: ETAT_SOLID.en_panne.bg },
 ];
 
 export default function DABMarker({ dab, userPosition, geoStatus, requestLocation, onSelectDAB, highlightTick, isActive, isAdmin, onAdminEdit }) {
@@ -281,51 +281,29 @@ export default function DABMarker({ dab, userPosition, geoStatus, requestLocatio
             </div>
           )}
 
-          {/* Statuts */}
-          <div style={{ marginBottom: '0.6rem' }}>
-            <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '0.25rem' }}>
+          {/* Statut — une seule ligne : état admin + état communautaire si connu */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap', marginBottom: '0.6rem' }}>
+            <span style={{
+              display: 'inline-block', padding: '0.2rem 0.55rem',
+              borderRadius: '999px', fontSize: '0.72rem', fontWeight: 600,
+              background: '#f3f4f6', color: '#374151',
+            }}>
+              {statutLabel(dab.statut)}
+            </span>
+
+            {(dab.etat_communautaire || dab.vote_dominant) && (
               <span style={{
-                display: 'inline-block', padding: '0.2rem 0.55rem',
-                borderRadius: '999px', fontSize: '0.72rem', fontWeight: 600,
-                background: '#f3f4f6', color: '#374151',
+                display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
+                padding: '0.3rem 0.75rem',
+                borderRadius: '999px', fontSize: '0.75rem', fontWeight: 700,
+                background: ETAT_SOLID[dab.etat_communautaire || dab.vote_dominant]?.bg || '#854d0e',
+                color: '#fff',
+                opacity: dab.etat_communautaire ? 1 : 0.75,
+                boxShadow: dab.etat_communautaire ? '0 1px 4px rgba(0,0,0,0.2)' : 'none',
               }}>
-                {statutLabel(dab.statut)}
+                👥 {etatLabel(dab.etat_communautaire || dab.vote_dominant)}
               </span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '0.68rem', color: '#6b7280', fontWeight: 600 }}>Signalé :</span>
-              {dab.etat_communautaire ? (
-                <span style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
-                  padding: '0.3rem 0.75rem',
-                  borderRadius: '999px', fontSize: '0.78rem', fontWeight: 700,
-                  background: ETAT_SOLID[dab.etat_communautaire]?.bg || '#6b7280',
-                  color: '#fff',
-                  boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
-                }}>
-                  👥 {etatLabel(dab.etat_communautaire)}
-                </span>
-              ) : dab.vote_dominant ? (
-                <span style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
-                  padding: '0.3rem 0.75rem',
-                  borderRadius: '999px', fontSize: '0.75rem', fontWeight: 600,
-                  background: ETAT_SOLID[dab.vote_dominant]?.bg || '#854d0e',
-                  color: '#fff',
-                  opacity: 0.75,
-                }}>
-                  👥 {etatLabel(dab.vote_dominant)}
-                </span>
-              ) : (
-                <span style={{
-                  display: 'inline-block', padding: '0.2rem 0.55rem',
-                  borderRadius: '999px', fontSize: '0.72rem', fontWeight: 500,
-                  background: '#f3f4f6', color: '#9ca3af',
-                }}>
-                  Aucun signalement
-                </span>
-              )}
-            </div>
+            )}
           </div>
 
           {/* ── Signalement rapide ── */}
@@ -374,7 +352,7 @@ export default function DABMarker({ dab, userPosition, geoStatus, requestLocatio
 
             {/* Vient de voter */}
             {geoStatus === 'granted' && userPosition && !tooFar && justVoted && (
-              <div style={{
+              <div className="dab-card-in" style={{
                 padding: '0.4rem', textAlign: 'center',
                 background: '#f0fdf4', borderRadius: '0.4rem',
                 fontSize: '0.75rem', color: '#16a34a', fontWeight: 700,
@@ -383,12 +361,13 @@ export default function DABMarker({ dab, userPosition, geoStatus, requestLocatio
               </div>
             )}
 
-            {/* Déjà voté */}
+            {/* Déjà voté — couleur alignée sur l'état réellement signalé */}
             {geoStatus === 'granted' && userPosition && !tooFar && !justVoted && myVote && (
-              <div style={{
+              <div className="dab-card-in" style={{
                 padding: '0.35rem 0.5rem',
-                background: '#eff6ff', borderRadius: '0.4rem',
-                fontSize: '0.72rem', color: '#1d4ed8', fontWeight: 600,
+                background: ETAT_SOLID[myVote.etat]?.bg ? `${ETAT_SOLID[myVote.etat].bg}1a` : '#eff6ff',
+                borderRadius: '0.4rem',
+                fontSize: '0.72rem', color: ETAT_SOLID[myVote.etat]?.bg || '#1d4ed8', fontWeight: 600,
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.3rem',
               }}>
                 <span>
@@ -400,7 +379,7 @@ export default function DABMarker({ dab, userPosition, geoStatus, requestLocatio
                   <button
                     onClick={() => setMyVote(null)}
                     style={{
-                      padding: '0.15rem 0.4rem', background: '#1d4ed8', color: '#fff',
+                      padding: '0.15rem 0.4rem', background: ETAT_SOLID[myVote.etat]?.bg || '#1d4ed8', color: '#fff',
                       border: 'none', borderRadius: '0.25rem', cursor: 'pointer',
                       fontSize: '0.65rem', fontWeight: 700, flexShrink: 0,
                     }}
@@ -413,7 +392,7 @@ export default function DABMarker({ dab, userPosition, geoStatus, requestLocatio
 
             {/* 3 boutons de vote */}
             {geoStatus === 'granted' && userPosition && !tooFar && !justVoted && !myVote && (
-              <div style={{ display: 'flex', gap: '0.3rem' }}>
+              <div className="dab-card-in" style={{ display: 'flex', gap: '0.3rem' }}>
                 {ETATS.map(({ key, emoji, label, color }) => {
                   const isSelected = selected === key;
                   return (

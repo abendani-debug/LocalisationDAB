@@ -73,7 +73,7 @@ function makeMultiBankClusterIcon(dabByLatLng) {
         : `<span style="font-size:17px;">🏧</span>`;
 
     const html = `
-      <div style="position:relative;width:${size}px;height:${size + 15}px;display:flex;flex-direction:column;align-items:center;">
+      <div class="marker-pop-in" style="position:relative;width:${size}px;height:${size + 15}px;display:flex;flex-direction:column;align-items:center;transform-origin:bottom center;">
         <div style="position:relative;width:${size}px;height:${size}px;flex-shrink:0;">
           <div style="
             width:${size}px;height:${size}px;border-radius:50%;

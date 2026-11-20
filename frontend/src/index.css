@@ -77,6 +77,24 @@
   input, select, textarea { font-size: 16px !important; }
 }
 
+/* ── Apparition en douceur des marqueurs/clusters et des cartes
+   de liste — évite le "pop" brutal quand on change de rayon/zone ── */
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.marker-pop-in {
+  animation: popIn 0.18s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes cardFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.dab-card-in {
+  animation: cardFadeIn 0.2s ease-out both;
+}
+
 /* ── Hide scrollbar for chip rows ───────────────────────────── */
 .scrollbar-none {
   scrollbar-width: none;
