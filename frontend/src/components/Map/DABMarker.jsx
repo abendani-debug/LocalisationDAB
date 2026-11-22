@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useMemo } from 'react';
 import { Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { useTranslation } from 'react-i18next';
@@ -134,7 +134,15 @@ const ETATS = [
 export default function DABMarker({ dab, userPosition, geoStatus, requestLocation, onSelectDAB, highlightTick, isActive, isAdmin, onAdminEdit }) {
   const { t } = useTranslation();
   const statusColor = etatColor(dab);
-  const icon        = createIcon(dab, statusColor);
+  // Mémoïsé : sans ça, chaque re-render (ex. refetch de `dabs` pendant les
+  // 2-3 affinages de précision GPS au chargement) recréait un nouvel objet
+  // icon, forçant Leaflet à re-poser le marqueur (setIcon) et à rejouer
+  // l'animation d'apparition — d'où les pictos qui "clignotent" plusieurs
+  // fois au chargement.
+  const icon = useMemo(
+    () => createIcon(dab, statusColor),
+    [dab.id, dab.banque_nom, dab.nom, statusColor]
+  );
   const bankCfg     = getBankConfig(dab.banque_nom) || getBankConfig(dab.nom);
   const markerRef   = useRef(null);
   const timerRef    = useRef(null);

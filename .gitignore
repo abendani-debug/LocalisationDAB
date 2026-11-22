@@ -52,6 +52,8 @@ tmp_old_video.mp4
 !frontend/public/*.png
 !frontend/public/logos/
 !frontend/public/logos/*
+!frontend/public/icons/
+!frontend/public/icons/*
 
 # Screenshots restent ignorés (doit rester après les exceptions ci-dessus)
 frontend/public/screenshot-*.png

@@ -16,42 +16,19 @@ import { AuthContext } from '../../context/AuthContext';
 import { getBankConfig } from '../../utils/bankConfig';
 import toast from 'react-hot-toast';
 
-// Au-delà de ce nombre de DAB affichés, on active le regroupement en clusters
-// (zones à réseau bancaire très dense — Île-de-France notamment — où un
-// marqueur par DAB rend la carte illisible et lourde à manipuler).
-const CLUSTER_THRESHOLD = 150;
-
 /**
- * Icône de cluster = logo de la banque majoritaire dans le groupe (un cluster
- * sur la carte principale peut mélanger plusieurs banques, contrairement à
- * l'embed où le token ne concerne qu'une seule banque) + badge du nombre
- * total de DAB regroupés.
+ * Icône de cluster :
+ * - une seule banque identifiée parmi les DAB du cluster (ex: filtre actif
+ *   sur une banque, ou zone naturellement mono-banque) → son logo, sans
+ *   ambiguïté possible.
+ * - sinon (plusieurs banques différentes, ou aucune identifiée) → picto
+ *   distributeur générique neutre, pour ne pas donner l'impression de
+ *   favoriser une banque dans un groupe réellement mélangé.
+ * Badge du nombre de DAB regroupés dans tous les cas.
  */
 function makeMultiBankClusterIcon(dabByLatLng) {
   return (cluster) => {
     const children = cluster.getAllChildMarkers();
-    const tally = {};
-    const cfgByKey = {};
-
-    children.forEach((m) => {
-      const { lat, lng } = m.getLatLng();
-      const dab = dabByLatLng.get(`${lat},${lng}`);
-      const cfg = dab ? (getBankConfig(dab.banque_nom) || getBankConfig(dab.nom)) : null;
-      // On ignore les DAB sans banque identifiée dans le vote de majorité —
-      // sinon un cluster avec 40 Société Générale + 60 entrées "DAB" non
-      // brandées affiche l'icône générique alors que SG est l'identité
-      // reconnaissable la plus pertinente à montrer. L'icône générique ne
-      // reste que pour le cas où AUCUNE banque n'est identifiée.
-      if (!cfg) return;
-      tally[cfg.key] = (tally[cfg.key] || 0) + 1;
-      cfgByKey[cfg.key] = cfg;
-    });
-
-    let bestKey = null, bestCount = 0;
-    for (const [key, count] of Object.entries(tally)) {
-      if (count > bestCount) { bestCount = count; bestKey = key; }
-    }
-    const bankCfg = cfgByKey[bestKey] || null;
     const count = children.length;
     const badgeColor = count < 10 ? '#16a34a' : count < 100 ? '#f59e0b' : '#dc2626';
     // Même langage visuel que le picto DAB seul (cercle + pointe, voir
@@ -62,22 +39,33 @@ function makeMultiBankClusterIcon(dabByLatLng) {
     const size = 48;
     const border = '#2563eb';
 
-    const inner = bankCfg?.logoUrl
-      ? `<img src="${bankCfg.logoUrl}" width="28" height="28"
+    const banksFound = new Map();
+    children.forEach((m) => {
+      const { lat, lng } = m.getLatLng();
+      const dab = dabByLatLng.get(`${lat},${lng}`);
+      const cfg = dab ? (getBankConfig(dab.banque_nom) || getBankConfig(dab.nom)) : null;
+      if (cfg) banksFound.set(cfg.key, cfg);
+    });
+    const singleBank = banksFound.size === 1 ? [...banksFound.values()][0] : null;
+
+    // Icône "main tenant une carte" — IconPacks.net, gratuit usage commercial,
+    // pas d'attribution requise (https://www.iconpacks.net/free-icon/hand-holding-credit-card-black-outline-18406.html).
+    const inner = singleBank?.logoUrl
+      ? `<img src="${singleBank.logoUrl}" width="28" height="28"
            style="width:28px;height:28px;object-fit:contain;"
            onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" />
          <span style="display:none;width:28px;height:28px;align-items:center;justify-content:center;
-           font-size:10px;font-weight:900;color:${bankCfg?.text || '#334155'};">${bankCfg?.abbr || ''}</span>`
-      : bankCfg
-        ? `<span style="font-size:${bankCfg.abbr.length <= 2 ? 13 : 10}px;font-weight:900;color:${bankCfg.text};">${bankCfg.abbr}</span>`
-        : `<span style="font-size:17px;">🏧</span>`;
+           font-size:10px;font-weight:900;color:${singleBank?.text || '#334155'};">${singleBank?.abbr || ''}</span>`
+      : singleBank
+        ? `<span style="font-size:${singleBank.abbr.length <= 2 ? 13 : 10}px;font-weight:900;color:${singleBank.text};">${singleBank.abbr}</span>`
+        : `<img src="/icons/distributeur-generique.png" width="30" height="30" style="width:30px;height:30px;object-fit:contain;" />`;
 
     const html = `
-      <div class="marker-pop-in" style="position:relative;width:${size}px;height:${size + 15}px;display:flex;flex-direction:column;align-items:center;transform-origin:bottom center;">
+      <div class="dab-icon-inner" style="position:relative;width:${size}px;height:${size + 15}px;display:flex;flex-direction:column;align-items:center;transform-origin:bottom center;">
         <div style="position:relative;width:${size}px;height:${size}px;flex-shrink:0;">
           <div style="
             width:${size}px;height:${size}px;border-radius:50%;
-            background:${bankCfg?.logoUrl ? '#fff' : (bankCfg?.bg || '#e2e8f0')};
+            background:${singleBank?.logoUrl ? '#fff' : (singleBank?.bg || '#fff')};
             border:3px solid ${border};
             box-shadow:0 2px 10px rgba(0,0,0,0.3);
             display:flex;align-items:center;justify-content:center;overflow:hidden;
@@ -250,15 +238,55 @@ export default function MapView({
   // FlyToCountry uniquement sur changement MANUEL (pas sur auto-détection)
   const [manualFlyPays, setManualFlyPays] = useState(null);
 
-  // Index lat/lng -> dab, pour retrouver la banque de chaque marqueur regroupé
-  // dans un cluster (leaflet.markercluster ne connaît que les L.Marker, pas
-  // les objets dab d'origine).
+  // Index lat/lng -> dab, pour retrouver la banque de chaque marqueur
+  // regroupé dans un cluster (leaflet.markercluster ne connaît que les
+  // L.Marker, pas les objets dab d'origine).
   const dabByLatLng = useMemo(() => {
     const map = new Map();
     dabs.forEach((d) => map.set(`${parseFloat(d.latitude)},${parseFloat(d.longitude)}`, d));
     return map;
   }, [dabs]);
   const clusterIconFn = useMemo(() => makeMultiBankClusterIcon(dabByLatLng), [dabByLatLng]);
+  const clusterGroupRef = useRef(null);
+
+  // Quand on sélectionne un DAB depuis la liste, il peut être actuellement
+  // regroupé dans un cluster (donc son propre marqueur n'est pas sur la
+  // carte). getVisibleParent renvoie soit le marqueur lui-même (pas
+  // clusterisé — DABMarker gère déjà ce cas via son highlightTick), soit la
+  // bulle de cluster qui le représente à ce zoom : on joue alors la même
+  // animation de mise en avant directement sur cette bulle.
+  useEffect(() => {
+    if (!highlight?.id || !clusterGroupRef.current) return;
+    // Le clic sur un DAB déclenche aussi un flyTo (voir HomePage) qui pan/zoom
+    // la carte sur ~1.2s ; ce mouvement déclenche en fin de course un
+    // recalcul des clusters par leaflet.markercluster qui RECRÉE l'élément
+    // DOM de la bulle. Appliquer la classe d'animation avant cette
+    // recréation la fait disparaître aussitôt — on attend donc que le vol
+    // (et le recalcul qui suit) soit terminé avant de chercher la bulle
+    // actuelle et d'y jouer l'animation.
+    const timer = setTimeout(() => {
+      const dab = dabs.find((d) => d.id === highlight.id);
+      if (!dab || !clusterGroupRef.current) return;
+      const targetLat = parseFloat(dab.latitude);
+      const targetLng = parseFloat(dab.longitude);
+      const targetLayer = clusterGroupRef.current
+        .getLayers()
+        .find((l) => {
+          const ll = l.getLatLng?.();
+          return ll && ll.lat === targetLat && ll.lng === targetLng;
+        });
+      if (!targetLayer) return;
+      const visibleParent = clusterGroupRef.current.getVisibleParent(targetLayer);
+      if (!visibleParent || visibleParent === targetLayer) return;
+      const el = visibleParent.getElement?.();
+      if (!el) return;
+      el.classList.remove('dab-marker-highlighted');
+      void el.offsetWidth;
+      el.classList.add('dab-marker-highlighted');
+      setTimeout(() => el.classList.remove('dab-marker-highlighted'), 2200);
+    }, 1400);
+    return () => clearTimeout(timer);
+  }, [highlight?.id, highlight?.tick, dabs]);
 
   const handleCountrySelect = (code) => {
     onCountryChange?.(code);
@@ -339,14 +367,20 @@ export default function MapView({
           // sur le widget embed, corrigé de la même façon ici).
           const datasetKey = dabs.length ? `${dabs[0].id}-${dabs[dabs.length - 1].id}-${dabs.length}` : 'empty';
 
-          return dabs.length > CLUSTER_THRESHOLD ? (
+          // Toujours actif, quel que soit le nombre de DAB : leaflet.markercluster
+          // ne regroupe que les marqueurs visuellement proches au zoom courant —
+          // avec un seuil basé sur le total (ancien CLUSTER_THRESHOLD), dézoomer
+          // sur une zone à faible nombre de DAB (ex. vue pays) faisait s'empiler
+          // les pictos sans jamais les regrouper, puisque le groupe de cluster
+          // n'était même pas monté en dessous du seuil.
+          return (
             <>
-              <MarkerClusterGroup key={datasetKey} iconCreateFunction={clusterIconFn}>
+              <MarkerClusterGroup ref={clusterGroupRef} key={datasetKey} iconCreateFunction={clusterIconFn}>
                 {markers}
               </MarkerClusterGroup>
               <ClusterRepaintNudge nudgeKey={datasetKey} />
             </>
-          ) : markers;
+          );
         })()}
       </MapContainer>
 
