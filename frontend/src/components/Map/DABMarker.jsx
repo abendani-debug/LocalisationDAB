@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useMemo } from 'react';
+import { useRef, useEffect, useState, useMemo, memo } from 'react';
 import { Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { useTranslation } from 'react-i18next';
@@ -131,7 +131,7 @@ const ETATS = [
   { key: 'en_panne',   emoji: '🔧', label: 'En panne',   color: ETAT_SOLID.en_panne.bg },
 ];
 
-export default function DABMarker({ dab, userPosition, geoStatus, requestLocation, onSelectDAB, highlightTick, isActive, isAdmin, onAdminEdit }) {
+function DABMarker({ dab, userPosition, geoStatus, requestLocation, onSelectDAB, highlightTick, isActive, isAdmin, onAdminEdit }) {
   const { t } = useTranslation();
   const statusColor = etatColor(dab);
   // Mémoïsé : sans ça, chaque re-render (ex. refetch de `dabs` pendant les
@@ -483,3 +483,43 @@ export default function DABMarker({ dab, userPosition, geoStatus, requestLocatio
     </Marker>
   );
 }
+
+// Sans ça, chaque refetch de `dabs` (ex. pendant les 2-3 affinages de
+// précision GPS au chargement) donnait un nouvel objet `dab` à CHAQUE
+// marqueur même quand ses données n'avaient pas changé, ce qui re-rendait
+// tout le contenu de la popup (donc Leaflet la repeint) et donnait
+// l'impression qu'elle "clignote" — rendant le clic sur les boutons de
+// signalement difficile. On ne re-rend que si quelque chose qui affecte
+// réellement le rendu a changé (userPosition comparé par valeur, pas par
+// référence, puisque useGeolocation renvoie un nouvel objet à chaque tick).
+function arePropsEqual(prev, next) {
+  const pd = prev.dab, nd = next.dab;
+  if (
+    pd.id !== nd.id ||
+    pd.banque_nom !== nd.banque_nom ||
+    pd.nom !== nd.nom ||
+    pd.statut !== nd.statut ||
+    pd.etat_communautaire !== nd.etat_communautaire ||
+    pd.vote_dominant !== nd.vote_dominant ||
+    pd.distance_km !== nd.distance_km ||
+    pd.adresse !== nd.adresse ||
+    pd.type !== nd.type ||
+    pd.latitude !== nd.latitude ||
+    pd.longitude !== nd.longitude
+  ) return false;
+
+  if (
+    prev.geoStatus !== next.geoStatus ||
+    prev.highlightTick !== next.highlightTick ||
+    prev.isActive !== next.isActive ||
+    prev.isAdmin !== next.isAdmin
+  ) return false;
+
+  const pu = prev.userPosition, nu = next.userPosition;
+  if (!!pu !== !!nu) return false;
+  if (pu && nu && (pu.lat !== nu.lat || pu.lng !== nu.lng)) return false;
+
+  return true;
+}
+
+export default memo(DABMarker, arePropsEqual);
